@@ -1,10 +1,8 @@
 package io.github.CoolMineman;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidFillable;
@@ -14,6 +12,7 @@ import net.minecraft.fluid.WaterFluid;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
+import io.github.CoolMineman.GFG;
 import org.lwjgl.system.CallbackI;
 
 
@@ -236,28 +235,83 @@ public class FlowWater {
 /*        int waterlevelsnum = waterlevels.length;
         int didnothings = 0;
         int waterlevel;*/
-        List<Integer> matrixLevels = new ArrayList<>(Arrays.asList());
+       // List<Integer> matrixLevels = new ArrayList<>(Arrays.asList());
 
+        //FloodFill Matrix Initiation
+        int radius = 1;
+        int diameter = (radius*2)+1;
+        int area = diameter*diameter;
+        int data[][] = new int[diameter][diameter];
+        int newData[] = new int[area];
+
+
+
+
+        //Matrix Check Start
         int x = center.getX();
         int y = center.getY();
         int z = center.getZ();
-        int radius = 1;
-        int diameter = (radius*2)+1;
+
         int counter = 0;
         int countEnd = diameter*diameter;
+
+        int count = 0;
+        int newX = 1;
+        int newY = 1;
+        int delNum = 99;
+        int countA = 0;
 
                 for (int dx = x - radius; dx <= x + radius; dx++) {
                     for (int dz = z - radius; dz <= z + radius; dz++) {
                         BlockPos internalPos = new BlockPos(dx, y, dz);
                         counter += 1;
-                        if (world.getBlockState(internalPos).getBlock() == Blocks.WATER || world.getBlockState(internalPos).getBlock() == Blocks.AIR) {
+                        Block internalBlock = world.getBlockState(internalPos).getBlock();
+                        if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
                             int ilevel = world.getFluidState(internalPos).getLevel();
-                            matrixLevels.add(ilevel);
+                            //matrixLevels.add(ilevel);
+                            while (count < area){
+                                data[newX][newY] = ilevel;
+                                count += 1;
+                                if (count % diameter == 0) {
+                                    newX = count/diameter;
+                                }
+                                if (count % diameter == 0) {
+                                    newY = 0;
+                                }
+                            }
                         }
-                        if (counter == countEnd && matrixLevels.size() > 0) {
+                        if (count >= area) {
+                            newData = GFG.printma(data, diameter, radius);
+
+
+
+
+                            List<Integer> newList;
+
+
+                            for (int i = 0; i < newData.length; i++) {
+                                if (newData[i] < 10) {
+                                    newData[i] = delNum;
+                                }
+                            }
+
+                            for (int i = 0; i < newData.length; i++) {
+                                if (newData[i] < 10) {
+                                    newData.;
+                                }
+                            }
+                            newList = Arrays.stream(newData).boxed().toList();
+
+                            for (int i = 0; i < newList.size(); i++) {
+                                if (newList.get(i) < 10) {
+                                    newList.remove(i);
+                                }
+                            }
+
+
                             //System.out.println(matrixLevels);
-                            int maxLevel = Collections.max(matrixLevels);
-                            int minLevel = Collections.min(matrixLevels);
+                            int maxLevel = Collections.max(newList);
+                            int minLevel = Collections.min(newList);
                             int range = maxLevel - minLevel;
 
 
@@ -267,12 +321,13 @@ public class FlowWater {
                             if (range > 1) {
                                 method1(blocks, center, world);
                             }
-                            matrixLevels.clear();
+                            newList.clear();
                             counter = 0;
                         }
 
                     }
                 }
+                //Matrix Check End
             }
 
 
