@@ -34,14 +34,14 @@ class GFG {
     {
 
         // Visiting array
-        int vis[][]=new int[101][101];
+        int vis[][]=new int[5][5];
 
         // Initialing all as zero
-        for(int i=0;i<=100;i++){
+        /*for(int i=0;i<=100;i++){
             for(int j=0;j<=100;j++){
                 vis[i][j]=0;
             }
-        }
+        }*/
 
         // Creating queue for bfs
         Queue<Pair> obj = new LinkedList<>();
