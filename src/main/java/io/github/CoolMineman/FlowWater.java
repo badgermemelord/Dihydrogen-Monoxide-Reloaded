@@ -238,7 +238,7 @@ public class FlowWater {
        // List<Integer> matrixLevels = new ArrayList<>(Arrays.asList());
 
         //FloodFill Matrix Initiation
-        int radius = 1;
+        int radius = 2;
         int diameter = (radius*2)+1;
         int area = diameter*diameter;
         int data[][] = new int[diameter][diameter];
@@ -252,67 +252,60 @@ public class FlowWater {
         int y = center.getY();
         int z = center.getZ();
 
-        int counter = 0;
-        int countEnd = diameter*diameter;
-
         int count = 0;
-        int newX = 1;
-        int newY = 1;
-        int delNum = 99;
-        int countA = 0;
+        int newX = 0;
+        int newZ = 0;
+        int maxLevel = 0;
+        int minLevel = 99;
 
-                for (int dx = x - radius; dx <= x + radius; dx++) {
-                    for (int dz = z - radius; dz <= z + radius; dz++) {
-                        BlockPos internalPos = new BlockPos(dx, y, dz);
-                        counter += 1;
-                        Block internalBlock = world.getBlockState(internalPos).getBlock();
-                        if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
-                            int ilevel = world.getFluidState(internalPos).getLevel();
-                            //matrixLevels.add(ilevel);
-                            while (count < area){
-                                data[newX][newY] = ilevel;
-                                count += 1;
-                                if (count % diameter == 0) {
-                                    newX = count/diameter;
-                                }
-                                if (count % diameter == 0) {
-                                    newY = 0;
-                                }
-                            }
-                        }
-                        if (count >= area) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                newX = x + dx;
+                newZ = z + dz;
+                BlockPos internalPos = new BlockPos(newX, y, newZ);
+                Block internalBlock = world.getBlockState(internalPos).getBlock();
+
+                    if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
+                        int ilevel = world.getFluidState(internalPos).getLevel();
+                        System.out.println("dataAir: " + ilevel);
+                        data[dx+radius][dz+radius] = ilevel;
+                        count +=1;
+                    }
+                    else {
+                        System.out.println("dataSolid: -1");
+                        data[dx+radius][dz+radius] = -1;
+                        count +=1;
+                    }
+                }
+            }
+
+
+                        if (count == area) {
+                            System.out.println("data as sent: " + Arrays.deepToString(data));
                             newData = GFG.printma(data, diameter, radius);
+                            System.out.println("newData original: " + Arrays.toString(newData));
 
-
-
-
-                            List<Integer> newList;
-
-
-                            for (int i = 0; i < newData.length; i++) {
-                                if (newData[i] < 10) {
-                                    newData[i] = delNum;
+                            for (int i  =  0; i < area-1; i++) {
+                                if (newData[i] >= 10) {
+                                    System.out.println("newdata " + newData[i]);
+                                    if (newData[i] > maxLevel) {
+                                        maxLevel = newData[i];
+                                    }
+                                    if (newData[i] < minLevel) {
+                                        minLevel = newData[i];
+                                    }
                                 }
                             }
 
-                            for (int i = 0; i < newData.length; i++) {
-                                if (newData[i] < 10) {
-                                    newData.;
-                                }
-                            }
-                            newList = Arrays.stream(newData).boxed().toList();
-
-                            for (int i = 0; i < newList.size(); i++) {
-                                if (newList.get(i) < 10) {
-                                    newList.remove(i);
-                                }
-                            }
 
 
                             //System.out.println(matrixLevels);
-                            int maxLevel = Collections.max(newList);
-                            int minLevel = Collections.min(newList);
+
                             int range = maxLevel - minLevel;
+                            System.out.println("max " + maxLevel);
+                            System.out.println("min " + minLevel);
+                            System.out.println("range " + range);
+
 
 
                             if (range == 1) {
@@ -321,14 +314,11 @@ public class FlowWater {
                             if (range > 1) {
                                 method1(blocks, center, world);
                             }
-                            newList.clear();
-                            counter = 0;
                         }
-
                     }
-                }
+
                 //Matrix Check End
-            }
+
 
 
 

@@ -68,7 +68,7 @@ class GFG {
             obj.remove();
 
             // For Upside Pixel or Cell
-            if ((validCoord(x1 + 1, y1, n, m)==1) && vis[x1 + 1][y1] == 0 && data[x1 + 1][y1] >0)
+            if ((validCoord(x1 + 1, y1, n, m)==1) && vis[x1 + 1][y1] == 0 && data[x1 + 1][y1] >=0)
             {
                 Pair p=new Pair(x1 +1, y1);
                 obj.add(p);
@@ -76,7 +76,7 @@ class GFG {
             }
 
             // For Downside Pixel or Cell
-            if ((validCoord(x1 - 1, y1, n, m)==1) && vis[x1 - 1][y1] == 0 && data[x1 - 1][y1] >0)
+            if ((validCoord(x1 - 1, y1, n, m)==1) && vis[x1 - 1][y1] == 0 && data[x1 - 1][y1] >=0)
             {
                 Pair p=new Pair(x1-1,y1);
                 obj.add(p);
@@ -84,7 +84,7 @@ class GFG {
             }
 
             // For Right side Pixel or Cell
-            if ((validCoord(x1, y1 + 1, n, m)==1) && vis[x1][y1 + 1] == 0 && data[x1][y1 + 1] >0)
+            if ((validCoord(x1, y1 + 1, n, m)==1) && vis[x1][y1 + 1] == 0 && data[x1][y1 + 1] >=0)
             {
                 Pair p=new Pair(x1,y1 +1);
                 obj.add(p);
@@ -92,7 +92,7 @@ class GFG {
             }
 
             // For Left side Pixel or Cell
-            if ((validCoord(x1, y1 - 1, n, m)==1) && vis[x1][y1 - 1] == 0 && data[x1][y1 - 1] >0)
+            if ((validCoord(x1, y1 - 1, n, m)==1) && vis[x1][y1 - 1] == 0 && data[x1][y1 - 1] >=0)
             {
                 Pair p=new Pair(x1,y1 -1);
                 obj.add(p);
@@ -105,7 +105,7 @@ class GFG {
         {
             for (int j = 0; j < n; j++)
             {
-                newData[counter] = data[i][j];
+                newData[counter] = data[j][i];
                 counter += 1;
             }
 
@@ -130,6 +130,7 @@ class GFG {
     }
 
     public static int[] printma(int[][] data, int dia, int radius) {
+        System.out.println("data arrived at floodfill: " + Arrays.deepToString(data));
         int nn, mm, xx, yy, colorr;
         nn = dia;
         mm = dia;
