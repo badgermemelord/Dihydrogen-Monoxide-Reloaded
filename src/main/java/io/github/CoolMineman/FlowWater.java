@@ -267,12 +267,12 @@ public class FlowWater {
 
                     if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
                         int ilevel = world.getFluidState(internalPos).getLevel();
-                        System.out.println("dataAir: " + ilevel);
+                        //System.out.println("dataAir: " + ilevel);
                         data[dx+radius][dz+radius] = ilevel;
                         count +=1;
                     }
                     else {
-                        System.out.println("dataSolid: -1");
+                        //System.out.println("dataSolid: -1");
                         data[dx+radius][dz+radius] = -1;
                         count +=1;
                     }
@@ -281,13 +281,13 @@ public class FlowWater {
 
 
                         if (count == area) {
-                            System.out.println("data as sent: " + Arrays.deepToString(data));
+                            //System.out.println("data as sent: " + Arrays.deepToString(data));
                             newData = GFG.printma(data, diameter, radius);
-                            System.out.println("newData original: " + Arrays.toString(newData));
+                            //System.out.println("newData original: " + Arrays.toString(newData));
 
                             for (int i  =  0; i < area-1; i++) {
                                 if (newData[i] >= 10) {
-                                    System.out.println("newdata " + newData[i]);
+                                    //System.out.println("newdata " + newData[i]);
                                     if (newData[i] > maxLevel) {
                                         maxLevel = newData[i];
                                     }
@@ -302,9 +302,9 @@ public class FlowWater {
                             //System.out.println(matrixLevels);
 
                             int range = maxLevel - minLevel;
-                            System.out.println("max " + maxLevel);
-                            System.out.println("min " + minLevel);
-                            System.out.println("range " + range);
+                            //System.out.println("max " + maxLevel);
+                            //System.out.println("min " + minLevel);
+                            //System.out.println("range " + range);
 
 
 
