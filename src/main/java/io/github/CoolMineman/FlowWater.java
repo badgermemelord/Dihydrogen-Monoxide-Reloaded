@@ -244,7 +244,7 @@ public class FlowWater {
         int data[][] = new int[diameter][diameter];
         int newData[] = new int[area];
 
-
+        int centerLevel = world.getFluidState(center).getLevel() + 10;
 
 
         //Matrix Check Start
@@ -301,7 +301,7 @@ public class FlowWater {
 
                             //System.out.println(matrixLevels);
 
-                            int range = maxLevel - minLevel;
+                            int range = centerLevel - minLevel;
                             //System.out.println("max " + maxLevel);
                             //System.out.println("min " + minLevel);
                             //System.out.println("range " + range);
@@ -312,7 +312,7 @@ public class FlowWater {
                                 method2(blocks, center, world);
                             }
                             if (range > 1) {
-                                method1(blocks, center, world);
+                                method1(blocks, center, data, world);
                             }
                         }
                     }
@@ -325,7 +325,7 @@ public class FlowWater {
 
 
 
-    public static void method1(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world) {
+    public static void method1(ArrayList<BlockPos> blocks, BlockPos center, int[][] data, WorldAccess world) {
 
         int[] waterlevels = new int[4];
         Arrays.fill(waterlevels, -1);
@@ -359,6 +359,7 @@ public class FlowWater {
         }
         setWaterLevel(centerwaterlevel, center, world);
     }
+
     public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world) {
 
         int[] waterlevels = new int[4];

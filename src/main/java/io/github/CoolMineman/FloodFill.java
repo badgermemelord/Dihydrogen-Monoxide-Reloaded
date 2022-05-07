@@ -30,11 +30,11 @@ class GFG {
         return 1;
     }
     // Function to run bfs
-    public static int[] bfs(int n, int m, int data[][],int x, int y, int color)
+    public static int[] bfs(int n, int m, int data[][],int x, int y, int color, int dia)
     {
 
         // Visiting array
-        int vis[][]=new int[5][5];
+        int vis[][]=new int[dia][dia];
 
         // Initialing all as zero
         /*for(int i=0;i<=100;i++){
@@ -44,7 +44,7 @@ class GFG {
         }*/
 
         // Creating queue for bfs
-        Queue<Pair> obj = new LinkedList<>();
+        Queue<Pair> obj = new ArrayDeque<>();
 
         // Pushing pair of {x, y}
         Pair pq=new Pair(x,y);
@@ -142,7 +142,7 @@ class GFG {
 
 
         // Function Call
-        return bfs(nn, mm, data, xx, yy, colorr);
+        return bfs(nn, mm, data, xx, yy, colorr, dia);
 
     }
 }
