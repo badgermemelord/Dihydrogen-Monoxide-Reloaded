@@ -22,11 +22,12 @@ public class FlowWater {
 
 
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
+        int centerlevel = getWaterLevel(fluidPos, world);
         if (world.getBlockState(fluidPos).getBlock() instanceof FluidFillable) {
             return;
         }
         if ((world.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && (getWaterLevel(fluidPos.down(), world) != 8)) {
-            int centerlevel = getWaterLevel(fluidPos, world);
+
             world.setBlockState(fluidPos, Blocks.AIR.getDefaultState(), 11);
             addWater(centerlevel, fluidPos.down(), world);
         } else {
@@ -36,7 +37,7 @@ public class FlowWater {
             }
             blocks.removeIf(pos -> !world.getBlockState(pos).canBucketPlace(Fluids.WATER));
             Collections.shuffle(blocks);
-            equalizeWater(blocks, fluidPos, world);
+            equalizeWater(blocks, fluidPos, world, centerlevel);
         }
     }
 
@@ -203,7 +204,9 @@ public class FlowWater {
                     }
                 }
             }
+
         }
+        //Puddle Feature End
     }
 
 
@@ -225,10 +228,10 @@ public class FlowWater {
     }
 
 
-    public static void equalizeWater(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world ) {
+    public static void equalizeWater(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world, int level) {
         int[] waterlevels = new int[4];
         Arrays.fill(waterlevels, -1);
-        int centerwaterlevel = getWaterLevel(center, world);
+        int centerwaterlevel = level;
         for (BlockPos block : blocks) {
             waterlevels[blocks.indexOf(block)] = getWaterLevel(block, world);
         }
@@ -244,7 +247,7 @@ public class FlowWater {
         int data[][] = new int[diameter][diameter];
         int newData[] = new int[area];
 
-        int centerLevel = world.getFluidState(center).getLevel() + 10;
+        int centerLevel = level + 10;
 
 
         //Matrix Check Start
@@ -309,7 +312,7 @@ public class FlowWater {
 
 
                             if (range == 1) {
-                                method2(blocks, center, world);
+                                method2(blocks, center, world, level);
                             }
                             if (range > 1) {
                                 method1(blocks, center, data, world);
@@ -360,9 +363,7 @@ public class FlowWater {
         setWaterLevel(centerwaterlevel, center, world);
     }
 
-    public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world) {
-
-        int centerwaterlevel = world.getFluidState(center).getLevel();
-        setWaterLevel(centerwaterlevel, center, world);
+    public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world, int level) {
+        setWaterLevel(level, center, world);
     }
 }
