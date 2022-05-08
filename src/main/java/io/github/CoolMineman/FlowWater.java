@@ -362,36 +362,7 @@ public class FlowWater {
 
     public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world) {
 
-        int[] waterlevels = new int[4];
-        Arrays.fill(waterlevels, -1);
-        int centerwaterlevel = getWaterLevel(center, world);
-        for (BlockPos block : blocks) {
-            waterlevels[blocks.indexOf(block)] = getWaterLevel(block, world);
-        }
-        int waterlevelsnum = waterlevels.length;
-        int didnothings = 0;
-        int waterlevel;
-
-        while (didnothings < waterlevelsnum) {
-            for (int i = 0; i < 4; i++) {
-                waterlevel = waterlevels[i];
-                if (waterlevel != -1) {
-                    if ((centerwaterlevel >= (waterlevel + 2))) {
-                        waterlevel += 1;
-                        waterlevels[i] = waterlevel;
-                        centerwaterlevel -= 1;
-                    } else {
-                        didnothings += 1;
-                    }
-                } else {
-                    didnothings += 1;
-                }
-            }
-        }
-        for (BlockPos block : blocks) {
-            int newwaterlevel = waterlevels[blocks.indexOf(block)];
-            setWaterLevel(newwaterlevel, block, world);
-        }
+        int centerwaterlevel = world.getFluidState(center).getLevel();
         setWaterLevel(centerwaterlevel, center, world);
     }
 }
