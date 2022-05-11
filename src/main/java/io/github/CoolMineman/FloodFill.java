@@ -30,7 +30,7 @@ class GFG {
         return 1;
     }
     // Function to run bfs
-    public static int[] bfs(int n, int m, int data[][],int x, int y, int color, int dia)
+    public static int[][] bfs(int n, int m, int data[][],int x, int y, int color, int dia)
     {
 
         // Visiting array
@@ -99,7 +99,7 @@ class GFG {
                 vis[x1][y1 - 1] = 1;
             }
         }
-        int[] newData = new int[n*m];
+        /*int[] newData = new int[n*m];
         int counter = 0;
         for (int i = 0; i < m; i++)
         {
@@ -109,8 +109,8 @@ class GFG {
                 counter += 1;
             }
 
-        }
-        return newData;
+        }*/
+        return data;
 
 
         // Printing The Changed Matrix Of Pixels
@@ -129,7 +129,7 @@ class GFG {
         return data;
     }
 
-    public static int[] printma(int[][] data, int dia, int radius) {
+    public static int[][] printma(int[][] data, int dia, int radius) {
         //System.out.println("data arrived at floodfill: " + Arrays.deepToString(data));
         int nn, mm, xx, yy, colorr;
         nn = dia;

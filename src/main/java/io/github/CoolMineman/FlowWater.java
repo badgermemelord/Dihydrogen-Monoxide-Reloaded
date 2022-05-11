@@ -15,6 +15,8 @@ import net.minecraft.world.WorldAccess;
 import io.github.CoolMineman.GFG;
 import org.lwjgl.system.CallbackI;
 
+import static java.lang.Math.abs;
+
 
 public class FlowWater {
     private FlowWater() {
@@ -105,7 +107,7 @@ public class FlowWater {
         int diameter = (radius*2)+1;
         int area = diameter*diameter;
         int data[][] = new int[diameter][diameter];
-        int newData[] = new int[area];
+        int newData[][] = new int[diameter][diameter];
 
         int centerLevel = level + 10;
 
@@ -148,19 +150,19 @@ public class FlowWater {
                             newData = GFG.printma(data, diameter, radius);
                             //System.out.println("newData original: " + Arrays.toString(newData));
 
-                            for (int i  =  0; i < area-1; i++) {
-                                if (newData[i] >= 10) {
-                                    //System.out.println("newdata " + newData[i]);
-                                    if (newData[i] > maxLevel) {
-                                        maxLevel = newData[i];
-                                    }
-                                    if (newData[i] < minLevel) {
-                                        minLevel = newData[i];
+                            for (int i  =  0; i < diameter-1; i++) {
+                                for (int j  =  0; j < diameter-1; j++) {
+                                    if (newData[i][j] >= 10) {
+                                        //System.out.println("newdata " + newData[i]);
+                                        if (newData[i][j] > maxLevel) {
+                                            maxLevel = newData[i][j];
+                                        }
+                                        if (newData[i][j] < minLevel) {
+                                            minLevel = newData[i][j];
+                                        }
                                     }
                                 }
                             }
-
-
 
                             //System.out.println(matrixLevels);
 
@@ -172,7 +174,7 @@ public class FlowWater {
 
 
                             if (range == 1) {
-                                method2(blocks, center, world, level, data);
+                                method2(blocks, center, world, level, data, newData);
                             }
                             if (range > 1) {
                                 method1(blocks, center, world);
@@ -223,7 +225,7 @@ public class FlowWater {
         setWaterLevel(centerwaterlevel, center, world);
     }
 
-    public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world, int level, int[][] data) {
+    public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world, int level, int[][] data, int[][] newData) {
         //setWaterLevel(level, center, world);
         BlockPos pos = center;
 
@@ -283,8 +285,17 @@ public class FlowWater {
                             //BlockState below =
                             if ((world.getBlockState(checkBelow).isAir() == true || (world.getBlockState(checkBelow).getBlock() == Blocks.WATER) && world.getFluidState(checkBelow).getLevel() != 8)) {
 
+
+                                int relativeI = 2 - (x-dx);
+                                int relativeJ = 2 - (z-dz);
+
+                                if (currentRadius <= 2 && newData[relativeI][relativeJ] >= 10) {
+                                    System.out.println(Arrays.deepToString(newData));
+                                    System.out.println(newData[relativeI][relativeJ]);
+                                    doHop = true;
+                                }
                                 //System.out.println("catch 2");
-                                doHop = true;
+
                             }
                             if (doHop == true) {
                                 if (currentPos.getX() > pos.getX()) {
