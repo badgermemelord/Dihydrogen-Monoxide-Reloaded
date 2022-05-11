@@ -282,6 +282,7 @@ public class FlowWater {
                         if (checkBelow != pos.down() && currentPos != pos) {
                             //BlockState below =
                             if ((world.getBlockState(checkBelow).isAir() == true || (world.getBlockState(checkBelow).getBlock() == Blocks.WATER) && world.getFluidState(checkBelow).getLevel() != 8)) {
+
                                 //System.out.println("catch 2");
                                 doHop = true;
                             }
