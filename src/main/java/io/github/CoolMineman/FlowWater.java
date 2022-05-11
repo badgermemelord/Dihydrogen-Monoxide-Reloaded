@@ -65,147 +65,7 @@ public class FlowWater {
         }  else {
             System.out.println("Can't set water >8 something went very wrong!");
         }
-        if (level == 1 && world.getBlockState(pos.down()).getBlock() != Blocks.AIR ) {
 
-            int maxRadius = 4;
-            int maxDia = (maxRadius * 2) + 1;
-            //int maxArea = maxDia * 2;
-            int currentRadius = 1;
-            int currentDiameter = (2 * currentRadius) + 1;
-            int previousRadius = currentRadius - 1;
-            int x = pos.getX();
-            int y = pos.getY();
-            int uy = pos.getY() - 1;
-            int z = pos.getZ();
-            int count = 0;
-            boolean didJump = false;
-            int dx;
-            int dz;
-            boolean addZ = false;
-            Boolean doHop = false;
-            int perim = 4*(currentDiameter-1);
-            int totalCount =  maxDia*maxDia;
-
-
-            //puddle feature start
-
-            //System.out.println("loop start");
-            for (dx = x - currentRadius, dz = z - currentRadius; didJump == false && dx <= x + maxRadius && dz <= z + maxRadius; ) {
-
-                /*System.out.println("original pos: " + pos);
-                System.out.println("loop restart");
-                System.out.println("initial count " + count);
-                System.out.println("didjump 1 " + didJump);*/
-                if (didJump == false) {
-                    //System.out.println("didjump 2 " + didJump);
-                    if (!(((dx > x + previousRadius || dx < x - previousRadius) || (dz > z + previousRadius || dz < z - previousRadius)) || ((dx > x + previousRadius || dx < x - previousRadius) && (dz > z + previousRadius || dz < z - previousRadius)))) {
-
-                        dz = z + currentRadius;
-                    } else {
-                        addZ = true;
-                    }
-
-
-                    //code start
-
-                    int currDiameter = (currentRadius * 2) + 1;
-
-
-                    //System.out.println("current radius: " + currentRadius);
-                    //System.out.println("dx: " + dx);
-                    //System.out.println("dz: " + dz);
-
-                    if (world.getBlockState(pos.down()).getBlock() != Blocks.AIR) {
-                        //System.out.println("catch 1");
-                        BlockPos currentPos = new BlockPos(dx, y, dz);
-                        BlockPos checkBelow = currentPos.down();
-                        BlockPos newWaterPos = new BlockPos(0, 0, 0);
-                        String direction = "";
-                        //Boolean doHop = false;
-
-                        if (checkBelow != pos.down() && currentPos != pos) {
-                            //BlockState below =
-                            if ((world.getBlockState(checkBelow).isAir() == true || (world.getBlockState(checkBelow).getBlock() == Blocks.WATER) && world.getFluidState(checkBelow).getLevel() != 8)) {
-                                //System.out.println("catch 2");
-                                doHop = true;
-                            }
-                            if (doHop == true) {
-                                if (currentPos.getX() > pos.getX()) {
-                                    direction = "east";
-                                } else {
-                                    if (currentPos.getX() < pos.getX()) {
-                                        direction = "west";
-                                    } else {
-                                        if (currentPos.getZ() > pos.getZ()) {
-                                            direction = "south";
-                                        } else {
-                                            if (currentPos.getZ() < pos.getZ()) {
-                                                direction = "north";
-                                            }
-                                        }
-                                    }
-                                }
-                                if (direction.equals("north")) {
-                                    newWaterPos = pos.north();
-                                }
-                                if (direction.equals("south")) {
-                                    newWaterPos = pos.south();
-                                }
-                                if (direction.equals("east")) {
-                                    newWaterPos = pos.east();
-                                }
-                                if (direction.equals("west")) {
-                                    newWaterPos = pos.west();
-                                }
-                                //System.out.println("catch 3");
-                                if (world.getBlockState(pos).getBlock() == Blocks.WATER && newWaterPos.getY() == pos.getY() && world.getBlockState(newWaterPos).getBlock() == Blocks.AIR) {
-                                    //System.out.println("dir: " + direction);
-                                    //System.out.println("jumping");
-                                    world.setBlockState(newWaterPos, Fluids.FLOWING_WATER.getFlowing(1, false).getBlockState(), 11);
-                                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
-                                    didJump = true;
-                                    doHop = false;
-                                    direction = "";
-                                    //System.out.println("dir2: " + direction);
-                                } else {
-                                    doHop = false;
-                                }
-                            }
-                        }
-                       //System.out.println("dir3: " + direction);
-                        //code end
-
-                        if (dz == z + currentRadius) {
-                            dz = z - currentRadius;
-                            dx += 1;
-                            addZ = false;
-                        }
-                        if (addZ == true) {
-                            dz += 1;
-                            addZ = false;
-                        }
-
-                        //radius stuff
-                        count += 1;
-                        /*System.out.println("count2: " + count);
-                        System.out.println("count: " + count);
-                        System.out.println("perim: " + perim);*/
-                        if (count == perim && (currentRadius + 1 <= maxRadius)) {
-                            //System.out.println("expanded radius");
-                            currentRadius += 1;
-                            count = 0;
-                            //System.out.println("reset count: " + count);
-                            dx = x - currentRadius;
-                            dz = z - currentRadius;
-                        }
-                        currentDiameter = (2 * currentRadius) + 1;
-                        perim = 4 * (currentDiameter - 1);
-                        //System.out.println("perim: " + perim);
-                    }
-                }
-            }
-
-        }
         //Puddle Feature End
     }
 
@@ -312,10 +172,10 @@ public class FlowWater {
 
 
                             if (range == 1) {
-                                method2(blocks, center, world, level);
+                                method2(blocks, center, world, level, data);
                             }
                             if (range > 1) {
-                                method1(blocks, center, data, world);
+                                method1(blocks, center, world);
                             }
                         }
                     }
@@ -328,7 +188,7 @@ public class FlowWater {
 
 
 
-    public static void method1(ArrayList<BlockPos> blocks, BlockPos center, int[][] data, WorldAccess world) {
+    public static void method1(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world) {
 
         int[] waterlevels = new int[4];
         Arrays.fill(waterlevels, -1);
@@ -363,7 +223,144 @@ public class FlowWater {
         setWaterLevel(centerwaterlevel, center, world);
     }
 
-    public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world, int level) {
-        setWaterLevel(level, center, world);
+    public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world, int level, int[][] data) {
+        //setWaterLevel(level, center, world);
+        BlockPos pos = center;
+
+        if (level == 1 && world.getBlockState(pos.down()).getBlock() != Blocks.AIR ) {
+
+            int maxRadius = 4;
+            int maxDia = (maxRadius * 2) + 1;
+            //int maxArea = maxDia * 2;
+            int currentRadius = 1;
+            int currentDiameter = (2 * currentRadius) + 1;
+            int previousRadius = currentRadius - 1;
+            int x = pos.getX();
+            int y = pos.getY();
+            int uy = pos.getY() - 1;
+            int z = pos.getZ();
+            int count = 0;
+            boolean didJump = false;
+            int dx;
+            int dz;
+            boolean addZ = false;
+            Boolean doHop = false;
+            int perim = 4*(currentDiameter-1);
+            int totalCount =  maxDia*maxDia;
+
+
+            //puddle feature start
+
+            //System.out.println("loop start");
+            for (dx = x - currentRadius, dz = z - currentRadius; didJump == false && dx <= x + maxRadius && dz <= z + maxRadius; ) {
+
+                /*System.out.println("original pos: " + pos);
+                System.out.println("loop restart");
+                System.out.println("initial count " + count);
+                System.out.println("didjump 1 " + didJump);*/
+                if (didJump == false) {
+                    //System.out.println("didjump 2 " + didJump);
+                    if (!(((dx > x + previousRadius || dx < x - previousRadius) || (dz > z + previousRadius || dz < z - previousRadius)) || ((dx > x + previousRadius || dx < x - previousRadius) && (dz > z + previousRadius || dz < z - previousRadius)))) {
+
+                        dz = z + currentRadius;
+                    } else {
+                        addZ = true;
+                    }
+
+                    //code start
+
+                    int currDiameter = (currentRadius * 2) + 1;
+
+                    if (world.getBlockState(pos.down()).getBlock() != Blocks.AIR) {
+                        //System.out.println("catch 1");
+                        BlockPos currentPos = new BlockPos(dx, y, dz);
+                        BlockPos checkBelow = currentPos.down();
+                        BlockPos newWaterPos = new BlockPos(0, 0, 0);
+                        String direction = "";
+                        //Boolean doHop = false;
+
+                        if (checkBelow != pos.down() && currentPos != pos) {
+                            //BlockState below =
+                            if ((world.getBlockState(checkBelow).isAir() == true || (world.getBlockState(checkBelow).getBlock() == Blocks.WATER) && world.getFluidState(checkBelow).getLevel() != 8)) {
+                                //System.out.println("catch 2");
+                                doHop = true;
+                            }
+                            if (doHop == true) {
+                                if (currentPos.getX() > pos.getX()) {
+                                    direction = "east";
+                                } else {
+                                    if (currentPos.getX() < pos.getX()) {
+                                        direction = "west";
+                                    } else {
+                                        if (currentPos.getZ() > pos.getZ()) {
+                                            direction = "south";
+                                        } else {
+                                            if (currentPos.getZ() < pos.getZ()) {
+                                                direction = "north";
+                                            }
+                                        }
+                                    }
+                                }
+                                if (direction.equals("north")) {
+                                    newWaterPos = pos.north();
+                                }
+                                if (direction.equals("south")) {
+                                    newWaterPos = pos.south();
+                                }
+                                if (direction.equals("east")) {
+                                    newWaterPos = pos.east();
+                                }
+                                if (direction.equals("west")) {
+                                    newWaterPos = pos.west();
+                                }
+                                //System.out.println("catch 3");
+                                if (world.getBlockState(pos).getBlock() == Blocks.WATER && newWaterPos.getY() == pos.getY() && world.getBlockState(newWaterPos).getBlock() == Blocks.AIR) {
+                                    //System.out.println("dir: " + direction);
+                                    //System.out.println("jumping");
+                                    world.setBlockState(newWaterPos, Fluids.FLOWING_WATER.getFlowing(1, false).getBlockState(), 11);
+                                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
+                                    didJump = true;
+                                    doHop = false;
+                                    direction = "";
+                                    //System.out.println("dir2: " + direction);
+                                } else {
+                                    doHop = false;
+                                }
+                            }
+                        }
+                        //System.out.println("dir3: " + direction);
+                        //code end
+
+                        if (dz == z + currentRadius) {
+                            dz = z - currentRadius;
+                            dx += 1;
+                            addZ = false;
+                        }
+                        if (addZ == true) {
+                            dz += 1;
+                            addZ = false;
+                        }
+
+                        //radius stuff
+                        count += 1;
+                        /*System.out.println("count2: " + count);
+                        System.out.println("count: " + count);
+                        System.out.println("perim: " + perim);*/
+                        if (count == perim && (currentRadius + 1 <= maxRadius)) {
+                            //System.out.println("expanded radius");
+                            currentRadius += 1;
+                            count = 0;
+                            //System.out.println("reset count: " + count);
+                            dx = x - currentRadius;
+                            dz = z - currentRadius;
+                        }
+                        currentDiameter = (2 * currentRadius) + 1;
+                        perim = 4 * (currentDiameter - 1);
+                        //System.out.println("perim: " + perim);
+                    }
+                }
+            }
+
+        }
     }
 }
