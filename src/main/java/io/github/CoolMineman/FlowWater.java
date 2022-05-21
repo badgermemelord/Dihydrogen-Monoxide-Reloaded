@@ -15,8 +15,6 @@ import net.minecraft.world.WorldAccess;
 import io.github.CoolMineman.GFG;
 import org.lwjgl.system.CallbackI;
 
-import static java.lang.Math.abs;
-
 
 public class FlowWater {
     private FlowWater() {
@@ -100,7 +98,7 @@ public class FlowWater {
 /*        int waterlevelsnum = waterlevels.length;
         int didnothings = 0;
         int waterlevel;*/
-       // List<Integer> matrixLevels = new ArrayList<>(Arrays.asList());
+        // List<Integer> matrixLevels = new ArrayList<>(Arrays.asList());
 
         //FloodFill Matrix Initiation
         int radius = 2;
@@ -130,57 +128,57 @@ public class FlowWater {
                 BlockPos internalPos = new BlockPos(newX, y, newZ);
                 Block internalBlock = world.getBlockState(internalPos).getBlock();
 
-                    if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
-                        int ilevel = world.getFluidState(internalPos).getLevel();
-                        //System.out.println("dataAir: " + ilevel);
-                        data[dx+radius][dz+radius] = ilevel;
-                        count +=1;
-                    }
-                    else {
-                        //System.out.println("dataSolid: -1");
-                        data[dx+radius][dz+radius] = -1;
-                        count +=1;
+                if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
+                    int ilevel = world.getFluidState(internalPos).getLevel();
+                    //System.out.println("dataAir: " + ilevel);
+                    data[dx+radius][dz+radius] = ilevel;
+                    count +=1;
+                }
+                else {
+                    //System.out.println("dataSolid: -1");
+                    data[dx+radius][dz+radius] = -1;
+                    count +=1;
+                }
+            }
+        }
+
+
+        if (count == area) {
+            //System.out.println("data as sent: " + Arrays.deepToString(data));
+            newData = GFG.printma(data, diameter, radius);
+            //System.out.println("newData original: " + Arrays.toString(newData));
+
+            for (int i  =  0; i < diameter-1; i++) {
+                for (int j  =  0; j < diameter-1; j++) {
+                    if (newData[i][j] >= 10) {
+                        //System.out.println("newdata " + newData[i]);
+                        if (newData[i][j] > maxLevel) {
+                            maxLevel = newData[i][j];
+                        }
+                        if (newData[i][j] < minLevel) {
+                            minLevel = newData[i][j];
+                        }
                     }
                 }
             }
 
+            //System.out.println(matrixLevels);
 
-                        if (count == area) {
-                            //System.out.println("data as sent: " + Arrays.deepToString(data));
-                            newData = GFG.printma(data, diameter, radius);
-                            //System.out.println("newData original: " + Arrays.toString(newData));
-
-                            for (int i  =  0; i < diameter-1; i++) {
-                                for (int j  =  0; j < diameter-1; j++) {
-                                    if (newData[i][j] >= 10) {
-                                        //System.out.println("newdata " + newData[i]);
-                                        if (newData[i][j] > maxLevel) {
-                                            maxLevel = newData[i][j];
-                                        }
-                                        if (newData[i][j] < minLevel) {
-                                            minLevel = newData[i][j];
-                                        }
-                                    }
-                                }
-                            }
-
-                            //System.out.println(matrixLevels);
-
-                            int range = centerLevel - minLevel;
-                            //System.out.println("max " + maxLevel);
-                            //System.out.println("min " + minLevel);
-                            //System.out.println("range " + range);
+            int range = centerLevel - minLevel;
+            //System.out.println("max " + maxLevel);
+            //System.out.println("min " + minLevel);
+            //System.out.println("range " + range);
 
 
 
-                            if (range == 1) {
-                                method2(blocks, center, world, level, data, newData);
-                            }
-                            if (range > 1) {
-                                method1(blocks, center, world);
-                            }
-                        }
-                    }
+            if (range == 1) {
+                method2(blocks, center, world, level, data, newData);
+            }
+            if (range > 1) {
+                method1(blocks, center, world);
+            }
+        }
+    }
 
                 //Matrix Check End
 
@@ -230,7 +228,7 @@ public class FlowWater {
         BlockPos pos = center;
 
         if (level == 1 && world.getBlockState(pos.down()).getBlock() != Blocks.AIR ) {
-
+        //System.out.println(level);
             int maxRadius = 4;
             int maxDia = (maxRadius * 2) + 1;
             //int maxArea = maxDia * 2;
@@ -249,13 +247,15 @@ public class FlowWater {
             Boolean doHop = false;
             int perim = 4*(currentDiameter-1);
             int totalCount =  maxDia*maxDia;
-            Boolean didMaxCheck = false;
+            boolean doneExtendedCheck = false;
+            boolean doExtendedCheck = false;
+            int dataPF[][] = new int[maxDia][maxDia];
 
 
             //puddle feature start
 
             //System.out.println("loop start");
-            for (dx =  - currentRadius, dz =  - currentRadius; didJump == false && dx <=  maxRadius && dz <=  maxRadius; ) {
+            for (dx = x - currentRadius, dz = z - currentRadius; didJump == false && dx <= x + maxRadius && dz <= z + maxRadius; ) {
 
                 /*System.out.println("original pos: " + pos);
                 System.out.println("loop restart");
@@ -263,99 +263,109 @@ public class FlowWater {
                 System.out.println("didjump 1 " + didJump);*/
                 if (didJump == false) {
                     //System.out.println("didjump 2 " + didJump);
-                    if (!(((dx >  previousRadius || dx <  - previousRadius) || (dz >  previousRadius || dz <  - previousRadius)) || ((dx >  previousRadius || dx <  - previousRadius) && (dz > previousRadius || dz <  - previousRadius)))) {
+                    if (!(((dx > x + previousRadius || dx < x - previousRadius) || (dz > z + previousRadius || dz < z - previousRadius)) || ((dx > x + previousRadius || dx < x - previousRadius) && (dz > z + previousRadius || dz < z - previousRadius)))) {
 
-                        dz =  + currentRadius;
+                        dz = z + currentRadius;
                     } else {
                         addZ = true;
                     }
 
                     //code start
 
+                    int originalData[][] = new int[5][5];
+                    int puddleData[][] = new int[maxDia][maxDia];
+
+                    int matrixRadius;
+                    if (currentRadius <= 2) {
+                        matrixRadius = 2;
+                    }
+                    else {
+                        matrixRadius = 4;
+                        doExtendedCheck = true;
+                    }
+
+                    //System.out.println("Current radius: " + currentRadius);
+                    //System.out.println("Matrix radius: " + matrixRadius);
+
+                    int relX = dx-x;
+                    int absX = relX + matrixRadius;
+                    //System.out.println("relX: " + relX + " " + "absX: " + absX);
+                    int relZ= dz-z;
+                    int absZ = relZ + matrixRadius;
+                    //System.out.println("relZ: " + relZ + " " + "absZ: " + absZ);
+                    if (matrixRadius == 2)
+                    //System.out.println("value from matrix1 " + originalData[absX][absZ]);
+                    if (matrixRadius > 2)
+                        //System.out.println("value from matrix2 " + puddleData[absX][absZ]);
+
+                    if (doExtendedCheck == true && doneExtendedCheck == false) {
+
+                        for (int dx2 = x-maxRadius; dx2 <= x+maxRadius; dx2++) {
+                            for (int dz2 = z-maxRadius; dz2 <= z+maxRadius; dz2++) {
+
+                                int relXfp = dx2-x;
+                                int absXfp = relXfp + maxRadius;
+                                int relZfp = dz2-z;
+                                int absZfp = relZfp + maxRadius;
+
+                                BlockPos internalPos = new BlockPos(dx2, y, dz2);
+                                Block internalBlock = world.getBlockState(internalPos).getBlock();
+
+                                if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
+                                    int ilevel = world.getFluidState(internalPos).getLevel();
+                                    //System.out.println("dataAir: " + ilevel);
+                                    dataPF[absXfp][absZfp] = ilevel;
+                                    count += 1;
+                                } else {
+                                    //System.out.println("dataSolid: -1");
+                                    dataPF[absXfp][absZfp] = -1;
+                                    count += 1;
+                                }
+                            }
+                        }
+                        dataPF = GFG.printma(dataPF, maxDia, maxRadius);
+                        doneExtendedCheck = true;
+                        //System.out.println("data collected: " + Arrays.deepToString(dataPF));
+                    }
+
+
+
                     int currDiameter = (currentRadius * 2) + 1;
 
                     if (world.getBlockState(pos.down()).getBlock() != Blocks.AIR) {
                         //System.out.println("catch 1");
-                        BlockPos currentPos = new BlockPos(x+dx, y, z+dz);
+                        BlockPos currentPos = new BlockPos(dx, y, dz);
                         BlockPos checkBelow = currentPos.down();
                         BlockPos newWaterPos = new BlockPos(0, 0, 0);
                         String direction = "";
                         //Boolean doHop = false;
 
-                        int relativeI;
-                        int relativeJ;
-                        int[][] newDataPF = new int[maxDia][maxDia];
-
-                        if (currentRadius <= 2) {
-                            relativeI = dx + 2;
-                            relativeJ = dz + 2;
-                        }
-                        else {
-                            if (didMaxCheck == false) {
-                                //Variables
-                                int newX;
-                                int newZ;
-                                int[][] dataPF = new int[maxDia][maxDia];
-                                int area = maxDia * maxDia;
-
-                                for (int dx2 = -maxRadius; dx2 <= maxRadius; dx2++) {
-                                    for (int dz2 = -maxRadius; dz2 <= maxRadius; dz2++) {
-                                        newX = x + dx2;
-                                        newZ = z + dz2;
-                                        BlockPos internalPos = new BlockPos(newX, y, newZ);
-                                        Block internalBlock = world.getBlockState(internalPos).getBlock();
-
-                                        if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
-                                            int ilevel = world.getFluidState(internalPos).getLevel();
-                                            //System.out.println("dataAir: " + ilevel);
-                                            dataPF[dx2 + maxRadius][dz2 + maxRadius] = ilevel;
-                                            count += 1;
-                                        } else {
-                                            //System.out.println("dataSolid: -1");
-                                            dataPF[dx2 + maxRadius][dz2 + maxRadius] = -1;
-                                            count += 1;
-                                        }
-                                    }
-                                }
-                                if (count == area) {
-                                    newDataPF = GFG.printma(dataPF, maxDia, maxRadius);
-                                }
-                                didMaxCheck = true;
-                            }
-                                System.out.println(dx + " " + dz);
-                                relativeI = dx + maxRadius;
-                                relativeJ = dz + maxRadius;
-                            }
-
-
                         if (checkBelow != pos.down() && currentPos != pos) {
                             //BlockState below =
                             if ((world.getBlockState(checkBelow).isAir() == true || (world.getBlockState(checkBelow).getBlock() == Blocks.WATER) && world.getFluidState(checkBelow).getLevel() != 8)) {
+                                //System.out.println("hole found, " + currentRadius);
 
-                                if (currentRadius <= 2) {
-                                    System.out.println("cBpX " + center.getX() + " " + "cBpZ " + center.getZ());
-                                    System.out.println("radius " + currentRadius);
-                                    System.out.println("dx " + dx + " " + "dz " + dz);
-                                    System.out.println("BpX " + currentPos.getX() + " " + "BpZ " + currentPos.getZ());
-                                    System.out.println("rels " + relativeI + " " + relativeJ);
-                                    if (newData[relativeI][relativeJ] >= 10) {
-                                        System.out.println(Arrays.deepToString(newData));
-                                        System.out.println(newData[relativeI][relativeJ]);
+                                if (matrixRadius == 2) {
+                                    //System.out.println("smalhop: " + Arrays.deepToString(newData));
+                                    if (newData[absX][absZ] >= 10) {
+                                        //System.out.println("newdat: " + newData[absX][absZ]);
                                         doHop = true;
                                     }
                                 }
-                                if (currentRadius > 2 ) {
-                                    System.out.println("radius > 2, newdata:  " + Arrays.deepToString(newDataPF));
-                                    System.out.println("relatives: " + relativeI + " " + relativeJ);
-                                    if (newDataPF[relativeI][relativeJ] >= 10) {
-                                        System.out.println(newDataPF[relativeI][relativeJ]);
+
+                                if (matrixRadius > 2) {
+                                    //System.out.println("bighop: "  + Arrays.deepToString(dataPF));
+
+                                    if (dataPF[absX][absZ] >= 10) {
+                                        //System.out.println("datPF: " + dataPF[absX][absZ]);
                                         doHop = true;
                                     }
                                 }
+
                                 //System.out.println("catch 2");
-
                             }
                             if (doHop == true) {
+                                //System.out.println("dohop true");
                                 if (currentPos.getX() > pos.getX()) {
                                     direction = "east";
                                 } else {
@@ -401,8 +411,8 @@ public class FlowWater {
                         //System.out.println("dir3: " + direction);
                         //code end
 
-                        if (dz ==   currentRadius && dx <=  currentRadius) {
-                            dz =  - currentRadius;
+                        if (dz == z + currentRadius) {
+                            dz = z - currentRadius;
                             dx += 1;
                             addZ = false;
                         }
