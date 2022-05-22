@@ -108,7 +108,6 @@ class GFG {
                 newData[counter] = data[j][i];
                 counter += 1;
             }
-
         }*/
         return data;
 

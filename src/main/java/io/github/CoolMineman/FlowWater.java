@@ -146,7 +146,7 @@ public class FlowWater {
         if (count == area) {
             //System.out.println("data as sent: " + Arrays.deepToString(data));
             newData = GFG.printma(data, diameter, radius);
-            //System.out.println("newData original: " + Arrays.toString(newData));
+            //System.out.println("newData original: " + Arrays.deepToString(newData));
 
             for (int i  =  0; i < diameter-1; i++) {
                 for (int j  =  0; j < diameter-1; j++) {
@@ -284,7 +284,7 @@ public class FlowWater {
                         doExtendedCheck = true;
                     }
 
-                    //System.out.println("Current radius: " + currentRadius);
+                    System.out.println("Current radius: " + currentRadius);
                     //System.out.println("Matrix radius: " + matrixRadius);
 
                     int relX = dx-x;
@@ -292,11 +292,7 @@ public class FlowWater {
                     //System.out.println("relX: " + relX + " " + "absX: " + absX);
                     int relZ= dz-z;
                     int absZ = relZ + matrixRadius;
-                    //System.out.println("relZ: " + relZ + " " + "absZ: " + absZ);
-                    if (matrixRadius == 2)
-                    //System.out.println("value from matrix1 " + originalData[absX][absZ]);
-                    if (matrixRadius > 2)
-                        //System.out.println("value from matrix2 " + puddleData[absX][absZ]);
+
 
                     if (doExtendedCheck == true && doneExtendedCheck == false) {
 
@@ -315,17 +311,15 @@ public class FlowWater {
                                     int ilevel = world.getFluidState(internalPos).getLevel();
                                     //System.out.println("dataAir: " + ilevel);
                                     dataPF[absXfp][absZfp] = ilevel;
-                                    count += 1;
                                 } else {
                                     //System.out.println("dataSolid: -1");
                                     dataPF[absXfp][absZfp] = -1;
-                                    count += 1;
                                 }
                             }
                         }
                         dataPF = GFG.printma(dataPF, maxDia, maxRadius);
                         doneExtendedCheck = true;
-                        //System.out.println("data collected: " + Arrays.deepToString(dataPF));
+                        System.out.println("data collected: " + Arrays.deepToString(dataPF));
                     }
 
 
@@ -337,7 +331,8 @@ public class FlowWater {
                         BlockPos currentPos = new BlockPos(dx, y, dz);
                         BlockPos checkBelow = currentPos.down();
                         BlockPos newWaterPos = new BlockPos(0, 0, 0);
-                        String direction = "";
+                        //String direction = "";
+                        Direction direction;
                         //Boolean doHop = false;
 
                         if (checkBelow != pos.down() && currentPos != pos) {
@@ -353,11 +348,14 @@ public class FlowWater {
                                     }
                                 }
 
-                                if (matrixRadius > 2) {
+                                if (currentRadius > 2) {
                                     //System.out.println("bighop: "  + Arrays.deepToString(dataPF));
-
+                                    System.out.println("check 1");
+                                    System.out.println(Arrays.deepToString(dataPF));
                                     if (dataPF[absX][absZ] >= 10) {
                                         //System.out.println("datPF: " + dataPF[absX][absZ]);
+                                        System.out.println("check 2");
+
                                         doHop = true;
                                     }
                                 }
@@ -366,7 +364,12 @@ public class FlowWater {
                             }
                             if (doHop == true) {
                                 //System.out.println("dohop true");
-                                if (currentPos.getX() > pos.getX()) {
+
+                                Direction.getFacing(x-dx,0, z-dz);
+                                direction = Direction.getFacing(dx - x, 0, dz - z);
+                                newWaterPos = pos.offset(direction);
+
+                               /* if (currentPos.getX() > pos.getX()) {
                                     direction = "east";
                                 } else {
                                     if (currentPos.getX() < pos.getX()) {
@@ -392,7 +395,7 @@ public class FlowWater {
                                 }
                                 if (direction.equals("west")) {
                                     newWaterPos = pos.west();
-                                }
+                                }*/
                                 //System.out.println("catch 3");
                                 if (world.getBlockState(pos).getBlock() == Blocks.WATER && newWaterPos.getY() == pos.getY() && world.getBlockState(newWaterPos).getBlock() == Blocks.AIR) {
                                     //System.out.println("dir: " + direction);
@@ -401,7 +404,7 @@ public class FlowWater {
                                     world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
                                     didJump = true;
                                     doHop = false;
-                                    direction = "";
+                                    //direction = "";
                                     //System.out.println("dir2: " + direction);
                                 } else {
                                     doHop = false;
