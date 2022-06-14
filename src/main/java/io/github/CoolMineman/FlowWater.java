@@ -12,8 +12,9 @@ import net.minecraft.fluid.WaterFluid;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
-import io.github.CoolMineman.GFG;
-import org.lwjgl.system.CallbackI;
+import net.minecraft.world.chunk.ChunkSection;
+
+import static net.minecraft.util.math.ChunkSectionPos.*;
 
 
 public class FlowWater {
@@ -22,6 +23,9 @@ public class FlowWater {
 
 
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
+
+        chunkFetcher(world, fluidPos);
+
         int centerlevel = getWaterLevel(fluidPos, world);
         if (world.getBlockState(fluidPos).getBlock() instanceof FluidFillable) {
             return;
@@ -40,6 +44,199 @@ public class FlowWater {
             equalizeWater(blocks, fluidPos, world, centerlevel);
         }
     }
+
+    public static void chunkFetcher(WorldAccess world, BlockPos fluidPos) {
+
+        int gmr = 4; //generalMaxRange, the maximum range that will ever be used in checks
+        int posX = fluidPos.getX();
+        int posY = fluidPos.getY();
+        int posZ = fluidPos.getZ();
+        int secY = (posY+64)/16;
+        int secY2 = (posY+63)/16;
+
+        //Clockwise corner calculation (8 corners for a cuboid)
+        BlockPos c0 = fluidPos;
+        BlockPos c2 = fluidPos.add(0,-1,0);
+        BlockPos c11 = fluidPos.add(gmr,0,gmr);
+        BlockPos c12 = fluidPos.add(-gmr,0,gmr);
+        BlockPos c13 = fluidPos.add(gmr,0,-gmr);
+        BlockPos c14 = fluidPos.add(-gmr,0,-gmr);
+
+        BlockPos c21 = fluidPos.add(gmr,-1,gmr);
+        BlockPos c22 = fluidPos.add(-gmr,-1,gmr);
+        BlockPos c23 = fluidPos.add(gmr,-1,-gmr);
+        BlockPos c24 = fluidPos.add(-gmr,-1,-gmr);
+
+        //Getting the starting chunks
+        ChunkSection s1 = world.getChunk(c0).getSection(secY);
+        ChunkSection s3 = world.getChunk(c0).getSection(secY);
+
+        if (!(c0.getY() >> 4 == c2.getY() >> 4)) {
+            ChunkSection s2 = world.getChunk(c2).getSection(secY2);
+        }
+
+        //Calculating whether the corners are inside the chunk, either distance > Dist or distance < -relc0
+        boolean isc11in = isWithinChunk(c11, fluidPos);
+        boolean isc12in = isWithinChunk(c12, fluidPos);
+        boolean isc13in = isWithinChunk(c13, fluidPos);
+        boolean isc14in = isWithinChunk(c14, fluidPos);
+
+        boolean isc21in = isWithinChunk(c21, fluidPos);
+        boolean isc22in = isWithinChunk(c22, fluidPos);
+        boolean isc23in = isWithinChunk(c23, fluidPos);
+        boolean isc24in = isWithinChunk(c24, fluidPos);
+
+        ChunkSection s11 = null;
+        ChunkSection s12 = null;
+        ChunkSection s13 = null;
+        ChunkSection s14 = null;
+        ChunkSection s21 = null;
+        ChunkSection s22 = null;
+        ChunkSection s23 = null;
+        ChunkSection s24 = null;
+
+        //Getting the chunks of the corners
+        if (isc11in == false) {
+             s11 = world.getChunk(c11).getSection(secY);
+            //System.out.println("fetched s11");
+        }
+        if (isc12in == false) {
+             s12 = world.getChunk(c12).getSection(secY);
+            //System.out.println("fetched s12");
+        }
+        if (isc13in == false) {
+             s13 = world.getChunk(c13).getSection(secY);
+            //System.out.println("fetched s13");
+        }
+        if (isc14in == false) {
+             s14 = world.getChunk(c14).getSection(secY);
+            //System.out.println("fetched s14");
+        }
+        if (isc21in == false) {
+             s21 = world.getChunk(c21).getSection(secY-1);
+            //System.out.println("fetched s21");
+        }
+        if (isc22in == false) {
+             s22 = world.getChunk(c22).getSection(secY-1);
+            //System.out.println("fetched s22");
+        }
+        if (isc23in == false) {
+             s23 = world.getChunk(c23).getSection(secY-1);
+            //System.out.println("fetched s23");
+        }
+        if (isc24in == false) {
+             s24 = world.getChunk(c24).getSection(secY-1);
+            //System.out.println("fetched s24");
+        }
+
+        //Calculating the border coordinates of the origin chunk
+
+
+        int relX = 0;
+        int relY = 0;
+        int relZ = 0;
+
+
+        short test = packLocal(fluidPos);
+        relX = unpackLocalX(test);
+        System.out.println("X " + relX);
+        relY = unpackLocalY(test);
+        System.out.println("Y " + relY);
+        relZ = unpackLocalZ(test);
+        System.out.println("Z " + relZ);
+
+        BlockPos centreChunkCorner;
+
+        int bordX;
+        int bordY;
+        int bordZ;
+
+        //Get corners of all chunks to compare
+
+        System.out.println(getBlockCoord(11));
+
+        //Gotta find out which edges point towards the 2^3 centre
+
+        //BlockPos centre = new getCenterPos(s1);
+        //int cmX = new s1.getMinX()
+
+        if (s11 != null && s1 == s11 ) {
+            centreChunkCorner = fluidPos.add(-relX, 0, -relZ);
+            bordX = centreChunkCorner.getX();
+            bordY = centreChunkCorner.getY();
+            bordZ = centreChunkCorner.getZ();
+
+            System.out.println("amoger1: " + bordX + " " +  bordY + " " +  bordZ);
+        }
+        if (s12 != null && s1 == s12) {
+            centreChunkCorner = fluidPos.add(-relX, 0, -relZ);
+            bordX = centreChunkCorner.getX();
+            bordY = centreChunkCorner.getY();
+            bordZ = centreChunkCorner.getZ();
+
+            System.out.println("amoger2: " + bordX + " " +  bordY + " " +  bordZ);
+        }
+        if (s13 != null && s1 == s13) {
+            centreChunkCorner = fluidPos.add(-relX, 0, -relZ);
+            bordX = centreChunkCorner.getX();
+            bordY = centreChunkCorner.getY();
+            bordZ = centreChunkCorner.getZ();
+
+            System.out.println("amoger3: " + bordX + " " +  bordY + " " +  bordZ);
+        }
+        if (s14 != null && s1 == s14) {
+            centreChunkCorner = fluidPos.add(-relX, 0, -relZ);
+            bordX = centreChunkCorner.getX();
+            bordY = centreChunkCorner.getY();
+            bordZ = centreChunkCorner.getZ();
+
+            System.out.println("amoger4: " + bordX + " " +  bordY + " " +  bordZ);
+        }
+
+    }
+
+
+    public static String blockChunkAssigner(BlockPos pos) {
+
+        String sectionName = "";
+
+        
+
+        return sectionName;
+    }
+
+    public static boolean isWithinChunk(BlockPos pos, BlockPos origin) {
+
+        //System.out.println("pos" + pos.getY());
+        boolean isWithin = true;
+        boolean isX = false;
+        boolean isY = false;
+        boolean isZ = false;
+
+        if (!(origin.getX() >> 4 == pos.getX() >> 4)) {
+            isX = true;
+        }
+        if (!(origin.getY() >> 4 == pos.getY() >> 4)) {
+            isY = true;
+        }
+        if (!(origin.getZ() >> 4 == pos.getZ() >> 4)) {
+            isZ = true;
+        }
+        if (pos.getY() == origin.getY()) {
+            if (isX || isY || isZ) {
+                isWithin = false;
+            }
+        }
+        else {
+            if ((isX || isZ) && isY) {
+                isWithin = false;
+            }
+        }
+
+        //System.out.println(isWithin);
+        return isWithin;
+    }
+
 
     public static int getWaterLevel(BlockPos pos, WorldAccess world) {
         BlockState blockstate = world.getBlockState(pos);
@@ -284,7 +481,7 @@ public class FlowWater {
                         doExtendedCheck = true;
                     }
 
-                    System.out.println("Current radius: " + currentRadius);
+                    //System.out.println("Current radius: " + currentRadius);
                     //System.out.println("Matrix radius: " + matrixRadius);
 
                     int relX = dx-x;
@@ -319,7 +516,7 @@ public class FlowWater {
                         }
                         dataPF = GFG.printma(dataPF, maxDia, maxRadius);
                         doneExtendedCheck = true;
-                        System.out.println("data collected: " + Arrays.deepToString(dataPF));
+                        //System.out.println("data collected: " + Arrays.deepToString(dataPF));
                     }
 
 
@@ -350,11 +547,11 @@ public class FlowWater {
 
                                 if (currentRadius > 2) {
                                     //System.out.println("bighop: "  + Arrays.deepToString(dataPF));
-                                    System.out.println("check 1");
-                                    System.out.println(Arrays.deepToString(dataPF));
+                                    //System.out.println("check 1");
+                                    //System.out.println(Arrays.deepToString(dataPF));
                                     if (dataPF[absX][absZ] >= 10) {
                                         //System.out.println("datPF: " + dataPF[absX][absZ]);
-                                        System.out.println("check 2");
+                                        //System.out.println("check 2");
 
                                         doHop = true;
                                     }
@@ -369,33 +566,6 @@ public class FlowWater {
                                 direction = Direction.getFacing(dx - x, 0, dz - z);
                                 newWaterPos = pos.offset(direction);
 
-                               /* if (currentPos.getX() > pos.getX()) {
-                                    direction = "east";
-                                } else {
-                                    if (currentPos.getX() < pos.getX()) {
-                                        direction = "west";
-                                    } else {
-                                        if (currentPos.getZ() > pos.getZ()) {
-                                            direction = "south";
-                                        } else {
-                                            if (currentPos.getZ() < pos.getZ()) {
-                                                direction = "north";
-                                            }
-                                        }
-                                    }
-                                }
-                                if (direction.equals("north")) {
-                                    newWaterPos = pos.north();
-                                }
-                                if (direction.equals("south")) {
-                                    newWaterPos = pos.south();
-                                }
-                                if (direction.equals("east")) {
-                                    newWaterPos = pos.east();
-                                }
-                                if (direction.equals("west")) {
-                                    newWaterPos = pos.west();
-                                }*/
                                 //System.out.println("catch 3");
                                 if (world.getBlockState(pos).getBlock() == Blocks.WATER && newWaterPos.getY() == pos.getY() && world.getBlockState(newWaterPos).getBlock() == Blocks.AIR) {
                                     //System.out.println("dir: " + direction);
