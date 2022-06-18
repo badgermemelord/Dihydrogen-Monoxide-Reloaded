@@ -54,13 +54,22 @@ public class FlowWater {
         int secY = (posY+64)/16;
         int secY2 = (posY+63)/16;
 
+        int originChunk = 0;
+
         //Clockwise corner calculation (8 corners for a cuboid)
+
+        BlockPos[] cornerList = new BlockPos[4];
+
         BlockPos c0 = fluidPos;
         BlockPos c2 = fluidPos.add(0,-1,0);
         BlockPos c11 = fluidPos.add(gmr,0,gmr);
+        cornerList[0] = c11;
         BlockPos c12 = fluidPos.add(-gmr,0,gmr);
+        cornerList[1] = c12;
         BlockPos c13 = fluidPos.add(gmr,0,-gmr);
+        cornerList[2] = c13;
         BlockPos c14 = fluidPos.add(-gmr,0,-gmr);
+        cornerList[3] = c14;
 
         BlockPos c21 = fluidPos.add(gmr,-1,gmr);
         BlockPos c22 = fluidPos.add(-gmr,-1,gmr);
@@ -96,20 +105,23 @@ public class FlowWater {
         ChunkSection s24 = null;
 
         //Getting the chunks of the corners
+
+
+
         if (isc11in == false) {
-             s11 = world.getChunk(c11).getSection(secY);
+            s11 = world.getChunk(c11).getSection(secY);
             //System.out.println("fetched s11");
         }
         if (isc12in == false) {
-             s12 = world.getChunk(c12).getSection(secY);
+            s12 = world.getChunk(c12).getSection(secY);
             //System.out.println("fetched s12");
         }
         if (isc13in == false) {
-             s13 = world.getChunk(c13).getSection(secY);
+            s13 = world.getChunk(c13).getSection(secY);
             //System.out.println("fetched s13");
         }
         if (isc14in == false) {
-             s14 = world.getChunk(c14).getSection(secY);
+            s14 = world.getChunk(c14).getSection(secY);
             //System.out.println("fetched s14");
         }
         if (isc21in == false) {
@@ -129,70 +141,114 @@ public class FlowWater {
             //System.out.println("fetched s24");
         }
 
+
+
+
+        //Calculating the origin chunk
+
+        for(int a = 0; a < 4; a++) {
+
+            BlockPos internal;
+            internal = cornerList[a];
+
+            int[] originID = chunkSectionIdentifier(fluidPos);
+            int idXo = originID[0];
+            int idZo = originID[1];
+
+            int[] ids2 = chunkSectionIdentifier(internal);
+            int idX = ids2[0];
+            int idZ = ids2[1];
+            System.out.println(ids2[0] + " " + ids2[1]);
+
+            if (idXo == idX && idZo == idZ) {
+                if(a == 0) originChunk = 11;
+                if(a == 1) originChunk = 12;
+                if(a == 2) originChunk = 13;
+                if(a == 3) originChunk = 14;
+            }
+
+        }
+
         //Calculating the border coordinates of the origin chunk
 
+        int relX = fluidPos.getX() % 16;
+        int relZ = fluidPos.getZ() % 16;
+        int fpX = fluidPos.getX();
+        int fpZ = fluidPos.getZ();
+        int restX = 15 - relX;
+        int restZ = 15 - relZ;
 
-        int relX = 0;
-        int relY = 0;
-        int relZ = 0;
+
+        int borX = 0;
+        int borZ = 0;
 
 
-        short test = packLocal(fluidPos);
-        relX = unpackLocalX(test);
-        System.out.println("X " + relX);
-        relY = unpackLocalY(test);
-        System.out.println("Y " + relY);
-        relZ = unpackLocalZ(test);
-        System.out.println("Z " + relZ);
+        boolean isXinverted = false;
+        boolean isZinverted = false;
 
-        BlockPos centreChunkCorner;
-
-        int bordX;
-        int bordY;
-        int bordZ;
-
-        //Get corners of all chunks to compare
-
-        System.out.println(getBlockCoord(11));
-
-        //Gotta find out which edges point towards the 2^3 centre
-
-        //BlockPos centre = new getCenterPos(s1);
-        //int cmX = new s1.getMinX()
-
-        if (s11 != null && s1 == s11 ) {
-            centreChunkCorner = fluidPos.add(-relX, 0, -relZ);
-            bordX = centreChunkCorner.getX();
-            bordY = centreChunkCorner.getY();
-            bordZ = centreChunkCorner.getZ();
-
-            System.out.println("amoger1: " + bordX + " " +  bordY + " " +  bordZ);
+        if (originChunk == 11) {
+            isXinverted = true;
+            isZinverted = true;
         }
-        if (s12 != null && s1 == s12) {
-            centreChunkCorner = fluidPos.add(-relX, 0, -relZ);
-            bordX = centreChunkCorner.getX();
-            bordY = centreChunkCorner.getY();
-            bordZ = centreChunkCorner.getZ();
-
-            System.out.println("amoger2: " + bordX + " " +  bordY + " " +  bordZ);
+        if (originChunk == 12) {
+            isXinverted = false;
+            isZinverted = true;
         }
-        if (s13 != null && s1 == s13) {
-            centreChunkCorner = fluidPos.add(-relX, 0, -relZ);
-            bordX = centreChunkCorner.getX();
-            bordY = centreChunkCorner.getY();
-            bordZ = centreChunkCorner.getZ();
-
-            System.out.println("amoger3: " + bordX + " " +  bordY + " " +  bordZ);
+        if (originChunk == 13) {
+            isXinverted = true;
+            isZinverted = false;
         }
-        if (s14 != null && s1 == s14) {
-            centreChunkCorner = fluidPos.add(-relX, 0, -relZ);
-            bordX = centreChunkCorner.getX();
-            bordY = centreChunkCorner.getY();
-            bordZ = centreChunkCorner.getZ();
-
-            System.out.println("amoger4: " + bordX + " " +  bordY + " " +  bordZ);
+        if (originChunk == 14) {
+            isXinverted = false;
+            isZinverted = false;
         }
 
+        //Number kronching
+
+        if (isXinverted == true) {
+            borX = fpX - relX;
+        }
+        if (isXinverted == false) {
+            borX = fpX + restX;
+        }
+        if (isZinverted == true) {
+            borZ = fpZ - relZ;
+        }
+        if (isZinverted == false) {
+            borZ= fpZ + restZ;
+        }
+
+        BlockPos cornerPos = new BlockPos(borX, fluidPos.getY(), borZ);
+        System.out.println("bpX: " + cornerPos.getX() + " bpZ: " + cornerPos.getZ());
+
+
+    }
+
+    public static int[] chunkSectionIdentifier(BlockPos posIn) {
+
+        int posX = posIn.getX();
+        int posZ = posIn.getZ();
+        int idX;
+        int idZ;
+
+        int[] ids = new int[2];
+        if(posX >= 0) {
+             idX = posX / 16;
+        }
+        else {
+             idX = ((posX + 1) / 16) - 1;
+        }
+        ids[0] = idX;
+
+        if(posZ >= 0) {
+            idZ = posZ / 16;
+        }
+        else {
+            idZ = ((posZ + 1) / 16) - 1;
+        }
+        ids[1] = idZ;
+
+        return ids;
     }
 
 
