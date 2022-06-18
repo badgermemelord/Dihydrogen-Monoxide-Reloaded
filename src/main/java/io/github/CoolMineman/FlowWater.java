@@ -113,6 +113,9 @@ public class FlowWater {
 
 
 
+        s11 = s1;
+        SectionList[0] = s11;
+
         if (isc11in == false) {
             s11 = world.getChunk(c11).getSection(secY);
             SectionList[0] = s11;
@@ -189,17 +192,19 @@ public class FlowWater {
         //BlockPos cornerPos = new BlockPos(borX, fluidPos.getY(), borZ);
         //System.out.println("bpX: " + cornerPos.getX() + " bpZ: " + cornerPos.getZ());
 
-        int bla = blockChunkAssigner(fluidPos);
-        System.out.println("bla: " + bla);
+        BlockState bla = sectionGetBlockState(fluidPos);
+        int levele = bla.getFluidState().getLevel();
+        System.out.println("levele: " + levele);
 
 
     }
 
 
-    public static int blockChunkAssigner(BlockPos pos) {
+    public static BlockState sectionGetBlockState(BlockPos pos) {
 
         String sectionName = "";
         int sectionID = 0;
+        BlockState internalBS;
 
         int posX = pos.getX();
         int posZ = pos.getZ();
@@ -249,8 +254,36 @@ public class FlowWater {
                 }
             }
         }
-        
-        return sectionID;
+
+        //Getting relative position of pos
+        int relX;
+        int relZ;
+        int relY;
+
+        if (pos.getX() > 0) {
+            relX = pos.getX() % 16;
+        }
+        else {
+            relX =  16 + pos.getX() % 16;
+        }
+        if (pos.getZ() > 0) {
+            relZ = pos.getZ() % 16;
+        }
+        else {
+            relZ =  16 + pos.getZ() % 16;
+        }
+        if (posY > 0) {
+            relY = posY % 16;
+        }
+        else {
+            relY =  16 + posY % 16;
+        }
+
+        ChunkSection internalCS = SectionList[sectionID];
+
+        internalBS = internalCS.getBlockState(relX, relY, relZ);
+
+        return internalBS;
     }
 
     public static boolean isWithinChunk(BlockPos pos, BlockPos origin) {
