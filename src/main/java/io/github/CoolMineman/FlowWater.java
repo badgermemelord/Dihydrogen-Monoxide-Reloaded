@@ -21,6 +21,11 @@ public class FlowWater {
     private FlowWater() {
     }
 
+    public static int borX = 0;
+    public static int borZ = 0;
+    public static int fpY = 0;
+    public static ChunkSection[] SectionList = new ChunkSection[8];
+
 
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
@@ -110,155 +115,142 @@ public class FlowWater {
 
         if (isc11in == false) {
             s11 = world.getChunk(c11).getSection(secY);
+            SectionList[0] = s11;
             //System.out.println("fetched s11");
         }
         if (isc12in == false) {
             s12 = world.getChunk(c12).getSection(secY);
+            SectionList[1] = s12;
             //System.out.println("fetched s12");
         }
         if (isc13in == false) {
             s13 = world.getChunk(c13).getSection(secY);
+            SectionList[2] = s13;
             //System.out.println("fetched s13");
         }
         if (isc14in == false) {
             s14 = world.getChunk(c14).getSection(secY);
+            SectionList[3] = s14;
             //System.out.println("fetched s14");
         }
         if (isc21in == false) {
              s21 = world.getChunk(c21).getSection(secY-1);
+            SectionList[4] = s21;
             //System.out.println("fetched s21");
         }
         if (isc22in == false) {
              s22 = world.getChunk(c22).getSection(secY-1);
+            SectionList[5] = s22;
             //System.out.println("fetched s22");
         }
         if (isc23in == false) {
              s23 = world.getChunk(c23).getSection(secY-1);
+            SectionList[6] = s23;
             //System.out.println("fetched s23");
         }
         if (isc24in == false) {
              s24 = world.getChunk(c24).getSection(secY-1);
+            SectionList[7] = s24;
             //System.out.println("fetched s24");
         }
 
 
+        //Calculating the border coordinates of the s11 chunk
 
+        int relX;
+        int relZ;
 
-        //Calculating the origin chunk
-
-        for(int a = 0; a < 4; a++) {
-
-            BlockPos internal;
-            internal = cornerList[a];
-
-            int[] originID = chunkSectionIdentifier(fluidPos);
-            int idXo = originID[0];
-            int idZo = originID[1];
-
-            int[] ids2 = chunkSectionIdentifier(internal);
-            int idX = ids2[0];
-            int idZ = ids2[1];
-            System.out.println(ids2[0] + " " + ids2[1]);
-
-            if (idXo == idX && idZo == idZ) {
-                if(a == 0) originChunk = 11;
-                if(a == 1) originChunk = 12;
-                if(a == 2) originChunk = 13;
-                if(a == 3) originChunk = 14;
-            }
-
+        if (c11.getX() > 0) {
+             relX = c11.getX() % 16;
+        }
+        else {
+             relX =  16 + c11.getX() % 16;
+        }
+        if (c11.getZ() > 0) {
+             relZ = c11.getZ() % 16;
+        }
+        else {
+             relZ =  16 + c11.getZ() % 16;
         }
 
-        //Calculating the border coordinates of the origin chunk
-
-        int relX = fluidPos.getX() % 16;
-        int relZ = fluidPos.getZ() % 16;
-        int fpX = fluidPos.getX();
-        int fpZ = fluidPos.getZ();
+        int fpX = c11.getX();
+        int fpZ = c11.getZ();
         int restX = 15 - relX;
         int restZ = 15 - relZ;
 
+        borX = 0;
+        borZ = 0;
 
-        int borX = 0;
-        int borZ = 0;
+        borX = fpX - relX;
+        borZ = fpZ - relZ;
 
+        fpY = fluidPos.getY();
 
-        boolean isXinverted = false;
-        boolean isZinverted = false;
+        //BlockPos cornerPos = new BlockPos(borX, fluidPos.getY(), borZ);
+        //System.out.println("bpX: " + cornerPos.getX() + " bpZ: " + cornerPos.getZ());
 
-        if (originChunk == 11) {
-            isXinverted = true;
-            isZinverted = true;
-        }
-        if (originChunk == 12) {
-            isXinverted = false;
-            isZinverted = true;
-        }
-        if (originChunk == 13) {
-            isXinverted = true;
-            isZinverted = false;
-        }
-        if (originChunk == 14) {
-            isXinverted = false;
-            isZinverted = false;
-        }
-
-        //Number kronching
-
-        if (isXinverted == true) {
-            borX = fpX - relX;
-        }
-        if (isXinverted == false) {
-            borX = fpX + restX;
-        }
-        if (isZinverted == true) {
-            borZ = fpZ - relZ;
-        }
-        if (isZinverted == false) {
-            borZ= fpZ + restZ;
-        }
-
-        BlockPos cornerPos = new BlockPos(borX, fluidPos.getY(), borZ);
-        System.out.println("bpX: " + cornerPos.getX() + " bpZ: " + cornerPos.getZ());
+        int bla = blockChunkAssigner(fluidPos);
+        System.out.println("bla: " + bla);
 
 
     }
 
-    public static int[] chunkSectionIdentifier(BlockPos posIn) {
 
-        int posX = posIn.getX();
-        int posZ = posIn.getZ();
-        int idX;
-        int idZ;
-
-        int[] ids = new int[2];
-        if(posX >= 0) {
-             idX = posX / 16;
-        }
-        else {
-             idX = ((posX + 1) / 16) - 1;
-        }
-        ids[0] = idX;
-
-        if(posZ >= 0) {
-            idZ = posZ / 16;
-        }
-        else {
-            idZ = ((posZ + 1) / 16) - 1;
-        }
-        ids[1] = idZ;
-
-        return ids;
-    }
-
-
-    public static String blockChunkAssigner(BlockPos pos) {
+    public static int blockChunkAssigner(BlockPos pos) {
 
         String sectionName = "";
+        int sectionID = 0;
 
+        int posX = pos.getX();
+        int posZ = pos.getZ();
+        int posY = pos.getY();
+
+        if (posX < borX) {
+            if (posZ < borZ) {
+                if (posY == fpY) {
+                    sectionName = "14";
+                    sectionID = 3;
+                }
+                else {
+                    sectionName = "24";
+                    sectionID = 7;
+                }
+            }
+            else {
+                if (posY == fpY) {
+                    sectionName = "12";
+                    sectionID = 1;
+                }
+                else {
+                    sectionName = "22";
+                    sectionID = 5;
+                }
+            }
+        }
+        else {
+            if (posZ < borZ) {
+                if (posY == fpY) {
+                    sectionName = "13";
+                    sectionID = 2;
+                }
+                else {
+                    sectionName = "23";
+                    sectionID = 6;
+                }
+            }
+            else {
+                if (posY == fpY) {
+                    sectionName = "11";
+                    sectionID = 0;
+                }
+                else {
+                    sectionName = "21";
+                    sectionID = 4;
+                }
+            }
+        }
         
-
-        return sectionName;
+        return sectionID;
     }
 
     public static boolean isWithinChunk(BlockPos pos, BlockPos origin) {
