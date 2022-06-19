@@ -33,19 +33,19 @@ public class FlowWater {
         chunkFetcher(world, fluidPos);
 
         int centerlevel = getWaterLevel(fluidPos, world);
-        if (world.getBlockState(fluidPos).getBlock() instanceof FluidFillable) {
+        if (sectionGetBlockState(fluidPos).getBlock() instanceof FluidFillable) {
             return;
         }
-        if ((world.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && (getWaterLevel(fluidPos.down(), world) != 8)) {
+        if ((sectionGetBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && (getWaterLevel(fluidPos.down(), world) != 8)) {
 
-            world.setBlockState(fluidPos, Blocks.AIR.getDefaultState(), 11);
+            sectionSetBlockState(fluidPos, Blocks.AIR.getDefaultState());
             addWater(centerlevel, fluidPos.down(), world);
         } else {
             ArrayList<BlockPos> blocks = new ArrayList<>(4);
             for (Direction dir : Direction.Type.HORIZONTAL) {
                 blocks.add(fluidPos.offset(dir));
             }
-            blocks.removeIf(pos -> !world.getBlockState(pos).canBucketPlace(Fluids.WATER));
+            blocks.removeIf(pos -> !sectionGetBlockState(pos).canBucketPlace(Fluids.WATER));
             Collections.shuffle(blocks);
             equalizeWater(blocks, fluidPos, world, centerlevel);
         }
@@ -109,8 +109,6 @@ public class FlowWater {
         ChunkSection s24 = null;
 
         //Getting the chunks of the corners
-
-
 
         //s11 = s1;
         //SectionList[0] = s11;
@@ -313,6 +311,94 @@ public class FlowWater {
         return internalBS;
     }
 
+    public static void sectionSetBlockState(BlockPos pos, BlockState state) {
+
+        String sectionName = "";
+        int sectionID = 0;
+        BlockState newBS = state;
+
+        int posX = pos.getX();
+        int posZ = pos.getZ();
+        int posY = pos.getY();
+        System.out.println("bors XYZ: " + borX + " " + borY + " " + borZ);
+        System.out.println("x: " + posX + " z: " + posZ + " y: " + posY);
+
+        if (posX < borX) {
+            if (posZ < borZ) {
+                if (posY >= borY) {
+                    sectionName = "14";
+                    sectionID = 3;
+                }
+                else {
+                    sectionName = "24";
+                    sectionID = 7;
+                }
+            }
+            else {
+                if (posY >= borY) {
+                    sectionName = "12";
+                    sectionID = 1;
+                }
+                else {
+                    sectionName = "22";
+                    sectionID = 5;
+                }
+            }
+        }
+        else {
+            if (posZ < borZ) {
+                if (posY >= borY) {
+                    sectionName = "13";
+                    sectionID = 2;
+                }
+                else {
+                    sectionName = "23";
+                    sectionID = 6;
+                }
+            }
+            else {
+                if (posY >= borY) {
+                    sectionName = "11";
+                    sectionID = 0;
+                }
+                else {
+                    sectionName = "21";
+                    sectionID = 4;
+                }
+            }
+        }
+
+        //Getting relative position of pos
+        int relX;
+        int relZ;
+        int relY;
+
+        if (pos.getX() > 0) {
+            relX = pos.getX() % 16;
+        }
+        else {
+            relX =  16 + pos.getX() % 16;
+        }
+        if (pos.getZ() > 0) {
+            relZ = pos.getZ() % 16;
+        }
+        else {
+            relZ =  16 + pos.getZ() % 16;
+        }
+        if (posY > 0) {
+            relY = posY % 16;
+        }
+        else {
+            relY =  16 + posY % 16;
+        }
+
+        System.out.println("sectionID: " + sectionID + " sectionName : " + sectionName);
+        ChunkSection internalCS = SectionList[sectionID];
+
+        internalCS.setBlockState(relX, relY, relZ, newBS);
+
+    }
+
     public static int getOriSectionID(BlockPos pos) {
 
         String sectionName = "";
@@ -410,7 +496,7 @@ public class FlowWater {
 
 
     public static int getWaterLevel(BlockPos pos, WorldAccess world) {
-        BlockState blockstate = world.getBlockState(pos);
+        BlockState blockstate = sectionGetBlockState(pos);
         FluidState fluidstate = blockstate.getFluidState();
         int waterlevel = 0;
         if (fluidstate.getFluid() instanceof WaterFluid.Still) {
@@ -423,13 +509,13 @@ public class FlowWater {
 
     public static void setWaterLevel(int level, BlockPos pos, WorldAccess world) {
         if (level == 8) {
-            if (!(world.getBlockState(pos).getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                world.setBlockState(pos, Fluids.WATER.getDefaultState().getBlockState(), 11);
+            if (!(sectionGetBlockState(pos).getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
+                sectionSetBlockState(pos, Fluids.WATER.getDefaultState().getBlockState());
             }
         } else if (level == 0) {
-            world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
+            sectionSetBlockState(pos, Blocks.AIR.getDefaultState());
         } else if (level < 8) {
-            world.setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState(), 11);
+            sectionSetBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
         }  else {
             System.out.println("Can't set water >8 something went very wrong!");
         }
@@ -741,8 +827,8 @@ public class FlowWater {
                                 if (sectionGetBlockState(pos).getBlock() == Blocks.WATER && newWaterPos.getY() == pos.getY() && sectionGetBlockState(newWaterPos).getBlock() == Blocks.AIR) {
                                     //System.out.println("dir: " + direction);
                                     //System.out.println("jumping");
-                                    world.setBlockState(newWaterPos, Fluids.FLOWING_WATER.getFlowing(1, false).getBlockState(), 11);
-                                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
+                                    sectionSetBlockState(newWaterPos, Fluids.FLOWING_WATER.getFlowing(1, false).getBlockState());
+                                    sectionSetBlockState(pos, Blocks.AIR.getDefaultState());
                                     didJump = true;
                                     doHop = false;
                                     //direction = "";
