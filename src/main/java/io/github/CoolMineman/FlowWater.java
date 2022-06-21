@@ -21,6 +21,7 @@ public class FlowWater {
     private FlowWater() {
     }
 
+
     public static int borX = 0;
     public static int borZ = 0;
     public static int borY = 0;
@@ -32,6 +33,7 @@ public class FlowWater {
 
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
+        System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
             world.setBlockState(fluidPos, Blocks.AIR.getDefaultState(), 11);
         }
@@ -39,7 +41,7 @@ public class FlowWater {
             chunkFetcher(world, fluidPos);
             sectionGetBlockState(fluidPos);
 
-            /*int centerlevel = getWaterLevel(fluidPos, world);
+            int centerlevel = getWaterLevel(fluidPos, world);
             if (sectionGetBlockState(fluidPos).getBlock() instanceof FluidFillable) {
                 return;
             }
@@ -55,7 +57,7 @@ public class FlowWater {
                 blocks.removeIf(pos -> !sectionGetBlockState(pos).canBucketPlace(Fluids.WATER));
                 Collections.shuffle(blocks);
                 equalizeWater(blocks, fluidPos, world, centerlevel);
-            }*/
+            }
         }
     }
 
