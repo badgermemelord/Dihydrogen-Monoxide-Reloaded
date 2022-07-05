@@ -72,21 +72,16 @@ public class FlowWater {
         int secY2;
         secY = (posY + 64) / 16;
         secY2 = (posY + 63) / 16;
-        System.out.println("sec " + secY);
+        System.out.println("sec " + secY + " sec2" + secY2);
 
-        boolean coc = true;
-        boolean cac = true;
-        boolean cec = true;
-        boolean bals = false;
-        if (coc || cac || cec) {
-            bals = true;
-        }
+        int[] secList = new int[2];
+        secList[0] = secY;
+        secList[1] = secY2;
 
-        System.out.println("bals: " + bals);
 
         //Clockwise corner calculation (8 corners for a cuboid)
 
-        BlockPos[] cornerList = new BlockPos[4];
+        BlockPos[] cornerList = new BlockPos[8];
 
         BlockPos c0 = fluidPos;
         BlockPos c2 = fluidPos.add(0,-1,0);
@@ -100,82 +95,20 @@ public class FlowWater {
         cornerList[3] = c14;
 
         BlockPos c21 = fluidPos.add(gmr,-1,gmr);
+        cornerList[4] = c21;
         BlockPos c22 = fluidPos.add(-gmr,-1,gmr);
+        cornerList[5] = c22;
         BlockPos c23 = fluidPos.add(gmr,-1,-gmr);
+        cornerList[6] = c23;
         BlockPos c24 = fluidPos.add(-gmr,-1,-gmr);
-        ce24 = fluidPos.add(-gmr,-1,-gmr);
+        cornerList[7] = c24;
 
         //Getting the starting chunks
         ChunkSection s1 = world.getChunk(c0).getSection(secY);
         ChunkSection s2 = world.getChunk(c2).getSection(secY2);
 
 
-        //Calculating whether the corners are inside the chunk, either distance > Dist or distance < -relc0
-        boolean isc11in = isWithinChunk(c11, fluidPos);
-        boolean isc12in = isWithinChunk(c12, fluidPos);
-        boolean isc13in = isWithinChunk(c13, fluidPos);
-        boolean isc14in = isWithinChunk(c14, fluidPos);
 
-        boolean isc21in = isWithinChunk(c21, fluidPos);
-        boolean isc22in = isWithinChunk(c22, fluidPos);
-        boolean isc23in = isWithinChunk(c23, fluidPos);
-        boolean isc24in = isWithinChunk(c24, fluidPos);
-
-        ChunkSection s11 = null;
-        ChunkSection s12 = null;
-        ChunkSection s13 = null;
-        ChunkSection s14 = null;
-        ChunkSection s21 = null;
-        ChunkSection s22 = null;
-        ChunkSection s23 = null;
-        ChunkSection s24 = null;
-
-        //Getting the chunks of the corners
-
-        //s11 = s1;
-        //SectionList[0] = s11;
-
-        if (isc11in == false) {
-            s11 = world.getChunk(c11).getSection(secY);
-            SectionList[0] = s11;
-            System.out.println("fetched s11");
-        }
-        if (isc12in == false) {
-            s12 = world.getChunk(c12).getSection(secY);
-            SectionList[1] = s12;
-            System.out.println("fetched s12");
-        }
-        if (isc13in == false) {
-            s13 = world.getChunk(c13).getSection(secY);
-            SectionList[2] = s13;
-            System.out.println("fetched s13");
-        }
-        if (isc14in == false) {
-            s14 = world.getChunk(c14).getSection(secY);
-            SectionList[3] = s14;
-            System.out.println("fetched s14");
-        }
-        System.out.println("break");
-        if (isc21in == false) {
-             s21 = world.getChunk(c21).getSection(secY-1);
-            SectionList[4] = s21;
-            System.out.println("fetched s21");
-        }
-        if (isc22in == false) {
-             s22 = world.getChunk(c22).getSection(secY-1);
-            SectionList[5] = s22;
-            System.out.println("fetched s22");
-        }
-        if (isc23in == false) {
-             s23 = world.getChunk(c23).getSection(secY-1);
-            SectionList[6] = s23;
-            System.out.println("fetched s23");
-        }
-        if (isc24in == false) {
-             s24 = world.getChunk(c24).getSection(secY-1);
-            SectionList[7] = s24;
-            System.out.println("fetched s24");
-        }
 
 
 
@@ -227,6 +160,13 @@ public class FlowWater {
         int oriID = getOriSectionID(fluidPos);
         int oriBelowID = oriID - 4;
 
+        for (int a = 0; a < 4; a++) {
+
+            int secID = getOriSectionID(cornerList[a]);
+
+            SectionList[secID] = world.getChunk(cornerList[a]).getSection(secY);
+            System.out.println("sector " + secID + " " + secY);
+        }
 
         if (SectionList[oriID] == null) {
             SectionList[oriID] = s1;
