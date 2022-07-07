@@ -211,21 +211,17 @@ public class FlowWater {
         if (posX < borX) {
             if (posZ < borZ) {
                 if (posY >= borY) {
-                    sectionName = "14";
                     sectionID = 3;
                 }
                 else {
-                    sectionName = "24";
                     sectionID = 7;
                 }
             }
             else {
                 if (posY >= borY) {
-                    sectionName = "12";
                     sectionID = 1;
                 }
                 else {
-                    sectionName = "22";
                     sectionID = 5;
                 }
             }
@@ -233,21 +229,17 @@ public class FlowWater {
         else {
             if (posZ < borZ) {
                 if (posY >= borY) {
-                    sectionName = "13";
                     sectionID = 2;
                 }
                 else {
-                    sectionName = "23";
                     sectionID = 6;
                 }
             }
             else {
                 if (posY >= borY) {
-                    sectionName = "11";
                     sectionID = 0;
                 }
                 else {
-                    sectionName = "21";
                     sectionID = 4;
                 }
             }
@@ -694,7 +686,7 @@ public class FlowWater {
             int previousRadius = currentRadius - 1;
             int x = pos.getX();
             int y = pos.getY();
-            int uy = pos.getY() - 1;
+            //int uy = pos.getY() - 1;
             int z = pos.getZ();
             int count = 0;
             boolean didJump = false;
@@ -703,7 +695,7 @@ public class FlowWater {
             boolean addZ = false;
             Boolean doHop = false;
             int perim = 4*(currentDiameter-1);
-            int totalCount =  maxDia*maxDia;
+            //int totalCount =  maxDia*maxDia;
             boolean doneExtendedCheck = false;
             boolean doExtendedCheck = false;
             int dataPF[][] = new int[maxDia][maxDia];
@@ -729,8 +721,8 @@ public class FlowWater {
 
                     //code start
 
-                    int originalData[][] = new int[5][5];
-                    int puddleData[][] = new int[maxDia][maxDia];
+                    //int originalData[][] = new int[5][5];
+                    //int puddleData[][] = new int[maxDia][maxDia];
 
                     int matrixRadius;
                     if (currentRadius <= 2) {
@@ -751,7 +743,7 @@ public class FlowWater {
                     int absZ = relZ + matrixRadius;
 
 
-                    if (doExtendedCheck == true && doneExtendedCheck == false) {
+                    if (doExtendedCheck && !doneExtendedCheck) {
 
                         for (int dx2 = x-maxRadius; dx2 <= x+maxRadius; dx2++) {
                             for (int dz2 = z-maxRadius; dz2 <= z+maxRadius; dz2++) {
