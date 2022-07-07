@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidFillable;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.fluid.WaterFluid;
@@ -397,8 +398,13 @@ public class FlowWater {
 
         ChunkSection section = chunkSections[sectionID];
         BlockState old = section.getBlockState(relX, relY, relZ);
+        if (state == old) return;
+
         world.getChunkManager().markForUpdate(pos);
         world.updateNeighbors(pos, old.getBlock());
+        Fluid fluid = state.getFluidState().getFluid();
+        world.createAndScheduleFluidTick(pos, fluid, fluid.getTickRate(world));
+
         section.setBlockState(relX, relY, relZ, state, false);
     }
 
@@ -714,10 +720,7 @@ public class FlowWater {
             boolean addZ = false;
             Boolean doHop = false;
             int perim = 4*(currentDiameter-1);
-<<<<<<< HEAD
-=======
-            //int totalCount =  maxDia*maxDia;
->>>>>>> 6809b1581601a6c9820e9b757639a76512a607c0
+
             boolean doneExtendedCheck = false;
             boolean doExtendedCheck = false;
             int dataPF[][] = new int[maxDia][maxDia];
@@ -744,11 +747,7 @@ public class FlowWater {
 
                     //code start
 
-<<<<<<< HEAD
-=======
-                    //int originalData[][] = new int[5][5];
-                    //int puddleData[][] = new int[maxDia][maxDia];
->>>>>>> 6809b1581601a6c9820e9b757639a76512a607c0
+
 
                     if (currentRadius <= 2) {
                         matrixRadius = 2;
