@@ -96,7 +96,7 @@ public class FlowWater {
 
         BlockPos c21 = fluidPos.add(gmr,-1,gmr);
         cornerList[4] = c21;
-        System.out.println("c21 " + c21.getY());
+        //System.out.println("c21 " + c21.getY());
         BlockPos c22 = fluidPos.add(-gmr,-1,gmr);
         cornerList[5] = c22;
         BlockPos c23 = fluidPos.add(gmr,-1,-gmr);
@@ -152,7 +152,7 @@ public class FlowWater {
         borX = fpX - relX;
         borZ = fpZ - relZ;
         borY = fpYa - relY;
-        System.out.println("el bor " + borY + " el fpa + el rely " + fpYa + " " + relY);
+        //System.out.println("el bor " + borY + " el fpa + el rely " + fpYa + " " + relY);
 
 
         fpY = fluidPos.getY();
@@ -286,13 +286,13 @@ public class FlowWater {
             relY = posY % 16;
         }
 
-        System.out.println("sectionID: " + sectionID + " sectionName : " + sectionName);
-        System.out.println("rel coords: " + relX + " " + relY + " " + relZ);
-        System.out.println(Arrays.stream(SectionList).toList());
+        //System.out.println("sectionID: " + sectionID + " sectionName : " + sectionName);
+        //System.out.println("rel coords: " + relX + " " + relY + " " + relZ);
+        //System.out.println(Arrays.stream(SectionList).toList());
         ChunkSection internalCS = SectionList[sectionID];
 
         internalBS = internalCS.getBlockState(relX, relY, relZ);
-        System.out.println("BS: " + internalBS.getBlock());
+        //System.out.println("BS: " + internalBS.getBlock());
 
         return internalBS;
     }
@@ -394,7 +394,7 @@ public class FlowWater {
         int posX = pos.getX();
         int posZ = pos.getZ();
         int posY = pos.getY();
-        System.out.println("Border XYZ: " + borX + " " + borY + " " + borZ);
+        //System.out.println("Border XYZ: " + borX + " " + borY + " " + borZ);
         //System.out.println("Origin x: " + posX + " z: " + posZ + " y: " + posY);
 
         if (posX < borX) {
@@ -443,7 +443,7 @@ public class FlowWater {
         }
 
 
-        System.out.println(" ORIGIN sectionID: " + sectionID + " sectionName : " + sectionName);
+        //System.out.println(" ORIGIN sectionID: " + sectionID + " sectionName : " + sectionName);
 
         return sectionID;
 
