@@ -1,0 +1,384 @@
+Index: src/main/java/io/github/CoolMineman/FlowWater.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/io/github/CoolMineman/FlowWater.java b/src/main/java/io/github/CoolMineman/FlowWater.java
+--- a/src/main/java/io/github/CoolMineman/FlowWater.java	(revision 1448ef3adc511c1b70233abea0807f628f5b0a2c)
++++ b/src/main/java/io/github/CoolMineman/FlowWater.java	(date 1657202144102)
+@@ -9,13 +9,13 @@
+ import net.minecraft.fluid.FluidState;
+ import net.minecraft.fluid.Fluids;
+ import net.minecraft.fluid.WaterFluid;
++import net.minecraft.server.world.ServerWorld;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.Direction;
++import net.minecraft.world.World;
+ import net.minecraft.world.WorldAccess;
+ import net.minecraft.world.chunk.ChunkSection;
+ 
+-import static net.minecraft.util.math.ChunkSectionPos.*;
+-
+ 
+ public class FlowWater {
+     private FlowWater() {
+@@ -27,28 +27,36 @@
+     public static int borY = 0;
+     public static int fpY = 0;
+     public static int worldMinY = -64;
+-    public static ChunkSection[] SectionList = new ChunkSection[8];
++    public static ChunkSection[] chunkSections = new ChunkSection[8];
+     public static BlockPos ce24;
+-
++    public static ServerWorld world;
+ 
+     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
+ 
+         //System.out.println("new beginning");
+         if (fluidPos.getY() == worldMinY) {
+-            world.setBlockState(fluidPos, Blocks.AIR.getDefaultState(), 11);
++            sectionSetBlockState(fluidPos, Blocks.AIR.getDefaultState());
+         }
+         else {
+-            chunkFetcher(world, fluidPos);
++            FlowWater.world = (ServerWorld) world;
++            chunkFetcher(fluidPos);
++            for (ChunkSection chunkSection : chunkSections) {
++                if (chunkSection != null) {
++                    chunkSection.unlock(); // for some reason there is no isLocked method
++                    chunkSection.lock();
++                }
++            }
++
+             sectionGetBlockState(fluidPos);
+ 
+-            int centerlevel = getWaterLevel(fluidPos, world);
++            int centerlevel = getWaterLevel(fluidPos);
+             if (sectionGetBlockState(fluidPos).getBlock() instanceof FluidFillable) {
+                 return;
+             }
+-            if ((sectionGetBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && (getWaterLevel(fluidPos.down(), world) != 8)) {
++            if ((sectionGetBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && (getWaterLevel(fluidPos.down()) != 8)) {
+ 
+-                world.setBlockState(fluidPos, Blocks.AIR.getDefaultState(), 11);
+-                addWater(centerlevel, fluidPos.down(), world);
++                sectionSetBlockState(fluidPos, Blocks.AIR.getDefaultState());
++                addWater(centerlevel, fluidPos.down());
+             } else {
+                 ArrayList<BlockPos> blocks = new ArrayList<>(4);
+                 for (Direction dir : Direction.Type.HORIZONTAL) {
+@@ -56,18 +64,24 @@
+                 }
+                 blocks.removeIf(pos -> !sectionGetBlockState(pos).canBucketPlace(Fluids.WATER));
+                 Collections.shuffle(blocks);
+-                equalizeWater(blocks, fluidPos, world, centerlevel);
++                equalizeWater(blocks, fluidPos, centerlevel);
++            }
++
++            for (ChunkSection chunkSection : chunkSections) {
++                if (chunkSection != null) {
++                    chunkSection.unlock();
++                }
+             }
+         }
+     }
+ 
+-    public static void chunkFetcher(WorldAccess world, BlockPos fluidPos) {
++    public static void chunkFetcher(BlockPos fluidPos) {
+ 
+         //System.out.println("SUGOMA NUTZ");
+         int gmr = 4; //generalMaxRange, the maximum range that will ever be used in checks
+-        int posX = fluidPos.getX();
++        // int posX = fluidPos.getX();
+         int posY = fluidPos.getY();
+-        int posZ = fluidPos.getZ();
++        // int posZ = fluidPos.getZ();
+         int secY;
+         int secY2;
+         secY = (posY + 64) / 16;
+@@ -106,7 +120,7 @@
+ 
+         //Getting the starting chunks
+         ChunkSection s1 = world.getChunk(c0).getSection(secY);
+-        ChunkSection s2 = world.getChunk(c2).getSection(secY2);
++        //ChunkSection s2 = world.getChunk(c2).getSection(secY2);
+ 
+ 
+ 
+@@ -141,13 +155,13 @@
+         int fpX = c11.getX();
+         int fpZ = c11.getZ();
+         int fpYa = c11.getY();
+-        int restX = 15 - relX;
+-        int restZ = 15 - relZ;
+-        int restY = 15 - relY;
++        // int restX = 15 - relX;
++        // int restZ = 15 - relZ;
++        // int restY = 15 - relY;
+ 
+-        borX = 0;
+-        borZ = 0;
+-        borY = 0;
++        //borX = 0;
++        //borZ = 0;
++        //borY = 0;
+ 
+         borX = fpX - relX;
+         borZ = fpZ - relZ;
+@@ -160,7 +174,7 @@
+         //Adding origin chunk if missing
+ 
+         int oriID = getOriSectionID(fluidPos);
+-        int oriBelowID = oriID - 4;
++        // int oriBelowID = oriID - 4;
+ 
+         for (int a = 0; a < 8; a++) {
+ 
+@@ -173,12 +187,12 @@
+             if (a > 3) {
+                 localSecY = secY2;
+             }
+-            SectionList[secID] = world.getChunk(cornerList[a]).getSection(localSecY);
++            chunkSections[secID] = world.getChunk(cornerList[a]).getSection(localSecY);
+             //System.out.println("sector " + secID + " " + secY);
+         }
+ 
+-        if (SectionList[oriID] == null) {
+-            SectionList[oriID] = s1;
++        if (chunkSections[oriID] == null) {
++            chunkSections[oriID] = s1;
+             //System.out.println("aa + " + oriID);
+             //System.out.println("aaaa");
+         }
+@@ -257,7 +271,7 @@
+         int relX;
+         int relZ;
+         int relY;
+-        int relZ2;
++        // int relZ2;
+ 
+         if (pos.getX() >= 0) {
+             relX = pos.getX() % 16;
+@@ -289,19 +303,16 @@
+         //System.out.println("sectionID: " + sectionID + " sectionName : " + sectionName);
+         //System.out.println("rel coords: " + relX + " " + relY + " " + relZ);
+         //System.out.println(Arrays.stream(SectionList).toList());
+-        ChunkSection internalCS = SectionList[sectionID];
+-
+-        internalBS = internalCS.getBlockState(relX, relY, relZ);
+         //System.out.println("BS: " + internalBS.getBlock());
+ 
+-        return internalBS;
++        return chunkSections[sectionID].getBlockState(relX, relY, relZ);
+     }
+ 
+     public static void sectionSetBlockState(BlockPos pos, BlockState state) {
+ 
+         String sectionName = "";
+         int sectionID = 0;
+-        BlockState newBS = state;
++        BlockState internalBS;
+ 
+         int posX = pos.getX();
+         int posZ = pos.getZ();
+@@ -358,32 +369,45 @@
+         int relX;
+         int relZ;
+         int relY;
++        // int relZ2;
+ 
+-        if (pos.getX() > 0) {
++        if (pos.getX() >= 0) {
+             relX = pos.getX() % 16;
+         }
+         else {
+             relX =  16 + pos.getX() % 16;
++            if ((pos.getX() % 16) == 0) {
++                relX = 0;
++            }
++
+         }
+-        if (pos.getZ() > 0) {
++        if (pos.getZ() >= 0) {
+             relZ = pos.getZ() % 16;
+         }
+         else {
+             relZ =  16 + pos.getZ() % 16;
++            if ((pos.getZ() % 16) == 0)  {
++                relZ = 0;
++            }
+         }
+-        if (posY > 0) {
++        if (posY >= 0) {
+             relY = posY % 16;
+         }
+         else {
+-            relY =  16 + posY % 16;
++            posY = posY + 64;
++            relY = posY % 16;
+         }
+ 
+         //System.out.println("sectionID: " + sectionID + " sectionName : " + sectionName);
+-        ChunkSection internalCS = SectionList[sectionID];
++        //System.out.println("rel coords: " + relX + " " + relY + " " + relZ);
++        //System.out.println(Arrays.stream(SectionList).toList());
++        //System.out.println("BS: " + internalBS.getBlock());
+ 
+-        internalCS.setBlockState(relX, relY, relZ, newBS);
+-        //System.out.println("tried to set " + newBS.getBlock());
+-
++        ChunkSection section = chunkSections[sectionID];
++        BlockState old = section.getBlockState(relX, relY, relZ);
++        world.getChunkManager().markForUpdate(pos);
++        world.updateNeighbors(pos, old.getBlock());
++        section.setBlockState(relX, relY, relZ, state, false);
+     }
+ 
+     public static int getOriSectionID(BlockPos pos) {
+@@ -498,7 +522,7 @@
+     }
+ 
+ 
+-    public static int getWaterLevel(BlockPos pos, WorldAccess world) {
++    public static int getWaterLevel(BlockPos pos) {
+         BlockState blockstate = sectionGetBlockState(pos);
+         FluidState fluidstate = blockstate.getFluidState();
+         int waterlevel = 0;
+@@ -510,15 +534,15 @@
+         return waterlevel;
+     }
+ 
+-    public static void setWaterLevel(int level, BlockPos pos, WorldAccess world) {
++    public static void setWaterLevel(int level, BlockPos pos) {
+         if (level == 8) {
+             if (!(sectionGetBlockState(pos).getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
+-                world.setBlockState(pos, Fluids.WATER.getDefaultState().getBlockState(),11);
++                sectionSetBlockState(pos, Blocks.WATER.getDefaultState());
+             }
+         } else if (level == 0) {
+-            world.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
++            sectionSetBlockState(pos, Blocks.AIR.getDefaultState());
+         } else if (level < 8) {
+-            world.setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState(),11);
++            sectionSetBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
+         }  else {
+             //System.out.println("Can't set water >8 something went very wrong!");
+         }
+@@ -528,29 +552,24 @@
+ 
+ 
+ 
+-
+-
+-
+-
+-
+-    public static void addWater(int level, BlockPos pos, WorldAccess world) {
+-        int existingwater = getWaterLevel(pos, world);
++    public static void addWater(int level, BlockPos pos) {
++        int existingwater = getWaterLevel(pos);
+         int totalwater = existingwater + level;
+         if (totalwater > 8) {
+-            setWaterLevel(totalwater - 8, pos.up(), world);
+-            setWaterLevel(8, pos, world);
++            setWaterLevel(totalwater - 8, pos.up());
++            setWaterLevel(8, pos);
+         } else {
+-            setWaterLevel(totalwater, pos, world);
++            setWaterLevel(totalwater, pos);
+         }
+     }
+ 
+ 
+-    public static void equalizeWater(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world, int level) {
++    public static void equalizeWater(ArrayList<BlockPos> blocks, BlockPos center, int level) {
+         int[] waterlevels = new int[4];
+         Arrays.fill(waterlevels, -1);
+         int centerwaterlevel = level;
+         for (BlockPos block : blocks) {
+-            waterlevels[blocks.indexOf(block)] = getWaterLevel(block, world);
++            waterlevels[blocks.indexOf(block)] = getWaterLevel(block);
+         }
+ /*        int waterlevelsnum = waterlevels.length;
+         int didnothings = 0;
+@@ -629,10 +648,10 @@
+ 
+ 
+             if (range == 1) {
+-                method2(blocks, center, world, level, data, newData);
++                method2(blocks, center, level, data, newData);
+             }
+             if (range > 1) {
+-                method1(blocks, center, world);
++                method1(blocks, center);
+             }
+         }
+     }
+@@ -645,13 +664,13 @@
+ 
+ 
+ 
+-    public static void method1(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world) {
++    public static void method1(ArrayList<BlockPos> blocks, BlockPos center) {
+ 
+         int[] waterlevels = new int[4];
+         Arrays.fill(waterlevels, -1);
+-        int centerwaterlevel = getWaterLevel(center, world);
++        int centerwaterlevel = getWaterLevel(center);
+         for (BlockPos block : blocks) {
+-            waterlevels[blocks.indexOf(block)] = getWaterLevel(block, world);
++            waterlevels[blocks.indexOf(block)] = getWaterLevel(block);
+         }
+         int waterlevelsnum = waterlevels.length;
+         int didnothings = 0;
+@@ -675,12 +694,12 @@
+         }
+         for (BlockPos block : blocks) {
+             int newwaterlevel = waterlevels[blocks.indexOf(block)];
+-            setWaterLevel(newwaterlevel, block, world);
++            setWaterLevel(newwaterlevel, block);
+         }
+-        setWaterLevel(centerwaterlevel, center, world);
++        setWaterLevel(centerwaterlevel, center);
+     }
+ 
+-    public static void method2(ArrayList<BlockPos> blocks, BlockPos center, WorldAccess world, int level, int[][] data, int[][] newData) {
++    public static void method2(ArrayList<BlockPos> blocks, BlockPos center, int level, int[][] data, int[][] newData) {
+         //setWaterLevel(level, center, world);
+         BlockPos pos = center;
+ 
+@@ -703,11 +722,11 @@
+             boolean addZ = false;
+             Boolean doHop = false;
+             int perim = 4*(currentDiameter-1);
+-            int totalCount =  maxDia*maxDia;
+             boolean doneExtendedCheck = false;
+             boolean doExtendedCheck = false;
+             int dataPF[][] = new int[maxDia][maxDia];
+ 
++            int matrixRadius;
+ 
+             //puddle feature start
+ 
+@@ -729,10 +748,7 @@
+ 
+                     //code start
+ 
+-                    int originalData[][] = new int[5][5];
+-                    int puddleData[][] = new int[maxDia][maxDia];
+ 
+-                    int matrixRadius;
+                     if (currentRadius <= 2) {
+                         matrixRadius = 2;
+                     }
+@@ -830,8 +846,8 @@
+                                 if (sectionGetBlockState(pos).getBlock() == Blocks.WATER && newWaterPos.getY() == pos.getY() && sectionGetBlockState(newWaterPos).getBlock() == Blocks.AIR) {
+                                     //System.out.println("dir: " + direction);
+                                     //System.out.println("jumping");
+-                                    world.setBlockState(newWaterPos, Fluids.FLOWING_WATER.getFlowing(1, false).getBlockState(),11);
+-                                    world.setBlockState(pos, Blocks.AIR.getDefaultState(),11);
++                                    sectionSetBlockState(newWaterPos, Fluids.FLOWING_WATER.getFlowing(1, false).getBlockState());
++                                    sectionSetBlockState(pos, Blocks.AIR.getDefaultState());
+                                     didJump = true;
+                                     doHop = false;
+                                     //direction = "";
