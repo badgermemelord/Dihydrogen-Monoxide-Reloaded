@@ -1,5 +1,8 @@
 package io.github.CoolMineman.mixin;
 
+import net.minecraft.fluid.WaterFluid;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -11,4 +14,8 @@ public class WaterFluidMixin {
     private void isInfinite(CallbackInfoReturnable<Boolean> bruh) {
         bruh.setReturnValue(false);
     }
+	@Inject(at = @At("HEAD"), method = "getTickRate", cancellable = true)
+	private void getTickRate(WorldView world, CallbackInfoReturnable<Integer> bruh) {
+		bruh.setReturnValue(2);
+	}
 }

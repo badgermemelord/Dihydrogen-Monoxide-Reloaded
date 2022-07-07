@@ -2,10 +2,13 @@
   "required": true,
   "minVersion": "0.8",
   "package": "io.github.CoolMineman.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "WaterFluidMixin",
-    "FlowingMixin"
+    "FlowingMixin",
+    "LavaFluidMixin",
+    "FlowingLavaMixin"
+
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,11 +1,12 @@
 {
   "schemaVersion": 1,
-  "id": "waterphysics",
+  "id": "immersivefluids",
   "version": "${version}",
 
-  "name": "Dihydrogen Monoxide Reloaded",
-  "description": "Completely revolutionizes Dihydrogen Monoxide (Water) physics in minecraft!",
+  "name": "Immersive Fluids",
+  "description": "Physically based behaviour for your minecraft fluids.",
   "authors": [
+    "SirWashington",
     "CoolMineman"
   ],
   "contact": {
@@ -27,9 +28,9 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.7.4",
+    "fabricloader": ">=0.13.3",
     "fabric": "*",
-    "minecraft": "*"
+    "minecraft": "1.18.2"
   },
   "suggests": {
     "flamingo": "*"
