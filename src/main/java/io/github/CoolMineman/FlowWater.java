@@ -2,10 +2,7 @@ package io.github.CoolMineman;
 
 import java.util.*;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FluidFillable;
+import net.minecraft.block.*;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -49,6 +46,23 @@ public class FlowWater {
             }
 
             sectionGetBlockState(fluidPos);
+            BlockState fluidPosState = sectionGetBlockState(fluidPos);
+
+            System.out.println("bal");
+
+            ArrayList<BlockPos> blockse = new ArrayList<>(4);
+            for (Direction dir : Direction.Type.HORIZONTAL) {
+                blockse.add(fluidPos.offset(dir));
+            }
+
+            if (fluidPosState.getBlock() instanceof FluidFillable && fluidPosState.getBlock() instanceof FluidDrainable){
+                System.out.println("bal2");
+                waterLoggedFlow(fluidPos, fluidPosState, blockse);
+            }
+            if (fluidPosState.getBlock() instanceof FluidFillable && !(fluidPosState.getBlock() instanceof FluidDrainable)){
+                System.out.println("bal3");
+                KelpFlow(fluidPos, fluidPosState, blockse);
+            }
 
             int centerlevel = getWaterLevel(fluidPos);
             if (sectionGetBlockState(fluidPos).getBlock() instanceof FluidFillable) {
@@ -63,9 +77,12 @@ public class FlowWater {
                 for (Direction dir : Direction.Type.HORIZONTAL) {
                     blocks.add(fluidPos.offset(dir));
                 }
+
                 blocks.removeIf(pos -> !sectionGetBlockState(pos).canBucketPlace(Fluids.WATER));
                 Collections.shuffle(blocks);
                 equalizeWater(blocks, fluidPos, centerlevel);
+
+
             }
 
             for (ChunkSection chunkSection : chunkSections) {
@@ -657,6 +674,62 @@ public class FlowWater {
                 //Matrix Check End
 
 
+
+    public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
+
+        boolean nonFullFluidBlock = false;
+        int totalWaterLevel = 0;
+        int centerWaterLevel = 8;
+
+        for (BlockPos block : blocks) {
+            System.out.println("sex");
+            int level = getWaterLevel(block);
+            System.out.println(level);
+            totalWaterLevel += level;
+            System.out.println("tot " + totalWaterLevel);
+        }
+        if (totalWaterLevel <=24) {
+            nonFullFluidBlock = true;
+            System.out.println("sex2");
+        }
+        if (nonFullFluidBlock) {
+
+            while (centerWaterLevel > 0) {
+
+                for (BlockPos block : blocks) {
+                    int blockLevel = getWaterLevel(block);
+                    if (blockLevel < 8) {
+                        blockLevel += 1;
+                        centerWaterLevel -= 1;
+                        sectionSetBlockState(block, Fluids.FLOWING_WATER.getFlowing(blockLevel, false).getBlockState());
+                    }
+                }
+            }
+
+
+
+                sectionSetBlockState(fluidPos, fpBS.getBlock().getDefaultState());
+
+
+
+        }
+        }
+
+    public static void KelpFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
+
+        boolean nonFullFluidBlock = false;
+
+        for (BlockPos block : blocks) {
+            int level = getWaterLevel(block);
+            if (level != 8) {
+                nonFullFluidBlock = true;
+            }
+        }
+            if (nonFullFluidBlock) {
+                world.breakBlock(fluidPos, true);
+                sectionSetBlockState(fluidPos, Blocks.WATER.getDefaultState());
+            }
+        }
 
 
 
