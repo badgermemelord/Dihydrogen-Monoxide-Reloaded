@@ -681,18 +681,24 @@ public class FlowWater {
 
     public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
 
+        int count = 0;
         boolean nonFullFluidBlock = false;
         int totalWaterLevel = 0;
         int centerWaterLevel = 8;
 
         for (BlockPos block : blocks) {
+            BlockState internalBS = sectionGetBlockState(block);
+            if (internalBS.getBlock() == Blocks.WATER || internalBS.getBlock() == Blocks.AIR) {
+                count += 1;
+                int level = internalBS.getFluidState().getLevel();
+                totalWaterLevel += level;
+            }
             System.out.println("sex");
             int level = getWaterLevel(block);
             System.out.println(level);
-            totalWaterLevel += level;
             System.out.println("tot " + totalWaterLevel);
         }
-        if (totalWaterLevel <=24) {
+        if (totalWaterLevel <= (count-1)*8) {
             nonFullFluidBlock = true;
             System.out.println("sex2");
         }
@@ -701,11 +707,16 @@ public class FlowWater {
             while (centerWaterLevel > 0) {
 
                 for (BlockPos block : blocks) {
-                    int blockLevel = getWaterLevel(block);
+
+                    BlockState internalBS = sectionGetBlockState(block);
+                    Block internalBlock = internalBS.getBlock();
+                    int blockLevel = internalBS.getFluidState().getLevel();
+                    if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR)
                     if (blockLevel < 8) {
                         blockLevel += 1;
                         centerWaterLevel -= 1;
                         sectionSetBlockState(block, Fluids.FLOWING_WATER.getFlowing(blockLevel, false).getBlockState());
+
                     }
                 }
             }
