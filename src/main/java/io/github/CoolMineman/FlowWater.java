@@ -55,17 +55,21 @@ public class FlowWater {
                 blockse.add(fluidPos.offset(dir));
             }
 
-            if (fluidPosState.getBlock() instanceof FluidFillable && fluidPosState.getBlock() instanceof FluidDrainable){
+            boolean isFFillable = fluidPosState.getBlock() instanceof FluidFillable;
+            boolean isFDrainable = fluidPosState.getBlock() instanceof FluidDrainable;
+
+
+            if (isFFillable && isFDrainable){
                 System.out.println("bal2");
                 waterLoggedFlow(fluidPos, fluidPosState, blockse);
             }
-            if (fluidPosState.getBlock() instanceof FluidFillable && !(fluidPosState.getBlock() instanceof FluidDrainable)){
+            if (isFFillable && !isFDrainable){
                 System.out.println("bal3");
                 KelpFlow(fluidPos, fluidPosState, blockse);
             }
 
             int centerlevel = getWaterLevel(fluidPos);
-            if (sectionGetBlockState(fluidPos).getBlock() instanceof FluidFillable) {
+            if (isFFillable) {
                 return;
             }
             if ((sectionGetBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && (getWaterLevel(fluidPos.down()) != 8)) {
@@ -705,15 +709,9 @@ public class FlowWater {
                     }
                 }
             }
-
-
-
                 sectionSetBlockState(fluidPos, fpBS.getBlock().getDefaultState());
-
-
-
         }
-        }
+    }
 
     public static void KelpFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
 
