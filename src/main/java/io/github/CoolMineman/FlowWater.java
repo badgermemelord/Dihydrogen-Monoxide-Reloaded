@@ -33,6 +33,8 @@ public class FlowWater {
 
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
+
+
         //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
             sectionSetBlockState(fluidPos, Blocks.AIR.getDefaultState());
@@ -50,7 +52,6 @@ public class FlowWater {
             sectionGetBlockState(fluidPos);
             BlockState fluidPosState = sectionGetBlockState(fluidPos);
 
-            System.out.println("bal");
 
             ArrayList<BlockPos> blockse = new ArrayList<>(4);
             for (Direction dir : Direction.Type.HORIZONTAL) {
@@ -62,11 +63,11 @@ public class FlowWater {
 
 
             if (isFFillable && isFDrainable){
-                System.out.println("bal2");
+                //System.out.println("bal2");
                 waterLoggedFlow(fluidPos, fluidPosState, blockse);
             }
             if (isFFillable && !isFDrainable){
-                System.out.println("bal3");
+                //System.out.println("bal3");
                 KelpFlow(fluidPos, fluidPosState, blockse);
             }
 
@@ -695,14 +696,14 @@ public class FlowWater {
                 int level = internalBS.getFluidState().getLevel();
                 totalWaterLevel += level;
             }
-            System.out.println("sex");
+            //System.out.println("sex");
             int level = getWaterLevel(block);
-            System.out.println(level);
-            System.out.println("tot " + totalWaterLevel);
+            //System.out.println(level);
+            //System.out.println("tot " + totalWaterLevel);
         }
         if (totalWaterLevel <= (count-1)*8) {
             nonFullFluidBlock = true;
-            System.out.println("sex2");
+            //System.out.println("sex2");
         }
         if (nonFullFluidBlock) {
             while (centerWaterLevel > 0) {
@@ -737,14 +738,14 @@ public class FlowWater {
                 int level = internalBS.getFluidState().getLevel();
                 totalWaterLevel += level;
             }
-            System.out.println("sex");
+            //System.out.println("sex");
             int level = getWaterLevel(block);
-            System.out.println(level);
-            System.out.println("tot " + totalWaterLevel);
+            //System.out.println(level);
+            //System.out.println("tot " + totalWaterLevel);
         }
         if (totalWaterLevel <= (count-1)*8) {
             nonFullFluidBlock = true;
-            System.out.println("sex2");
+            //System.out.println("sex2");
         }
         if (nonFullFluidBlock) {
             world.breakBlock(fluidPos, true);
