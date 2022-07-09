@@ -3,11 +3,13 @@ package io.github.CoolMineman;
 import java.util.*;
 
 import net.minecraft.block.*;
+import net.minecraft.datafixer.fix.ChunkPalettedStorageFix;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.fluid.WaterFluid;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -703,42 +705,51 @@ public class FlowWater {
             System.out.println("sex2");
         }
         if (nonFullFluidBlock) {
-
             while (centerWaterLevel > 0) {
-
                 for (BlockPos block : blocks) {
-
                     BlockState internalBS = sectionGetBlockState(block);
                     Block internalBlock = internalBS.getBlock();
                     int blockLevel = internalBS.getFluidState().getLevel();
-                    if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR)
-                    if (blockLevel < 8) {
-                        blockLevel += 1;
-                        centerWaterLevel -= 1;
-                        sectionSetBlockState(block, Fluids.FLOWING_WATER.getFlowing(blockLevel, false).getBlockState());
-
+                    if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
+                        if (blockLevel < 8) {
+                            blockLevel += 1;
+                            centerWaterLevel -= 1;
+                            sectionSetBlockState(block, Fluids.FLOWING_WATER.getFlowing(blockLevel, false).getBlockState());
+                        }
                     }
                 }
             }
-                sectionSetBlockState(fluidPos, fpBS.getBlock().getDefaultState());
+                sectionSetBlockState(fluidPos, fpBS.with(Properties.WATERLOGGED, false));
         }
     }
 
     public static void KelpFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
 
+        int count = 0;
         boolean nonFullFluidBlock = false;
+        int totalWaterLevel = 0;
+        int centerWaterLevel = 8;
 
         for (BlockPos block : blocks) {
+            BlockState internalBS = sectionGetBlockState(block);
+            if (internalBS.getBlock() == Blocks.WATER || internalBS.getBlock() == Blocks.AIR) {
+                count += 1;
+                int level = internalBS.getFluidState().getLevel();
+                totalWaterLevel += level;
+            }
+            System.out.println("sex");
             int level = getWaterLevel(block);
-            if (level != 8) {
-                nonFullFluidBlock = true;
-            }
+            System.out.println(level);
+            System.out.println("tot " + totalWaterLevel);
         }
-            if (nonFullFluidBlock) {
-                world.breakBlock(fluidPos, true);
-                sectionSetBlockState(fluidPos, Blocks.WATER.getDefaultState());
-            }
+        if (totalWaterLevel <= (count-1)*8) {
+            nonFullFluidBlock = true;
+            System.out.println("sex2");
         }
+        if (nonFullFluidBlock) {
+            world.breakBlock(fluidPos, true);
+        }
+    }
 
 
 
