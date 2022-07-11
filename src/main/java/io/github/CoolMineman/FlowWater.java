@@ -33,8 +33,6 @@ public class FlowWater {
 
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
-
-
         //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
             sectionSetBlockState(fluidPos, Blocks.AIR.getDefaultState());
@@ -49,7 +47,7 @@ public class FlowWater {
                 }
             }
 
-            sectionGetBlockState(fluidPos);
+            //sectionGetBlockState(fluidPos);
             BlockState fluidPosState = sectionGetBlockState(fluidPos);
 
 
