@@ -35,7 +35,7 @@ public class FlowWater {
 
         //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
-            sectionSetBlockState(fluidPos, Blocks.AIR.getDefaultState());
+            setWaterLevel(0, fluidPos);
         }
         else {
             FlowWater.world = (ServerWorld) world;
@@ -73,9 +73,9 @@ public class FlowWater {
             if (isFFillable) {
                 return;
             }
-            if ((sectionGetBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && (getWaterLevel(fluidPos.down()) != 8)) {
+            if ((sectionGetBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(getWaterLevel(fluidPos.down()))) {
 
-                sectionSetBlockState(fluidPos, Blocks.AIR.getDefaultState());
+                setWaterLevel(0, fluidPos);
                 addWater(centerlevel, fluidPos.down());
             } else {
                 ArrayList<BlockPos> blocks = new ArrayList<>(4);
@@ -83,7 +83,7 @@ public class FlowWater {
                     blocks.add(fluidPos.offset(dir));
                 }
 
-                blocks.removeIf(pos -> !sectionGetBlockState(pos).canBucketPlace(Fluids.WATER));
+                //blocks.removeIf(pos -> !sectionGetBlockState(pos).canBucketPlace(Fluids.WATER));
                 Collections.shuffle(blocks);
                 equalizeWater(blocks, fluidPos, centerlevel);
 
@@ -96,6 +96,10 @@ public class FlowWater {
                 }
             }
         }
+    }
+
+    private static boolean isNotFull(int waterLevel) {
+        return waterLevel < 8 && waterLevel >= 0;
     }
 
     public static void chunkFetcher(BlockPos fluidPos) {
@@ -231,7 +235,6 @@ public class FlowWater {
 
 
     }
-
 
     public static BlockState sectionGetBlockState(BlockPos pos) {
 
@@ -542,30 +545,41 @@ public class FlowWater {
     }
 
 
-    public static int getWaterLevel(BlockPos pos) {
-        BlockState blockstate = sectionGetBlockState(pos);
-        FluidState fluidstate = blockstate.getFluidState();
-        int waterlevel = 0;
-        if (fluidstate.getFluid() instanceof WaterFluid.Still) {
-            waterlevel = 8;
-        } else if (fluidstate.getFluid() instanceof WaterFluid.Flowing) {
-            waterlevel = fluidstate.getLevel();
-        }
-        return waterlevel;
+    private static final HashMap<BlockPos, Byte> CRAP_CACHE = new HashMap<>(1024 * 1024);
+    public static int getWaterLevel(BlockPos ipos) {
+        return CRAP_CACHE.computeIfAbsent(ipos, pos -> {
+            BlockState blockstate = sectionGetBlockState(pos);
+
+            if (blockstate == Blocks.AIR.getDefaultState()) return (byte) 0;
+
+            FluidState fluidstate = blockstate.getFluidState();
+            if (fluidstate == Fluids.EMPTY.getDefaultState()) return (byte) -1;
+
+            int waterlevel;
+            if (fluidstate.isStill()) {
+                waterlevel = 8;
+            } else {
+                waterlevel = fluidstate.getLevel();
+            }
+            return (byte) waterlevel;
+        });
     }
 
     public static void setWaterLevel(int level, BlockPos pos) {
-        if (level == 8) {
-            if (!(sectionGetBlockState(pos).getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                sectionSetBlockState(pos, Blocks.WATER.getDefaultState());
-            }
-        } else if (level == 0) {
+        if (level == 0) {
             sectionSetBlockState(pos, Blocks.AIR.getDefaultState());
-        } else if (level < 8) {
-            sectionSetBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
-        }  else {
-            //System.out.println("Can't set water >8 something went very wrong!");
+        } else if (level < 0) {
+            // System.out.println("Trying to set waterlevel " + level);
+        } else if (level <= 8) {
+            if (level == 8) {
+                if (!(sectionGetBlockState(pos).getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
+                    sectionSetBlockState(pos, Blocks.WATER.getDefaultState());
+                }
+            } else sectionSetBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
+        } else {
+            System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
         }
+        CRAP_CACHE.put(pos, (byte) level);
 
         //Puddle Feature End
     }
@@ -574,6 +588,8 @@ public class FlowWater {
 
     public static void addWater(int level, BlockPos pos) {
         int existingwater = getWaterLevel(pos);
+        if (existingwater == -1) throw new IllegalStateException("Tried to add water to a full block");
+
         int totalwater = existingwater + level;
         if (totalwater > 8) {
             setWaterLevel(totalwater - 8, pos.up());
@@ -587,7 +603,6 @@ public class FlowWater {
     public static void equalizeWater(ArrayList<BlockPos> blocks, BlockPos center, int level) {
         int[] waterlevels = new int[4];
         Arrays.fill(waterlevels, -1);
-        int centerwaterlevel = level;
         for (BlockPos block : blocks) {
             waterlevels[blocks.indexOf(block)] = getWaterLevel(block);
         }
@@ -622,19 +637,8 @@ public class FlowWater {
                 newX = x + dx;
                 newZ = z + dz;
                 BlockPos internalPos = new BlockPos(newX, y, newZ);
-                Block internalBlock = sectionGetBlockState(internalPos).getBlock();
-
-                if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
-                    int ilevel = sectionGetBlockState(internalPos).getFluidState().getLevel();
-                    //System.out.println("dataAir: " + ilevel);
-                    data[dx+radius][dz+radius] = ilevel;
-                    count +=1;
-                }
-                else {
-                    //System.out.println("dataSolid: -1");
-                    data[dx+radius][dz+radius] = -1;
-                    count +=1;
-                }
+                data[dx+radius][dz+radius] = getWaterLevel(internalPos);
+                count +=1;
             }
         }
 
@@ -706,19 +710,15 @@ public class FlowWater {
         if (nonFullFluidBlock) {
             while (centerWaterLevel > 0) {
                 for (BlockPos block : blocks) {
-                    BlockState internalBS = sectionGetBlockState(block);
-                    Block internalBlock = internalBS.getBlock();
-                    int blockLevel = internalBS.getFluidState().getLevel();
-                    if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
-                        if (blockLevel < 8) {
-                            blockLevel += 1;
-                            centerWaterLevel -= 1;
-                            sectionSetBlockState(block, Fluids.FLOWING_WATER.getFlowing(blockLevel, false).getBlockState());
-                        }
+                    int blockLevel = getWaterLevel(block);
+                    if (isNotFull(blockLevel)) {
+                        blockLevel += 1;
+                        centerWaterLevel -= 1;
+                        setWaterLevel(blockLevel, block);
                     }
                 }
             }
-                sectionSetBlockState(fluidPos, fpBS.with(Properties.WATERLOGGED, false));
+            sectionSetBlockState(fluidPos, fpBS.with(Properties.WATERLOGGED, false));
         }
     }
 
@@ -759,8 +759,8 @@ public class FlowWater {
         int[] waterlevels = new int[4];
         Arrays.fill(waterlevels, -1);
         int centerwaterlevel = getWaterLevel(center);
-        for (BlockPos block : blocks) {
-            waterlevels[blocks.indexOf(block)] = getWaterLevel(block);
+        for (int i = 0; i < blocks.size(); i++) {
+            waterlevels[i] = getWaterLevel(blocks.get(i));
         }
         int waterlevelsnum = waterlevels.length;
         int didnothings = 0;
@@ -782,9 +782,8 @@ public class FlowWater {
                 }
             }
         }
-        for (BlockPos block : blocks) {
-            int newwaterlevel = waterlevels[blocks.indexOf(block)];
-            setWaterLevel(newwaterlevel, block);
+        for (int i = 0; i < blocks.size(); i++) {
+            setWaterLevel(waterlevels[i], blocks.get(i));
         }
         setWaterLevel(centerwaterlevel, center);
     }
@@ -793,7 +792,7 @@ public class FlowWater {
         //setWaterLevel(level, center, world);
         BlockPos pos = center;
 
-        if (level == 1 && sectionGetBlockState(pos.down()).getBlock() != Blocks.AIR ) {
+        if (level == 1 && getWaterLevel(pos.down()) != 0) {
         //System.out.println(level);
             int maxRadius = 4;
             int maxDia = (maxRadius * 2) + 1;
@@ -810,7 +809,7 @@ public class FlowWater {
             int dx;
             int dz;
             boolean addZ = false;
-            Boolean doHop = false;
+            boolean doHop = false;
             int perim = 4*(currentDiameter-1);
 
             boolean doneExtendedCheck = false;
@@ -822,16 +821,16 @@ public class FlowWater {
             //puddle feature start
 
             //System.out.println("loop start");
-            for (dx = x - currentRadius, dz = z - currentRadius; didJump == false && dx <= x + maxRadius && dz <= z + maxRadius; ) {
+            for (dx = x - currentRadius, dz = z - currentRadius; !didJump && dx <= x + maxRadius && dz <= z + maxRadius; ) {
 
                 /*System.out.println("original pos: " + pos);
                 System.out.println("loop restart");
                 System.out.println("initial count " + count);
                 System.out.println("didjump 1 " + didJump);*/
-                if (didJump == false) {
+                if (!didJump) {
                     //System.out.println("didjump 2 " + didJump);
-                    if (!(((dx > x + previousRadius || dx < x - previousRadius) || (dz > z + previousRadius || dz < z - previousRadius)) || ((dx > x + previousRadius || dx < x - previousRadius) && (dz > z + previousRadius || dz < z - previousRadius)))) {
-
+                    boolean b = dx > x + previousRadius || dx < x - previousRadius;
+                    if (!(b || dz > z + previousRadius || dz < z - previousRadius)) {
                         dz = z + currentRadius;
                     } else {
                         addZ = true;
@@ -870,16 +869,8 @@ public class FlowWater {
                                 int absZfp = relZfp + maxRadius;
 
                                 BlockPos internalPos = new BlockPos(dx2, y, dz2);
-                                Block internalBlock = sectionGetBlockState(internalPos).getBlock();
-
-                                if (internalBlock == Blocks.WATER || internalBlock == Blocks.AIR) {
-                                    int ilevel = sectionGetBlockState(internalPos).getFluidState().getLevel();
-                                    //System.out.println("dataAir: " + ilevel);
-                                    dataPF[absXfp][absZfp] = ilevel;
-                                } else {
-                                    //System.out.println("dataSolid: -1");
-                                    dataPF[absXfp][absZfp] = -1;
-                                }
+                                int ilevel = getWaterLevel(internalPos);
+                                dataPF[absXfp][absZfp] = ilevel;
                             }
                         }
                         dataPF = GFG.printma(dataPF, maxDia, maxRadius);
@@ -891,7 +882,7 @@ public class FlowWater {
 
                     int currDiameter = (currentRadius * 2) + 1;
 
-                    if (sectionGetBlockState(pos.down()).getBlock() != Blocks.AIR) {
+                    if (getWaterLevel(pos.down()) != 0) {
                         //System.out.println("catch 1");
                         BlockPos currentPos = new BlockPos(dx, y, dz);
                         BlockPos checkBelow = currentPos.down();
@@ -902,7 +893,7 @@ public class FlowWater {
 
                         if (checkBelow != pos.down() && currentPos != pos) {
                             //BlockState below =
-                            if ((sectionGetBlockState(checkBelow).isAir() == true || (sectionGetBlockState(checkBelow).getBlock() == Blocks.WATER) && sectionGetBlockState(checkBelow).getFluidState().getLevel() != 8)) {
+                            if (isNotFull(getWaterLevel(checkBelow))) {
                                 //System.out.println("hole found, " + currentRadius);
 
                                 if (matrixRadius == 2) {
@@ -927,7 +918,7 @@ public class FlowWater {
 
                                 //System.out.println("catch 2");
                             }
-                            if (doHop == true) {
+                            if (doHop) {
                                 //System.out.println("dohop true");
 
                                 Direction.getFacing(x-dx,0, z-dz);
@@ -935,11 +926,12 @@ public class FlowWater {
                                 newWaterPos = pos.offset(direction);
 
                                 //System.out.println("catch 3");
-                                if (sectionGetBlockState(pos).getBlock() == Blocks.WATER && newWaterPos.getY() == pos.getY() && sectionGetBlockState(newWaterPos).getBlock() == Blocks.AIR) {
+                                int waterlevelPos = getWaterLevel(pos);
+                                if (waterlevelPos > 0 && newWaterPos.getY() == pos.getY() && getWaterLevel(newWaterPos) == 0) {
                                     //System.out.println("dir: " + direction);
                                     //System.out.println("jumping");
                                     sectionSetBlockState(newWaterPos, Fluids.FLOWING_WATER.getFlowing(1, false).getBlockState());
-                                    sectionSetBlockState(pos, Blocks.AIR.getDefaultState());
+                                    setWaterLevel(0, pos);
                                     didJump = true;
                                     doHop = false;
                                     //direction = "";
@@ -956,8 +948,7 @@ public class FlowWater {
                             dz = z - currentRadius;
                             dx += 1;
                             addZ = false;
-                        }
-                        if (addZ == true) {
+                        } else if (addZ) {
                             dz += 1;
                             addZ = false;
                         }
@@ -983,5 +974,9 @@ public class FlowWater {
             }
 
         }
+    }
+
+    public static void tick(ServerWorld serverWorld) {
+        CRAP_CACHE.clear();
     }
 }
