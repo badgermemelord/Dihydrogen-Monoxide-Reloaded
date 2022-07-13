@@ -2,6 +2,12 @@ package io.github.CoolMineman;
 
 import java.util.*;
 
+import it.unimi.dsi.fastutil.longs.Long2ByteAVLTreeMap;
+import it.unimi.dsi.fastutil.longs.Long2ByteMap;
+import it.unimi.dsi.fastutil.longs.Long2IntAVLTreeMap;
+import it.unimi.dsi.fastutil.longs.Long2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import net.minecraft.block.*;
 import net.minecraft.datafixer.fix.ChunkPalettedStorageFix;
 import net.minecraft.fluid.Fluid;
@@ -545,10 +551,10 @@ public class FlowWater {
     }
 
 
-    private static final HashMap<BlockPos, Byte> CRAP_CACHE = new HashMap<>(1024 * 1024);
+    private static final Long2ByteMap CRAP_CACHE = new Long2ByteAVLTreeMap();
     public static int getWaterLevel(BlockPos ipos) {
-        return CRAP_CACHE.computeIfAbsent(ipos, pos -> {
-            BlockState blockstate = sectionGetBlockState(pos);
+        return CRAP_CACHE.computeIfAbsent(ipos.asLong(), pos -> {
+            BlockState blockstate = sectionGetBlockState(BlockPos.fromLong(pos));
 
             if (blockstate == Blocks.AIR.getDefaultState()) return (byte) 0;
 
@@ -579,7 +585,7 @@ public class FlowWater {
         } else {
             System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
         }
-        CRAP_CACHE.put(pos, (byte) level);
+        CRAP_CACHE.put(pos.asLong(), (byte) level);
 
         //Puddle Feature End
     }
@@ -692,14 +698,12 @@ public class FlowWater {
         int centerWaterLevel = 8;
 
         for (BlockPos block : blocks) {
-            BlockState internalBS = sectionGetBlockState(block);
-            if (internalBS.getBlock() == Blocks.WATER || internalBS.getBlock() == Blocks.AIR) {
+            int level = getWaterLevel(block);
+            if (level >= 0) {
                 count += 1;
-                int level = internalBS.getFluidState().getLevel();
                 totalWaterLevel += level;
             }
             //System.out.println("sex");
-            int level = getWaterLevel(block);
             //System.out.println(level);
             //System.out.println("tot " + totalWaterLevel);
         }
@@ -930,7 +934,7 @@ public class FlowWater {
                                 if (waterlevelPos > 0 && newWaterPos.getY() == pos.getY() && getWaterLevel(newWaterPos) == 0) {
                                     //System.out.println("dir: " + direction);
                                     //System.out.println("jumping");
-                                    sectionSetBlockState(newWaterPos, Fluids.FLOWING_WATER.getFlowing(1, false).getBlockState());
+                                    setWaterLevel(1, newWaterPos);
                                     setWaterLevel(0, pos);
                                     didJump = true;
                                     doHop = false;
