@@ -2,10 +2,7 @@ package io.github.CoolMineman;
 
 import java.util.*;
 
-import it.unimi.dsi.fastutil.longs.Long2ByteAVLTreeMap;
-import it.unimi.dsi.fastutil.longs.Long2ByteMap;
-import it.unimi.dsi.fastutil.longs.Long2IntAVLTreeMap;
-import it.unimi.dsi.fastutil.longs.Long2IntMap;
+import it.unimi.dsi.fastutil.longs.*;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import net.minecraft.block.*;
@@ -551,7 +548,7 @@ public class FlowWater {
     }
 
 
-    private static final Long2ByteMap CRAP_CACHE = new Long2ByteAVLTreeMap();
+    private static final Long2ByteMap CRAP_CACHE = new Long2ByteOpenHashMap();
     public static int getWaterLevel(BlockPos ipos) {
         return CRAP_CACHE.computeIfAbsent(ipos.asLong(), pos -> {
             BlockState blockstate = sectionGetBlockState(BlockPos.fromLong(pos));
