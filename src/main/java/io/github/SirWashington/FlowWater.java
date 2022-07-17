@@ -1,9 +1,11 @@
 package io.github.SirWashington;
 
-import java.util.*;
-
-import it.unimi.dsi.fastutil.longs.*;
-import net.minecraft.block.*;
+import it.unimi.dsi.fastutil.longs.Long2ByteMap;
+import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FluidDrainable;
+import net.minecraft.block.FluidFillable;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -14,12 +16,13 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.ChunkSection;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 
 public class FlowWater {
-    private FlowWater() {
-    }
-
-
+    private static final Long2ByteMap CRAP_CACHE = new Long2ByteOpenHashMap();
     public static int borX = 0;
     public static int borZ = 0;
     public static int borY = 0;
@@ -29,13 +32,15 @@ public class FlowWater {
     public static BlockPos ce24;
     public static ServerWorld world;
 
+    private FlowWater() {
+    }
+
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
         //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
             setWaterLevel(0, fluidPos);
-        }
-        else {
+        } else {
             FlowWater.world = (ServerWorld) world;
             chunkFetcher(fluidPos);
             for (ChunkSection chunkSection : chunkSections) {
@@ -58,11 +63,11 @@ public class FlowWater {
             boolean isFDrainable = fluidPosState.getBlock() instanceof FluidDrainable;
 
 
-            if (isFFillable && isFDrainable){
+            if (isFFillable && isFDrainable) {
                 //System.out.println("bal2");
                 waterLoggedFlow(fluidPos, fluidPosState, blockse);
             }
-            if (isFFillable && !isFDrainable){
+            if (isFFillable && !isFDrainable) {
                 //System.out.println("bal3");
                 KelpFlow(fluidPos, fluidPosState, blockse);
             }
@@ -123,33 +128,29 @@ public class FlowWater {
         BlockPos[] cornerList = new BlockPos[8];
 
         BlockPos c0 = fluidPos;
-        BlockPos c2 = fluidPos.add(0,-1,0);
-        BlockPos c11 = fluidPos.add(gmr,0,gmr);
+        BlockPos c2 = fluidPos.add(0, -1, 0);
+        BlockPos c11 = fluidPos.add(gmr, 0, gmr);
         cornerList[0] = c11;
-        BlockPos c12 = fluidPos.add(-gmr,0,gmr);
+        BlockPos c12 = fluidPos.add(-gmr, 0, gmr);
         cornerList[1] = c12;
-        BlockPos c13 = fluidPos.add(gmr,0,-gmr);
+        BlockPos c13 = fluidPos.add(gmr, 0, -gmr);
         cornerList[2] = c13;
-        BlockPos c14 = fluidPos.add(-gmr,0,-gmr);
+        BlockPos c14 = fluidPos.add(-gmr, 0, -gmr);
         cornerList[3] = c14;
 
-        BlockPos c21 = fluidPos.add(gmr,-1,gmr);
+        BlockPos c21 = fluidPos.add(gmr, -1, gmr);
         cornerList[4] = c21;
         //System.out.println("c21 " + c21.getY());
-        BlockPos c22 = fluidPos.add(-gmr,-1,gmr);
+        BlockPos c22 = fluidPos.add(-gmr, -1, gmr);
         cornerList[5] = c22;
-        BlockPos c23 = fluidPos.add(gmr,-1,-gmr);
+        BlockPos c23 = fluidPos.add(gmr, -1, -gmr);
         cornerList[6] = c23;
-        BlockPos c24 = fluidPos.add(-gmr,-1,-gmr);
+        BlockPos c24 = fluidPos.add(-gmr, -1, -gmr);
         cornerList[7] = c24;
 
         //Getting the starting chunks
         ChunkSection s1 = world.getChunk(c0).getSection(secY);
         //ChunkSection s2 = world.getChunk(c2).getSection(secY2);
-
-
-
-
 
 
         //Calculating the border coordinates of the s11 chunk
@@ -159,22 +160,19 @@ public class FlowWater {
         int relY;
 
         if (c11.getX() > 0) {
-             relX = c11.getX() % 16;
-        }
-        else {
-             relX =  16 + c11.getX() % 16;
+            relX = c11.getX() % 16;
+        } else {
+            relX = 16 + c11.getX() % 16;
         }
         if (c11.getZ() > 0) {
-             relZ = c11.getZ() % 16;
-        }
-        else {
-             relZ =  16 + c11.getZ() % 16;
+            relZ = c11.getZ() % 16;
+        } else {
+            relZ = 16 + c11.getZ() % 16;
         }
         if (c11.getY() > 0) {
             relY = c11.getY() % 16;
-        }
-        else {
-            relY = (c11.getY()+64) % 16;
+        } else {
+            relY = (c11.getY() + 64) % 16;
         }
 
         int fpX = c11.getX();
@@ -231,7 +229,6 @@ public class FlowWater {
 */
 
 
-
     }
 
     public static BlockState sectionGetBlockState(BlockPos pos) {
@@ -250,34 +247,27 @@ public class FlowWater {
             if (posZ < borZ) {
                 if (posY >= borY) {
                     sectionID = 3;
-                }
-                else {
+                } else {
                     sectionID = 7;
                 }
-            }
-            else {
+            } else {
                 if (posY >= borY) {
                     sectionID = 1;
-                }
-                else {
+                } else {
                     sectionID = 5;
                 }
             }
-        }
-        else {
+        } else {
             if (posZ < borZ) {
                 if (posY >= borY) {
                     sectionID = 2;
-                }
-                else {
+                } else {
                     sectionID = 6;
                 }
-            }
-            else {
+            } else {
                 if (posY >= borY) {
                     sectionID = 0;
-                }
-                else {
+                } else {
                     sectionID = 4;
                 }
             }
@@ -291,9 +281,8 @@ public class FlowWater {
 
         if (pos.getX() >= 0) {
             relX = pos.getX() % 16;
-        }
-        else {
-            relX =  16 + pos.getX() % 16;
+        } else {
+            relX = 16 + pos.getX() % 16;
             if ((pos.getX() % 16) == 0) {
                 relX = 0;
             }
@@ -301,17 +290,15 @@ public class FlowWater {
         }
         if (pos.getZ() >= 0) {
             relZ = pos.getZ() % 16;
-        }
-        else {
-            relZ =  16 + pos.getZ() % 16;
-            if ((pos.getZ() % 16) == 0)  {
+        } else {
+            relZ = 16 + pos.getZ() % 16;
+            if ((pos.getZ() % 16) == 0) {
                 relZ = 0;
             }
         }
         if (posY >= 0) {
             relY = posY % 16;
-        }
-        else {
+        } else {
             posY = posY + 64;
             relY = posY % 16;
         }
@@ -341,40 +328,33 @@ public class FlowWater {
                 if (posY >= borY) {
                     sectionName = "14";
                     sectionID = 3;
-                }
-                else {
+                } else {
                     sectionName = "24";
                     sectionID = 7;
                 }
-            }
-            else {
+            } else {
                 if (posY >= borY) {
                     sectionName = "12";
                     sectionID = 1;
-                }
-                else {
+                } else {
                     sectionName = "22";
                     sectionID = 5;
                 }
             }
-        }
-        else {
+        } else {
             if (posZ < borZ) {
                 if (posY >= borY) {
                     sectionName = "13";
                     sectionID = 2;
-                }
-                else {
+                } else {
                     sectionName = "23";
                     sectionID = 6;
                 }
-            }
-            else {
+            } else {
                 if (posY >= borY) {
                     sectionName = "11";
                     sectionID = 0;
-                }
-                else {
+                } else {
                     sectionName = "21";
                     sectionID = 4;
                 }
@@ -389,9 +369,8 @@ public class FlowWater {
 
         if (pos.getX() >= 0) {
             relX = pos.getX() % 16;
-        }
-        else {
-            relX =  16 + pos.getX() % 16;
+        } else {
+            relX = 16 + pos.getX() % 16;
             if ((pos.getX() % 16) == 0) {
                 relX = 0;
             }
@@ -399,17 +378,15 @@ public class FlowWater {
         }
         if (pos.getZ() >= 0) {
             relZ = pos.getZ() % 16;
-        }
-        else {
-            relZ =  16 + pos.getZ() % 16;
-            if ((pos.getZ() % 16) == 0)  {
+        } else {
+            relZ = 16 + pos.getZ() % 16;
+            if ((pos.getZ() % 16) == 0) {
                 relZ = 0;
             }
         }
         if (posY >= 0) {
             relY = posY % 16;
-        }
-        else {
+        } else {
             posY = posY + 64;
             relY = posY % 16;
         }
@@ -447,40 +424,33 @@ public class FlowWater {
                 if (posY >= borY) {
                     sectionName = "14";
                     sectionID = 3;
-                }
-                else {
+                } else {
                     sectionName = "24";
                     sectionID = 7;
                 }
-            }
-            else {
+            } else {
                 if (posY >= borY) {
                     sectionName = "12";
                     sectionID = 1;
-                }
-                else {
+                } else {
                     sectionName = "22";
                     sectionID = 5;
                 }
             }
-        }
-        else {
+        } else {
             if (posZ < borZ) {
                 if (posY >= borY) {
                     sectionName = "13";
                     sectionID = 2;
-                }
-                else {
+                } else {
                     sectionName = "23";
                     sectionID = 6;
                 }
-            }
-            else {
+            } else {
                 if (posY >= borY) {
                     sectionName = "11";
                     sectionID = 0;
-                }
-                else {
+                } else {
                     sectionName = "21";
                     sectionID = 4;
                 }
@@ -504,8 +474,7 @@ public class FlowWater {
 
         //System.out.println("pos " + pos);
         //System.out.println("ce24 " + ce24);
-        if(pos.getX() == ce24.getX() && pos.getZ() == ce24.getZ() && pos.getY() == ce24.getY())
-        {
+        if (pos.getX() == ce24.getX() && pos.getZ() == ce24.getZ() && pos.getY() == ce24.getY()) {
             //System.out.println("C24 was here");
         }
 
@@ -513,15 +482,15 @@ public class FlowWater {
         int posSecY = (pos.getY() + 64) / 16;
 
 
-            if (!(origin.getX() >> 4 == pos.getX() >> 4)) {
-                isX = true;
-            }
-            if (!(origin.getY() >> 4 == pos.getY() >> 4)) {
-                isY = true;
-            }
-            if (!(origin.getZ() >> 4 == pos.getZ() >> 4)) {
-                isZ = true;
-            }
+        if (!(origin.getX() >> 4 == pos.getX() >> 4)) {
+            isX = true;
+        }
+        if (!(origin.getY() >> 4 == pos.getY() >> 4)) {
+            isY = true;
+        }
+        if (!(origin.getZ() >> 4 == pos.getZ() >> 4)) {
+            isZ = true;
+        }
 
 
         if (posSecY == originSecY) {
@@ -531,8 +500,7 @@ public class FlowWater {
                 }
             }
             //System.out.println("nuffin");
-        }
-        else {
+        } else {
             if (isX || isZ || isY) {
                 isWithin = false;
             }
@@ -542,8 +510,6 @@ public class FlowWater {
         return isWithin;
     }
 
-
-    private static final Long2ByteMap CRAP_CACHE = new Long2ByteOpenHashMap();
     public static int getWaterLevel(BlockPos ipos) {
         return CRAP_CACHE.computeIfAbsent(ipos.asLong(), pos -> {
             BlockState blockstate = sectionGetBlockState(BlockPos.fromLong(pos));
@@ -583,7 +549,6 @@ public class FlowWater {
     }
 
 
-
     public static void addWater(int level, BlockPos pos) {
         int existingwater = getWaterLevel(pos);
         if (existingwater == -1) throw new IllegalStateException("Tried to add water to a full block");
@@ -611,10 +576,10 @@ public class FlowWater {
 
         //FloodFill Matrix Initiation
         int radius = 2;
-        int diameter = (radius*2)+1;
-        int area = diameter*diameter;
-        int data[][] = new int[diameter][diameter];
-        int newData[][] = new int[diameter][diameter];
+        int diameter = (radius * 2) + 1;
+        int area = diameter * diameter;
+        int[][] data = new int[diameter][diameter];
+        int[][] newData = new int[diameter][diameter];
 
         int centerLevel = level + 10;
 
@@ -635,8 +600,8 @@ public class FlowWater {
                 newX = x + dx;
                 newZ = z + dz;
                 BlockPos internalPos = new BlockPos(newX, y, newZ);
-                data[dx+radius][dz+radius] = getWaterLevel(internalPos);
-                count +=1;
+                data[dx + radius][dz + radius] = getWaterLevel(internalPos);
+                count += 1;
             }
         }
 
@@ -646,8 +611,8 @@ public class FlowWater {
             newData = GFG.printma(data, diameter, radius);
             //System.out.println("newData original: " + Arrays.deepToString(newData));
 
-            for (int i  =  0; i < diameter-1; i++) {
-                for (int j  =  0; j < diameter-1; j++) {
+            for (int i = 0; i < diameter - 1; i++) {
+                for (int j = 0; j < diameter - 1; j++) {
                     if (newData[i][j] >= 10) {
                         //System.out.println("newdata " + newData[i]);
                         if (newData[i][j] > maxLevel) {
@@ -668,7 +633,6 @@ public class FlowWater {
             //System.out.println("range " + range);
 
 
-
             if (range == 1) {
                 method2(blocks, center, level, data, newData);
             }
@@ -678,8 +642,7 @@ public class FlowWater {
         }
     }
 
-                //Matrix Check End
-
+    //Matrix Check End
 
 
     public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
@@ -699,7 +662,7 @@ public class FlowWater {
             //System.out.println(level);
             //System.out.println("tot " + totalWaterLevel);
         }
-        if (totalWaterLevel <= (count-1)*8) {
+        if (totalWaterLevel <= (count - 1) * 8) {
             nonFullFluidBlock = true;
             //System.out.println("sex2");
         }
@@ -737,7 +700,7 @@ public class FlowWater {
             //System.out.println(level);
             //System.out.println("tot " + totalWaterLevel);
         }
-        if (totalWaterLevel <= (count-1)*8) {
+        if (totalWaterLevel <= (count - 1) * 8) {
             nonFullFluidBlock = true;
             //System.out.println("sex2");
         }
@@ -745,9 +708,6 @@ public class FlowWater {
             world.breakBlock(fluidPos, true);
         }
     }
-
-
-
 
 
     public static void method1(ArrayList<BlockPos> blocks, BlockPos center) {
@@ -789,7 +749,7 @@ public class FlowWater {
         BlockPos pos = center;
 
         if (level == 1 && getWaterLevel(pos.down()) != 0) {
-        //System.out.println(level);
+            //System.out.println(level);
             int maxRadius = 4;
             int maxDia = (maxRadius * 2) + 1;
             //int maxArea = maxDia * 2;
@@ -806,11 +766,11 @@ public class FlowWater {
             int dz;
             boolean addZ = false;
             boolean doHop = false;
-            int perim = 4*(currentDiameter-1);
+            int perim = 4 * (currentDiameter - 1);
 
             boolean doneExtendedCheck = false;
             boolean doExtendedCheck = false;
-            int dataPF[][] = new int[maxDia][maxDia];
+            int[][] dataPF = new int[maxDia][maxDia];
 
             int matrixRadius;
 
@@ -835,11 +795,9 @@ public class FlowWater {
                     //code start
 
 
-
                     if (currentRadius <= 2) {
                         matrixRadius = 2;
-                    }
-                    else {
+                    } else {
                         matrixRadius = 4;
                         doExtendedCheck = true;
                     }
@@ -847,21 +805,21 @@ public class FlowWater {
                     //System.out.println("Current radius: " + currentRadius);
                     //System.out.println("Matrix radius: " + matrixRadius);
 
-                    int relX = dx-x;
+                    int relX = dx - x;
                     int absX = relX + matrixRadius;
                     //System.out.println("relX: " + relX + " " + "absX: " + absX);
-                    int relZ= dz-z;
+                    int relZ = dz - z;
                     int absZ = relZ + matrixRadius;
 
 
                     if (doExtendedCheck && !doneExtendedCheck) {
 
-                        for (int dx2 = x-maxRadius; dx2 <= x+maxRadius; dx2++) {
-                            for (int dz2 = z-maxRadius; dz2 <= z+maxRadius; dz2++) {
+                        for (int dx2 = x - maxRadius; dx2 <= x + maxRadius; dx2++) {
+                            for (int dz2 = z - maxRadius; dz2 <= z + maxRadius; dz2++) {
 
-                                int relXfp = dx2-x;
+                                int relXfp = dx2 - x;
                                 int absXfp = relXfp + maxRadius;
-                                int relZfp = dz2-z;
+                                int relZfp = dz2 - z;
                                 int absZfp = relZfp + maxRadius;
 
                                 BlockPos internalPos = new BlockPos(dx2, y, dz2);
@@ -873,7 +831,6 @@ public class FlowWater {
                         doneExtendedCheck = true;
                         //System.out.println("data collected: " + Arrays.deepToString(dataPF));
                     }
-
 
 
                     int currDiameter = (currentRadius * 2) + 1;
@@ -917,7 +874,7 @@ public class FlowWater {
                             if (doHop) {
                                 //System.out.println("dohop true");
 
-                                Direction.getFacing(x-dx,0, z-dz);
+                                Direction.getFacing(x - dx, 0, z - dz);
                                 direction = Direction.getFacing(dx - x, 0, dz - z);
                                 newWaterPos = pos.offset(direction);
 
