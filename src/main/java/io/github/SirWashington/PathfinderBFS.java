@@ -12,12 +12,6 @@ public class PathfinderBFS {
 
 
         pathExists(matrix, startX, startY);
-        for(int a = 0; a < distanceArray.length; a++) {
-            for(int b = 0; b < distanceArray.length; b++) {
-                System.out.print(distanceArray[a][b] + " ");
-            }
-            System.out.println();
-        }
         return distanceArray;
     }
 
@@ -32,7 +26,7 @@ public class PathfinderBFS {
         while(!queue.isEmpty()) {
             Node popped = queue.poll();
 
-            if(matrix[popped.x][popped.y] == 255 ) {
+            if(matrix[popped.x][popped.y] == -3) {
 
             }
             else {
