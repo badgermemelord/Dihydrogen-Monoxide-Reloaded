@@ -4,9 +4,11 @@
   "version": "${version}",
 
   "name": "Immersive Fluids",
-  "description": "Physically based behaviour for your minecraft fluids.",
+  "description": "Physics based behaviour for your minecraft fluids.",
   "authors": [
     "SirWashington",
+    "Ewoudje",
+    "Copper",
     "CoolMineman"
   ],
   "contact": {
@@ -20,7 +22,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "io.github.CoolMineman.WaterPhysics"
+      "io.github.SirWashington.WaterPhysics"
     ]
   },
   "mixins": [
@@ -33,6 +35,7 @@
     "minecraft": "1.18.2"
   },
   "suggests": {
-    "flamingo": "*"
+    "flamingo": "*",
+    "lithium": "*"
   }
 }
