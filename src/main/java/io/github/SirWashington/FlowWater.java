@@ -2,6 +2,9 @@ package io.github.SirWashington;
 
 import java.util.*;
 
+import io.github.SirWashington.features.CachedWater;
+import io.github.SirWashington.features.FlowFeature;
+import io.github.SirWashington.features.PuddleFeature;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluid;
@@ -19,13 +22,7 @@ public class FlowWater {
     private FlowWater() {
     }
 
-
-    public static int borX = 0;
-    public static int borZ = 0;
-    public static int borY = 0;
-    public static int fpY = 0;
     public static int worldMinY = -64;
-    public static ChunkSection[] chunkSections = new ChunkSection[8];
     public static BlockPos ce24;
     public static ServerWorld world;
 
@@ -33,20 +30,15 @@ public class FlowWater {
 
         //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
-            setWaterLevel(0, fluidPos);
-        }
-        else {
+            // TODO INSECURE
+            CachedWater.setWaterLevel(0, fluidPos);
+        } else {
             FlowWater.world = (ServerWorld) world;
-            chunkFetcher(fluidPos);
-            for (ChunkSection chunkSection : chunkSections) {
-                if (chunkSection != null) {
-                    chunkSection.unlock(); // for some reason there is no isLocked method
-                    chunkSection.lock();
-                }
-            }
+            CachedWater.setup(FlowWater.world, fluidPos);
+            CachedWater.lock();
 
             //sectionGetBlockState(fluidPos);
-            BlockState fluidPosState = sectionGetBlockState(fluidPos);
+            BlockState fluidPosState = CachedWater.getBlockState(fluidPos);
 
 
             ArrayList<BlockPos> blockse = new ArrayList<>(4);
@@ -58,23 +50,23 @@ public class FlowWater {
             boolean isFDrainable = fluidPosState.getBlock() instanceof FluidDrainable;
 
 
-            if (isFFillable && isFDrainable){
+            if (isFFillable && isFDrainable) {
                 //System.out.println("bal2");
                 waterLoggedFlow(fluidPos, fluidPosState, blockse);
             }
-            if (isFFillable && !isFDrainable){
+            if (isFFillable && !isFDrainable) {
                 //System.out.println("bal3");
                 KelpFlow(fluidPos, fluidPosState, blockse);
             }
 
-            int centerlevel = getWaterLevel(fluidPos);
+            int centerlevel = CachedWater.getWaterLevel(fluidPos);
             if (isFFillable) {
                 return;
             }
-            if ((sectionGetBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(getWaterLevel(fluidPos.down()))) {
+            if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
 
-                setWaterLevel(0, fluidPos);
-                addWater(centerlevel, fluidPos.down());
+                CachedWater.setWaterLevel(0, fluidPos);
+                CachedWater.addWater(centerlevel, fluidPos.down());
             } else {
                 ArrayList<BlockPos> blocks = new ArrayList<>(4);
                 for (Direction dir : Direction.Type.HORIZONTAL) {
@@ -88,405 +80,14 @@ public class FlowWater {
 
             }
 
-            for (ChunkSection chunkSection : chunkSections) {
-                if (chunkSection != null) {
-                    chunkSection.unlock();
-                }
-            }
+            CachedWater.unlock();
         }
     }
 
-    private static boolean isNotFull(int waterLevel) {
+    public static boolean isNotFull(int waterLevel) {
         return waterLevel < 8 && waterLevel >= 0;
     }
 
-    public static void chunkFetcher(BlockPos fluidPos) {
-
-        //System.out.println("SUGOMA NUTZ");
-        int gmr = 4; //generalMaxRange, the maximum range that will ever be used in checks
-        // int posX = fluidPos.getX();
-        int posY = fluidPos.getY();
-        // int posZ = fluidPos.getZ();
-        int secY;
-        int secY2;
-        secY = (posY + 64) / 16;
-        secY2 = (posY + 63) / 16;
-        //System.out.println("sec " + secY + " sec2" + secY2);
-
-        int[] secList = new int[2];
-        secList[0] = secY;
-        secList[1] = secY2;
-
-
-        //Clockwise corner calculation (8 corners for a cuboid)
-
-        BlockPos[] cornerList = new BlockPos[8];
-
-        BlockPos c0 = fluidPos;
-        BlockPos c2 = fluidPos.add(0,-1,0);
-        BlockPos c11 = fluidPos.add(gmr,0,gmr);
-        cornerList[0] = c11;
-        BlockPos c12 = fluidPos.add(-gmr,0,gmr);
-        cornerList[1] = c12;
-        BlockPos c13 = fluidPos.add(gmr,0,-gmr);
-        cornerList[2] = c13;
-        BlockPos c14 = fluidPos.add(-gmr,0,-gmr);
-        cornerList[3] = c14;
-
-        BlockPos c21 = fluidPos.add(gmr,-1,gmr);
-        cornerList[4] = c21;
-        //System.out.println("c21 " + c21.getY());
-        BlockPos c22 = fluidPos.add(-gmr,-1,gmr);
-        cornerList[5] = c22;
-        BlockPos c23 = fluidPos.add(gmr,-1,-gmr);
-        cornerList[6] = c23;
-        BlockPos c24 = fluidPos.add(-gmr,-1,-gmr);
-        cornerList[7] = c24;
-
-        //Getting the starting chunks
-        ChunkSection s1 = world.getChunk(c0).getSection(secY);
-
-        //Calculating the border coordinates of the s11 chunk
-
-        int relX;
-        int relZ;
-        int relY;
-
-        if (c11.getX() > 0) {
-             relX = c11.getX() % 16;
-        }
-        else {
-             relX =  16 + c11.getX() % 16;
-        }
-        if (c11.getZ() > 0) {
-             relZ = c11.getZ() % 16;
-        }
-        else {
-             relZ =  16 + c11.getZ() % 16;
-        }
-        if (c11.getY() > 0) {
-            relY = c11.getY() % 16;
-        }
-        else {
-            relY = (c11.getY()+64) % 16;
-        }
-
-        int fpX = c11.getX();
-        int fpZ = c11.getZ();
-        int fpYa = c11.getY();
-        // int restX = 15 - relX;
-        // int restZ = 15 - relZ;
-        // int restY = 15 - relY;
-
-        //borX = 0;
-        //borZ = 0;
-        //borY = 0;
-
-        borX = fpX - relX;
-        borZ = fpZ - relZ;
-        borY = fpYa - relY;
-        //System.out.println("el bor " + borY + " el fpa + el rely " + fpYa + " " + relY);
-
-
-        fpY = fluidPos.getY();
-
-        //Adding origin chunk if missing
-
-        int oriID = getOriSectionID(fluidPos);
-        // int oriBelowID = oriID - 4;
-
-        for (int a = 0; a < 8; a++) {
-
-            int localSecY = 0;
-            int secID = getOriSectionID(cornerList[a]);
-
-            if (a < 4) {
-                localSecY = secY;
-            }
-            if (a > 3) {
-                localSecY = secY2;
-            }
-            chunkSections[secID] = world.getChunk(cornerList[a]).getSection(localSecY);
-            //System.out.println("sector " + secID + " " + secY);
-        }
-
-        if (chunkSections[oriID] == null) {
-            chunkSections[oriID] = s1;
-            //System.out.println("aa + " + oriID);
-            //System.out.println("aaaa");
-        }
-/*
-        BlockPos cornerPos = new BlockPos(borX, fluidPos.getY(), borZ);
-        System.out.println("bpX: " + cornerPos.getX() + " bpZ: " + cornerPos.getZ());
-
-        BlockState bla = sectionGetBlockState(fluidPos);
-        int levele = bla.getFluidState().getLevel();
-        System.out.println("levele: " + levele);
-*/
-
-
-
-    }
-
-    public static BlockState sectionGetBlockState(BlockPos pos) {
-
-        String sectionName = "";
-        int sectionID = 0;
-        BlockState internalBS;
-
-        int posX = pos.getX();
-        int posZ = pos.getZ();
-        int posY = pos.getY();
-        //System.out.println("bors XYZ: " + borX + " " + borY + " " + borZ);
-        //System.out.println("x: " + posX + " z: " + posZ + " y: " + posY);
-
-        if (posX < borX) {
-            if (posZ < borZ) {
-                if (posY >= borY) {
-                    sectionID = 3;
-                }
-                else {
-                    sectionID = 7;
-                }
-            }
-            else {
-                if (posY >= borY) {
-                    sectionID = 1;
-                }
-                else {
-                    sectionID = 5;
-                }
-            }
-        }
-        else {
-            if (posZ < borZ) {
-                if (posY >= borY) {
-                    sectionID = 2;
-                }
-                else {
-                    sectionID = 6;
-                }
-            }
-            else {
-                if (posY >= borY) {
-                    sectionID = 0;
-                }
-                else {
-                    sectionID = 4;
-                }
-            }
-        }
-
-        //Getting relative position of pos
-        int relX;
-        int relZ;
-        int relY;
-        // int relZ2;
-
-        if (pos.getX() >= 0) {
-            relX = pos.getX() % 16;
-        }
-        else {
-            relX =  16 + pos.getX() % 16;
-            if ((pos.getX() % 16) == 0) {
-                relX = 0;
-            }
-
-        }
-        if (pos.getZ() >= 0) {
-            relZ = pos.getZ() % 16;
-        }
-        else {
-            relZ =  16 + pos.getZ() % 16;
-            if ((pos.getZ() % 16) == 0)  {
-                relZ = 0;
-            }
-        }
-        if (posY >= 0) {
-            relY = posY % 16;
-        }
-        else {
-            posY = posY + 64;
-            relY = posY % 16;
-        }
-
-        //System.out.println("sectionID: " + sectionID + " sectionName : " + sectionName);
-        //System.out.println("rel coords: " + relX + " " + relY + " " + relZ);
-        //System.out.println(Arrays.stream(SectionList).toList());
-        //System.out.println("BS: " + internalBS.getBlock());
-
-        return chunkSections[sectionID].getBlockState(relX, relY, relZ);
-    }
-
-    public static void sectionSetBlockState(BlockPos pos, BlockState state) {
-
-        String sectionName = "";
-        int sectionID = 0;
-        BlockState internalBS;
-
-        int posX = pos.getX();
-        int posZ = pos.getZ();
-        int posY = pos.getY();
-        //System.out.println("bors XYZ: " + borX + " " + borY + " " + borZ);
-        //System.out.println("x: " + posX + " z: " + posZ + " y: " + posY);
-
-        if (posX < borX) {
-            if (posZ < borZ) {
-                if (posY >= borY) {
-                    sectionName = "14";
-                    sectionID = 3;
-                }
-                else {
-                    sectionName = "24";
-                    sectionID = 7;
-                }
-            }
-            else {
-                if (posY >= borY) {
-                    sectionName = "12";
-                    sectionID = 1;
-                }
-                else {
-                    sectionName = "22";
-                    sectionID = 5;
-                }
-            }
-        }
-        else {
-            if (posZ < borZ) {
-                if (posY >= borY) {
-                    sectionName = "13";
-                    sectionID = 2;
-                }
-                else {
-                    sectionName = "23";
-                    sectionID = 6;
-                }
-            }
-            else {
-                if (posY >= borY) {
-                    sectionName = "11";
-                    sectionID = 0;
-                }
-                else {
-                    sectionName = "21";
-                    sectionID = 4;
-                }
-            }
-        }
-
-        //Getting relative position of pos
-        int relX;
-        int relZ;
-        int relY;
-        // int relZ2;
-
-        if (pos.getX() >= 0) {
-            relX = pos.getX() % 16;
-        }
-        else {
-            relX =  16 + pos.getX() % 16;
-            if ((pos.getX() % 16) == 0) {
-                relX = 0;
-            }
-
-        }
-        if (pos.getZ() >= 0) {
-            relZ = pos.getZ() % 16;
-        }
-        else {
-            relZ =  16 + pos.getZ() % 16;
-            if ((pos.getZ() % 16) == 0)  {
-                relZ = 0;
-            }
-        }
-        if (posY >= 0) {
-            relY = posY % 16;
-        }
-        else {
-            posY = posY + 64;
-            relY = posY % 16;
-        }
-
-        //System.out.println("sectionID: " + sectionID + " sectionName : " + sectionName);
-        //System.out.println("rel coords: " + relX + " " + relY + " " + relZ);
-        //System.out.println(Arrays.stream(SectionList).toList());
-        //System.out.println("BS: " + internalBS.getBlock());
-
-        ChunkSection section = chunkSections[sectionID];
-        BlockState old = section.getBlockState(relX, relY, relZ);
-        if (state == old) return;
-
-        world.getChunkManager().markForUpdate(pos);
-        world.updateNeighbors(pos, old.getBlock());
-        Fluid fluid = state.getFluidState().getFluid();
-        world.createAndScheduleFluidTick(pos, fluid, fluid.getTickRate(world));
-
-        section.setBlockState(relX, relY, relZ, state, false);
-    }
-
-    public static int getOriSectionID(BlockPos pos) {
-
-        String sectionName = "";
-        int sectionID = 0;
-
-        int posX = pos.getX();
-        int posZ = pos.getZ();
-        int posY = pos.getY();
-        //System.out.println("Border XYZ: " + borX + " " + borY + " " + borZ);
-        //System.out.println("Origin x: " + posX + " z: " + posZ + " y: " + posY);
-
-        if (posX < borX) {
-            if (posZ < borZ) {
-                if (posY >= borY) {
-                    sectionName = "14";
-                    sectionID = 3;
-                }
-                else {
-                    sectionName = "24";
-                    sectionID = 7;
-                }
-            }
-            else {
-                if (posY >= borY) {
-                    sectionName = "12";
-                    sectionID = 1;
-                }
-                else {
-                    sectionName = "22";
-                    sectionID = 5;
-                }
-            }
-        }
-        else {
-            if (posZ < borZ) {
-                if (posY >= borY) {
-                    sectionName = "13";
-                    sectionID = 2;
-                }
-                else {
-                    sectionName = "23";
-                    sectionID = 6;
-                }
-            }
-            else {
-                if (posY >= borY) {
-                    sectionName = "11";
-                    sectionID = 0;
-                }
-                else {
-                    sectionName = "21";
-                    sectionID = 4;
-                }
-            }
-        }
-
-
-        //System.out.println(" ORIGIN sectionID: " + sectionID + " sectionName : " + sectionName);
-
-        return sectionID;
-
-    }
 
     public static boolean isWithinChunk(BlockPos pos, BlockPos origin) {
 
@@ -498,8 +99,7 @@ public class FlowWater {
 
         //System.out.println("pos " + pos);
         //System.out.println("ce24 " + ce24);
-        if(pos.getX() == ce24.getX() && pos.getZ() == ce24.getZ() && pos.getY() == ce24.getY())
-        {
+        if (pos.getX() == ce24.getX() && pos.getZ() == ce24.getZ() && pos.getY() == ce24.getY()) {
             //System.out.println("C24 was here");
         }
 
@@ -507,15 +107,15 @@ public class FlowWater {
         int posSecY = (pos.getY() + 64) / 16;
 
 
-            if (!(origin.getX() >> 4 == pos.getX() >> 4)) {
-                isX = true;
-            }
-            if (!(origin.getY() >> 4 == pos.getY() >> 4)) {
-                isY = true;
-            }
-            if (!(origin.getZ() >> 4 == pos.getZ() >> 4)) {
-                isZ = true;
-            }
+        if (!(origin.getX() >> 4 == pos.getX() >> 4)) {
+            isX = true;
+        }
+        if (!(origin.getY() >> 4 == pos.getY() >> 4)) {
+            isY = true;
+        }
+        if (!(origin.getZ() >> 4 == pos.getZ() >> 4)) {
+            isZ = true;
+        }
 
 
         if (posSecY == originSecY) {
@@ -525,8 +125,7 @@ public class FlowWater {
                 }
             }
             //System.out.println("nuffin");
-        }
-        else {
+        } else {
             if (isX || isZ || isY) {
                 isWithin = false;
             }
@@ -537,66 +136,11 @@ public class FlowWater {
     }
 
 
-    private static final Long2ByteMap CRAP_CACHE = new Long2ByteOpenHashMap();
-    public static int getWaterLevel(BlockPos ipos) {
-        return CRAP_CACHE.computeIfAbsent(ipos.asLong(), pos -> {
-            BlockState blockstate = sectionGetBlockState(BlockPos.fromLong(pos));
-
-            if (blockstate == Blocks.AIR.getDefaultState()) return (byte) 0;
-
-            FluidState fluidstate = blockstate.getFluidState();
-            if (fluidstate == Fluids.EMPTY.getDefaultState()) return (byte) -1;
-
-            int waterlevel;
-            if (fluidstate.isStill()) {
-                waterlevel = 8;
-            } else {
-                waterlevel = fluidstate.getLevel();
-            }
-            return (byte) waterlevel;
-        });
-    }
-
-    public static void setWaterLevel(int level, BlockPos pos) {
-        if (level == 0) {
-            sectionSetBlockState(pos, Blocks.AIR.getDefaultState());
-        } else if (level < 0) {
-            // System.out.println("Trying to set waterlevel " + level);
-        } else if (level <= 8) {
-            if (level == 8) {
-                if (!(sectionGetBlockState(pos).getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                    sectionSetBlockState(pos, Blocks.WATER.getDefaultState());
-                }
-            } else sectionSetBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
-        } else {
-            System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
-        }
-        CRAP_CACHE.put(pos.asLong(), (byte) level);
-
-        //Puddle Feature End
-    }
-
-
-
-    public static void addWater(int level, BlockPos pos) {
-        int existingwater = getWaterLevel(pos);
-        if (existingwater == -1) throw new IllegalStateException("Tried to add water to a full block");
-
-        int totalwater = existingwater + level;
-        if (totalwater > 8) {
-            setWaterLevel(totalwater - 8, pos.up());
-            setWaterLevel(8, pos);
-        } else {
-            setWaterLevel(totalwater, pos);
-        }
-    }
-
-
     public static void equalizeWater(ArrayList<BlockPos> blocks, BlockPos center, int level) {
         int[] waterlevels = new int[4];
         Arrays.fill(waterlevels, -1);
         for (BlockPos block : blocks) {
-            waterlevels[blocks.indexOf(block)] = getWaterLevel(block);
+            waterlevels[blocks.indexOf(block)] = CachedWater.getWaterLevel(block);
         }
 /*        int waterlevelsnum = waterlevels.length;
         int didnothings = 0;
@@ -605,8 +149,8 @@ public class FlowWater {
 
         //FloodFill Matrix Initiation
         int radius = 2;
-        int diameter = (radius*2)+1;
-        int area = diameter*diameter;
+        int diameter = (radius * 2) + 1;
+        int area = diameter * diameter;
         int data[][] = new int[diameter][diameter];
         int newData[][] = new int[diameter][diameter];
 
@@ -629,8 +173,8 @@ public class FlowWater {
                 newX = x + dx;
                 newZ = z + dz;
                 BlockPos internalPos = new BlockPos(newX, y, newZ);
-                data[dx+radius][dz+radius] = getWaterLevel(internalPos);
-                count +=1;
+                data[dx + radius][dz + radius] = CachedWater.getWaterLevel(internalPos);
+                count += 1;
             }
         }
 
@@ -640,8 +184,8 @@ public class FlowWater {
             newData = GFG.printma(data, diameter, radius);
             //System.out.println("newData original: " + Arrays.deepToString(newData));
 
-            for (int i  =  0; i < diameter-1; i++) {
-                for (int j  =  0; j < diameter-1; j++) {
+            for (int i = 0; i < diameter - 1; i++) {
+                for (int j = 0; j < diameter - 1; j++) {
                     if (newData[i][j] >= 10) {
                         //System.out.println("newdata " + newData[i]);
                         if (newData[i][j] > maxLevel) {
@@ -662,18 +206,14 @@ public class FlowWater {
             //System.out.println("range " + range);
 
 
-
             if (range == 1) {
-                method2(blocks, center, level, data, newData);
+                PuddleFeature.execute(blocks, center, level, data, newData);
             }
             if (range > 1) {
-                method1(blocks, center);
+                FlowFeature.execute(blocks, center);
             }
         }
     }
-
-                //Matrix Check End
-
 
 
     public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
@@ -684,7 +224,7 @@ public class FlowWater {
         int centerWaterLevel = 8;
 
         for (BlockPos block : blocks) {
-            int level = getWaterLevel(block);
+            int level = CachedWater.getWaterLevel(block);
             if (level >= 0) {
                 count += 1;
                 totalWaterLevel += level;
@@ -693,22 +233,22 @@ public class FlowWater {
             //System.out.println(level);
             //System.out.println("tot " + totalWaterLevel);
         }
-        if (totalWaterLevel <= (count-1)*8) {
+        if (totalWaterLevel <= (count - 1) * 8) {
             nonFullFluidBlock = true;
             //System.out.println("sex2");
         }
         if (nonFullFluidBlock) {
             while (centerWaterLevel > 0) {
                 for (BlockPos block : blocks) {
-                    int blockLevel = getWaterLevel(block);
+                    int blockLevel = CachedWater.getWaterLevel(block);
                     if (isNotFull(blockLevel)) {
                         blockLevel += 1;
                         centerWaterLevel -= 1;
-                        setWaterLevel(blockLevel, block);
+                        CachedWater.setWaterLevel(blockLevel, block);
                     }
                 }
             }
-            sectionSetBlockState(fluidPos, fpBS.with(Properties.WATERLOGGED, false));
+            CachedWater.setBlockState(fluidPos, fpBS.with(Properties.WATERLOGGED, false));
         }
     }
 
@@ -720,18 +260,18 @@ public class FlowWater {
         int centerWaterLevel = 8;
 
         for (BlockPos block : blocks) {
-            BlockState internalBS = sectionGetBlockState(block);
+            BlockState internalBS = CachedWater.getBlockState(block);
             if (internalBS.getBlock() == Blocks.WATER || internalBS.getBlock() == Blocks.AIR) {
                 count += 1;
                 int level = internalBS.getFluidState().getLevel();
                 totalWaterLevel += level;
             }
             //System.out.println("sex");
-            int level = getWaterLevel(block);
+            int level = CachedWater.getWaterLevel(block);
             //System.out.println(level);
             //System.out.println("tot " + totalWaterLevel);
         }
-        if (totalWaterLevel <= (count-1)*8) {
+        if (totalWaterLevel <= (count - 1) * 8) {
             nonFullFluidBlock = true;
             //System.out.println("sex2");
         }
@@ -740,50 +280,12 @@ public class FlowWater {
         }
     }
 
-
-
-
-
-    public static void method1(ArrayList<BlockPos> blocks, BlockPos center) {
-
-        int[] waterlevels = new int[4];
-        Arrays.fill(waterlevels, -1);
-        int centerwaterlevel = getWaterLevel(center);
-        for (int i = 0; i < blocks.size(); i++) {
-            waterlevels[i] = getWaterLevel(blocks.get(i));
-        }
-        int waterlevelsnum = waterlevels.length;
-        int didnothings = 0;
-        int waterlevel;
-
-        while (didnothings < waterlevelsnum) {
-            for (int i = 0; i < 4; i++) {
-                waterlevel = waterlevels[i];
-                if (waterlevel != -1) {
-                    if ((centerwaterlevel >= (waterlevel + 1))) {
-                        waterlevel += 1;
-                        waterlevels[i] = waterlevel;
-                        centerwaterlevel -= 1;
-                    } else {
-                        didnothings += 1;
-                    }
-                } else {
-                    didnothings += 1;
-                }
-            }
-        }
-        for (int i = 0; i < blocks.size(); i++) {
-            setWaterLevel(waterlevels[i], blocks.get(i));
-        }
-        setWaterLevel(centerwaterlevel, center);
-    }
-
     public static void method2(ArrayList<BlockPos> blocks, BlockPos center, int level, int[][] data, int[][] newData) {
         //setWaterLevel(level, center, world);
         BlockPos pos = center;
 
-        if (level == 1 && getWaterLevel(pos.down()) != 0) {
-        //System.out.println(level);
+        if (level == 1 && CachedWater.getWaterLevel(pos.down()) != 0) {
+            //System.out.println(level);
             int maxRadius = 4;
             int maxDia = (maxRadius * 2) + 1;
             //int maxArea = maxDia * 2;
@@ -800,7 +302,7 @@ public class FlowWater {
             int dz;
             boolean addZ = false;
             boolean doHop = false;
-            int perim = 4*(currentDiameter-1);
+            int perim = 4 * (currentDiameter - 1);
 
             int dataPF[][] = new int[maxDia][maxDia];
 
@@ -811,7 +313,7 @@ public class FlowWater {
             //System.out.println("loop start");
             for (dx = x - currentRadius, dz = z - currentRadius; !didJump && dx <= x + maxRadius && dz <= z + maxRadius; ) {
                 System.out.println("break 2");
-                BlockPos currentPos = new BlockPos(dx, y,dz);
+                BlockPos currentPos = new BlockPos(dx, y, dz);
 
 
                 /*System.out.println("original pos: " + pos);
@@ -831,160 +333,156 @@ public class FlowWater {
 
                     //code start
 
-                     matrixRadius = 4;
+                    matrixRadius = 4;
 
                     System.out.println("break 3");
 
                     //System.out.println("Current radius: " + currentRadius);
                     //System.out.println("Matrix radius: " + matrixRadius);
 
-                    int relX = dx-x;
+                    int relX = dx - x;
                     int absX = relX + matrixRadius;
                     //System.out.println("relX: " + relX + " " + "absX: " + absX);
-                    int relZ= dz-z;
+                    int relZ = dz - z;
                     int absZ = relZ + matrixRadius;
 
-                    for (int dx2 = x-maxRadius; dx2 <= x+maxRadius; dx2++) {
-                        for (int dz2 = z-maxRadius; dz2 <= z+maxRadius; dz2++) {
+                    for (int dx2 = x - maxRadius; dx2 <= x + maxRadius; dx2++) {
+                        for (int dz2 = z - maxRadius; dz2 <= z + maxRadius; dz2++) {
                             //System.out.println("break 4");
 
-                            int relXfp = dx2-x;
-                            int absXfp = 8 - (relXfp + maxRadius);
-                            int relZfp = dz2-z;
-                            int absZfp = 8 - (relZfp + maxRadius);
+                            int relXfp = dx2 - x;
+                            int absXfp = (relXfp + maxRadius);
+                            int relZfp = dz2 - z;
+                            int absZfp = (relZfp + maxRadius);
 
                             BlockPos internalPos = new BlockPos(dx2, y, dz2);
-                            int ilevel = getWaterLevel(internalPos);
-                            dataPF[absZfp][absXfp] = ilevel;
+                            int ilevel = CachedWater.getWaterLevel(internalPos);
+                            dataPF[absXfp][absZfp] = ilevel;
                         }
                     }
                     //dataPF = PathfinderBFS.distanceMapperBFS(dataPF);
 
                     System.out.println("break 5");
 
-                        System.out.println("break 6");
+                    System.out.println("break 6");
 
-                        System.out.println("currentPos " + currentPos);
-                        BlockPos checkBelow = currentPos.down();
-                        BlockPos newWaterPos = new BlockPos(0, 0, 0);
-                        //String direction = "";
-                        Direction direction = Direction.NORTH;
-                        //Boolean doHop = false;
+                    System.out.println("currentPos " + currentPos);
+                    BlockPos checkBelow = currentPos.down();
+                    BlockPos newWaterPos = new BlockPos(0, 0, 0);
+                    //String direction = "";
+                    Direction direction = Direction.NORTH;
+                    //Boolean doHop = false;
 
-                        if (currentPos != pos) {
-                            System.out.println("break 7");
+                    if (currentPos != pos) {
+                        System.out.println("break 7");
 
-                            if (isNotFull(getWaterLevel(checkBelow))) {
-                                System.out.println("break 8");
+                        if (isNotFull(CachedWater.getWaterLevel(checkBelow))) {
+                            System.out.println("break 8");
 
-                                System.out.println("dx: " + dx);
-                                System.out.println("dz: " + dz);
+                            System.out.println("dx: " + dx);
+                            System.out.println("dz: " + dz);
 
-                                int cx = dx - x + 4;
-                                int cz = dz - z + 4;
+                            int cx = dx - x + 4;
+                            int cz = dz - z + 4;
 
-                                if (getWaterLevel(currentPos) == 0) {
-                                    System.out.println("cx: " + cx);
-                                    dataPF[4][4] = 255;
-                                }
-                                dataPF[cx][cz] = -2;
-                                System.out.println("start");
-                                for(int aa = 0; aa < dataPF.length; aa++) {
-                                    for(int bb = 0; bb < dataPF.length; bb++) {
-                                        System.out.print(dataPF[aa][bb] + " ");
-                                    }
-                                    System.out.println();
-                                }
-                                System.out.println("end");
-
-                                dataPF = PathfinderBFS.distanceMapperBFS(dataPF, cx, cz);
-
-                                int minDistance = 255;
-
-                                if (dataPF[cx][cz+1] < minDistance && dataPF[cx][cz+1] > 0 ) {
-                                    minDistance = dataPF[cx][cz+1];
-                                    direction = Direction.NORTH;
-                                }
-                                if (dataPF[cx+1][cz] < minDistance && dataPF[cx+1][cz] > 0) {
-                                    minDistance = dataPF[cx+1][cz];
-                                    direction = Direction.EAST;
-                                }
-                                if (dataPF[cx][cz-1] < minDistance && dataPF[cx][cz-1] > 0 ) {
-                                    minDistance = dataPF[cx][cz-1];
-                                    direction = Direction.SOUTH;
-                                }
-                                if (dataPF[cx-1][cz] < minDistance && dataPF[cx-1][cz] > 0) {
-                                    minDistance = dataPF[cx-1][cz];
-                                    direction = Direction.WEST;
-                                }
-                                System.out.println("mindist: " + minDistance);
-                                if (minDistance > 0 && minDistance < 255) {
-                                    doHop = true;
-                                }
-                                else {
-                                    doHop = false;
-                                }
-
-
+                            if (CachedWater.getWaterLevel(currentPos) == 0) {
+                                System.out.println("cx: " + cx);
+                                System.out.println("cz: " + cz);
+                                dataPF[4][4] = 255;
                             }
-                            System.out.println("break 9");
-
-                            if (doHop) {
-                                System.out.println("break 10");
-
-                                //System.out.println("dohop true");
-                                newWaterPos = pos.offset(direction);
-                                System.out.println("dir " + direction);
-                                //System.out.println("catch 3");
-                                int waterlevelPos = getWaterLevel(pos);
-                                if (waterlevelPos > 0 && newWaterPos.getY() == pos.getY() && getWaterLevel(newWaterPos) == 0) {
-                                    //System.out.println("dir: " + direction);
-                                    //System.out.println("jumping");
-                                    setWaterLevel(1, newWaterPos);
-                                    setWaterLevel(0, pos);
-                                    didJump = true;
-                                    doHop = false;
-                                    //direction = "";
-                                    //System.out.println("dir2: " + direction);
-                                } else {
-                                    doHop = false;
+                            dataPF[cx][cz] = -2;
+                            System.out.println("start");
+                            for (int aa = 0; aa < dataPF.length; aa++) {
+                                for (int bb = 0; bb < dataPF.length; bb++) {
+                                    System.out.print(dataPF[aa][bb] + " ");
                                 }
+                                System.out.println();
+                            }
+                            System.out.println("end");
+
+                            dataPF = PathfinderBFS.distanceMapperBFS(dataPF, cx, cz);
+
+                            int minDistance = 255;
+
+                            if (dataPF[cx][cz + 1] < minDistance && dataPF[cx][cz + 1] > 0) {
+                                minDistance = dataPF[cx][cz + 1];
+                                direction = Direction.NORTH;
+                            }
+                            if (dataPF[cx + 1][cz] < minDistance && dataPF[cx + 1][cz] > 0) {
+                                minDistance = dataPF[cx + 1][cz];
+                                direction = Direction.EAST;
+                            }
+                            if (dataPF[cx][cz - 1] < minDistance && dataPF[cx][cz - 1] > 0) {
+                                minDistance = dataPF[cx][cz - 1];
+                                direction = Direction.SOUTH;
+                            }
+                            if (dataPF[cx - 1][cz] < minDistance && dataPF[cx - 1][cz] > 0) {
+                                minDistance = dataPF[cx - 1][cz];
+                                direction = Direction.WEST;
+                            }
+                            System.out.println("mindist: " + minDistance);
+                            if (minDistance > 0 && minDistance < 255) {
+                                doHop = true;
+                            } else {
+                                doHop = false;
+                            }
+
+
+                        }
+                        System.out.println("break 9");
+
+                        if (doHop) {
+                            System.out.println("break 10");
+
+                            //System.out.println("dohop true");
+                            newWaterPos = pos.offset(direction);
+                            System.out.println("dir " + direction);
+                            //System.out.println("catch 3");
+                            int waterlevelPos = CachedWater.getWaterLevel(pos);
+                            if (waterlevelPos > 0 && newWaterPos.getY() == pos.getY() && CachedWater.getWaterLevel(newWaterPos) == 0) {
+                                //System.out.println("dir: " + direction);
+                                //System.out.println("jumping");
+                                CachedWater.setWaterLevel(1, newWaterPos);
+                                CachedWater.setWaterLevel(0, pos);
+                                didJump = true;
+                                doHop = false;
+                                //direction = "";
+                                //System.out.println("dir2: " + direction);
+                            } else {
+                                doHop = false;
                             }
                         }
-                        //System.out.println("dir3: " + direction);
-                        //code end
+                    }
+                    //System.out.println("dir3: " + direction);
+                    //code end
 
-                        if (dz == z + currentRadius) {
-                            dz = z - currentRadius;
-                            dx += 1;
-                            addZ = false;
-                        } else if (addZ) {
-                            dz += 1;
-                            addZ = false;
-                        }
+                    if (dz == z + currentRadius) {
+                        dz = z - currentRadius;
+                        dx += 1;
+                        addZ = false;
+                    } else if (addZ) {
+                        dz += 1;
+                        addZ = false;
+                    }
 
-                        //radius stuff
-                        count += 1;
+                    //radius stuff
+                    count += 1;
                         /*System.out.println("count2: " + count);
                         System.out.println("count: " + count);
                         System.out.println("perim: " + perim);*/
-                        if (count == perim && (currentRadius + 1 <= maxRadius)) {
-                            //System.out.println("expanded radius");
-                            currentRadius += 1;
-                            count = 0;
-                            //System.out.println("reset count: " + count);
-                            dx = x - currentRadius;
-                            dz = z - currentRadius;
-                        }
-                        currentDiameter = (2 * currentRadius) + 1;
-                        perim = 4 * (currentDiameter - 1);
-                        //System.out.println("perim: " + perim);
+                    if (count == perim && (currentRadius + 1 <= maxRadius)) {
+                        //System.out.println("expanded radius");
+                        currentRadius += 1;
+                        count = 0;
+                        //System.out.println("reset count: " + count);
+                        dx = x - currentRadius;
+                        dz = z - currentRadius;
+                    }
+                    currentDiameter = (2 * currentRadius) + 1;
+                    perim = 4 * (currentDiameter - 1);
+                    //System.out.println("perim: " + perim);
                 }
             }
         }
-    }
-
-    public static void tick(ServerWorld serverWorld) {
-        CRAP_CACHE.clear();
     }
 }

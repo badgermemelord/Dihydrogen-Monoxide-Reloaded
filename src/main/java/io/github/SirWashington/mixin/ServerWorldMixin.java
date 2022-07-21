@@ -1,6 +1,7 @@
 package io.github.SirWashington.mixin;
 
 import io.github.SirWashington.FlowWater;
+import io.github.SirWashington.features.CachedWater;
 import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +15,7 @@ public class ServerWorldMixin {
 
     @Inject(at = @At("HEAD"), method = "tick")
     private void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        FlowWater.tick((ServerWorld) (Object) this);
+        CachedWater.tick((ServerWorld) (Object) this);
     }
 
 }
