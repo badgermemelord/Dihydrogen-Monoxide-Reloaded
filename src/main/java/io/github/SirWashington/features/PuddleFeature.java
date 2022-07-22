@@ -18,6 +18,7 @@ public class PuddleFeature {
     private static int zZ;
 
     public static void execute(ArrayList<BlockPos> blocks, BlockPos center, int level, int[][] data, int[][] newData) {
+        if (!Features.PUDDLE_FEATURE_ENABLED) return;
         //setWaterLevel(level, center, world);
         pos = center;
 
