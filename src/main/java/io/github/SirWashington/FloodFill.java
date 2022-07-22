@@ -1,6 +1,7 @@
 package io.github.SirWashington;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 // Class to store the pairs
 class Pair implements Comparable<Pair> {
@@ -19,8 +20,7 @@ class Pair implements Comparable<Pair> {
 }
 
 class GFG {
-    public static int validCoord(int x, int y, int n, int m)
-    {
+    public static int validCoord(int x, int y, int n, int m) {
         if (x < 0 || y < 0) {
             return 0;
         }
@@ -29,12 +29,12 @@ class GFG {
         }
         return 1;
     }
+
     // Function to run bfs
-    public static int[][] bfs(int n, int m, int data[][],int x, int y, int color, int dia)
-    {
+    public static int[][] bfs(int n, int m, int[][] data, int x, int y, int color, int dia) {
 
         // Visiting array
-        int vis[][]=new int[dia][dia];
+        int[][] vis = new int[dia][dia];
 
         // Initialing all as zero
         /*for(int i=0;i<=100;i++){
@@ -47,15 +47,14 @@ class GFG {
         Queue<Pair> obj = new ArrayDeque<>();
 
         // Pushing pair of {x, y}
-        Pair pq=new Pair(x,y);
+        Pair pq = new Pair(x, y);
         obj.add(pq);
 
         // Marking {x, y} as visited
         vis[x][y] = 1;
 
         // Until queue is empty
-        while (!obj.isEmpty())
-        {
+        while (!obj.isEmpty()) {
             // Extracting front pair
             Pair coord = obj.peek();
             int x1 = coord.first;
@@ -68,33 +67,29 @@ class GFG {
             obj.remove();
 
             // For Upside Pixel or Cell
-            if ((validCoord(x1 + 1, y1, n, m)==1) && vis[x1 + 1][y1] == 0 && data[x1 + 1][y1] >=0)
-            {
-                Pair p=new Pair(x1 +1, y1);
+            if ((validCoord(x1 + 1, y1, n, m) == 1) && vis[x1 + 1][y1] == 0 && data[x1 + 1][y1] >= 0) {
+                Pair p = new Pair(x1 + 1, y1);
                 obj.add(p);
                 vis[x1 + 1][y1] = 1;
             }
 
             // For Downside Pixel or Cell
-            if ((validCoord(x1 - 1, y1, n, m)==1) && vis[x1 - 1][y1] == 0 && data[x1 - 1][y1] >=0)
-            {
-                Pair p=new Pair(x1-1,y1);
+            if ((validCoord(x1 - 1, y1, n, m) == 1) && vis[x1 - 1][y1] == 0 && data[x1 - 1][y1] >= 0) {
+                Pair p = new Pair(x1 - 1, y1);
                 obj.add(p);
-                vis[x1- 1][y1] = 1;
+                vis[x1 - 1][y1] = 1;
             }
 
             // For Right side Pixel or Cell
-            if ((validCoord(x1, y1 + 1, n, m)==1) && vis[x1][y1 + 1] == 0 && data[x1][y1 + 1] >=0)
-            {
-                Pair p=new Pair(x1,y1 +1);
+            if ((validCoord(x1, y1 + 1, n, m) == 1) && vis[x1][y1 + 1] == 0 && data[x1][y1 + 1] >= 0) {
+                Pair p = new Pair(x1, y1 + 1);
                 obj.add(p);
                 vis[x1][y1 + 1] = 1;
             }
 
             // For Left side Pixel or Cell
-            if ((validCoord(x1, y1 - 1, n, m)==1) && vis[x1][y1 - 1] == 0 && data[x1][y1 - 1] >=0)
-            {
-                Pair p=new Pair(x1,y1 -1);
+            if ((validCoord(x1, y1 - 1, n, m) == 1) && vis[x1][y1 - 1] == 0 && data[x1][y1 - 1] >= 0) {
+                Pair p = new Pair(x1, y1 - 1);
                 obj.add(p);
                 vis[x1][y1 - 1] = 1;
             }
@@ -124,6 +119,7 @@ class GFG {
         }
         System.out.println();*/
     }
+
     public static int[][] getData(int[][] data) {
         return data;
     }

@@ -1,13 +1,12 @@
 package io.github.SirWashington;
 
-import java.util.*;
-
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.FlowFeature;
 import io.github.SirWashington.features.PuddleFeature;
-import it.unimi.dsi.fastutil.longs.*;
-import net.minecraft.block.*;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FluidDrainable;
+import net.minecraft.block.FluidFillable;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
@@ -15,16 +14,18 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
-import net.minecraft.world.chunk.ChunkSection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 
 public class FlowWater {
-    private FlowWater() {
-    }
-
     public static int worldMinY = -64;
     public static BlockPos ce24;
     public static ServerWorld world;
+    private FlowWater() {
+    }
 
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
@@ -151,8 +152,8 @@ public class FlowWater {
         int radius = 2;
         int diameter = (radius * 2) + 1;
         int area = diameter * diameter;
-        int data[][] = new int[diameter][diameter];
-        int newData[][] = new int[diameter][diameter];
+        int[][] data = new int[diameter][diameter];
+        int[][] newData = new int[diameter][diameter];
 
         int centerLevel = level + 10;
 
