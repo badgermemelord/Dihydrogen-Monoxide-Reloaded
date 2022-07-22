@@ -71,7 +71,7 @@ public class CachedWater {
 
         int totalwater = existingwater + level;
         if (totalwater > 8) {
-            setWaterLevel(totalwater - 8, pos.up());
+            addWater(totalwater - 8, pos.up());
             setWaterLevel(8, pos);
         } else {
             setWaterLevel(totalwater, pos);
