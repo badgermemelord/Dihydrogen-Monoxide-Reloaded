@@ -16,7 +16,9 @@ public class PuddleFeature {
     private static List<PathfinderBFS.Node> holes = new ArrayList<>(8);
     private static int xX;
     private static int zZ;
+
     public static void execute(ArrayList<BlockPos> blocks, BlockPos center, int level, int[][] data, int[][] newData) {
+        if (!Features.PUDDLE_FEATURE_ENABLED) return;
         //setWaterLevel(level, center, world);
         pos = center;
 
@@ -62,22 +64,7 @@ public class PuddleFeature {
     }
 
     private static void holeFound(List<PathfinderBFS.Node> holes) {
-        for(int a = bfsMatrix.length - 1; a >= 0; a--) {
-            for(int b = bfsMatrix.length - 1; b >= 0; b--) {
-                //System.out.print((bfsMatrix[b][a] == 0 ? " " : "") + bfsMatrix[b][a] + " ");
-            }
-            //System.out.println();
-        }
-
         int[][] result = PathfinderBFS.distanceMapperBFS(bfsMatrix, holes);
-
-        // print result of bfs
-        for(int a = result.length - 1; a >= 0; a--) {
-            for(int b = result.length - 1; b >= 0; b--) {
-                //System.out.print((bfsMatrix[b][a] < 0 ? "" : " ") + result[b][a] + " ");
-            }
-            //System.out.println();
-        }
 
         int minDistance = 255;
         Direction direction = null;
@@ -125,6 +112,16 @@ public class PuddleFeature {
                     holes.add(new PathfinderBFS.Node(relX, relZ, 0));
                 }
             }
+        }
+    }
+
+    private static void printMatrix(int[][] matrix) {
+        // print result of bfs
+        for (int a = matrix.length - 1; a >= 0; a--) {
+            for (int b = matrix.length - 1; b >= 0; b--) {
+                System.out.print((matrix[b][a] < 0 ? "" : " ") + matrix[b][a] + " ");
+            }
+            System.out.println();
         }
     }
 
