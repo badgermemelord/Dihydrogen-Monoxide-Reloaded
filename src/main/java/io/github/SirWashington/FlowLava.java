@@ -15,7 +15,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class FlowLava {
-    private FlowLava() { }
+    private FlowLava() {
+    }
 
     public static void flowlava(WorldAccess world, BlockPos fluidPos, FluidState state) {
         if (world.getBlockState(fluidPos).getBlock() instanceof FluidFillable) {
@@ -40,7 +41,7 @@ public class FlowLava {
         BlockState blockstate = world.getBlockState(pos);
         FluidState fluidstate = blockstate.getFluidState();
         int lavalevel = 0;
-        if (fluidstate.getFluid() instanceof LavaFluid.Still){
+        if (fluidstate.getFluid() instanceof LavaFluid.Still) {
             lavalevel = 8;
         } else if (fluidstate.getFluid() instanceof LavaFluid.Flowing) {
             lavalevel = fluidstate.getLevel();

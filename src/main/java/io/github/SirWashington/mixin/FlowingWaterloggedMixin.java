@@ -30,19 +30,17 @@ public class FlowingWaterloggedMixin {
     private void tickFluid(FluidState instance, Fluid fluid) {
 
     }*/
-/**
- * @author Dn
- * @reason Mald
- */
-@Overwrite
+
+    /**
+     * @author Dn
+     * @reason Mald
+     */
+    @Overwrite
     private void tickFluid(BlockPos pos, Fluid fluid) {
         //World.class.cast(this);
         BlockState blockState = World.class.cast(this).getBlockState(pos);
         FluidState fluidState = World.class.cast(this).getFluidState(pos);
-        boolean isWaterLoggable = false;
-        if (blockState.getBlock() instanceof Waterloggable) {
-            isWaterLoggable = true;
-        }
+        boolean isWaterLoggable = blockState.getBlock() instanceof Waterloggable;
 
         if (fluidState.isOf(fluid)) {
             fluidState.onScheduledTick(World.class.cast(this), pos);

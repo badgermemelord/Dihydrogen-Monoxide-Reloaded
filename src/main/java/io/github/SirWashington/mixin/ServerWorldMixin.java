@@ -1,6 +1,5 @@
 package io.github.SirWashington.mixin;
 
-import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.features.CachedWater;
 import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;

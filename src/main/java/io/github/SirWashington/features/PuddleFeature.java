@@ -11,11 +11,12 @@ public class PuddleFeature {
 
     public static final int PUDDLE_RADIUS = 4;
     public static final int PUDDLE_DIAMETER = PUDDLE_RADIUS * 2 + 1;
+    private static final int[][] bfsMatrix = new int[PUDDLE_DIAMETER][PUDDLE_DIAMETER];
     private static BlockPos pos;
-    private static int bfsMatrix[][] = new int[PUDDLE_DIAMETER][PUDDLE_DIAMETER];
-    private static List<PathfinderBFS.Node> holes = new ArrayList<>(8);
+    private static final List<PathfinderBFS.Node> holes = new ArrayList<>(8);
     private static int xX;
     private static int zZ;
+
     public static void execute(ArrayList<BlockPos> blocks, BlockPos center, int level, int[][] data, int[][] newData) {
         //setWaterLevel(level, center, world);
         pos = center;
@@ -62,8 +63,8 @@ public class PuddleFeature {
     }
 
     private static void holeFound(List<PathfinderBFS.Node> holes) {
-        for(int a = bfsMatrix.length - 1; a >= 0; a--) {
-            for(int b = bfsMatrix.length - 1; b >= 0; b--) {
+        for (int a = bfsMatrix.length - 1; a >= 0; a--) {
+            for (int b = bfsMatrix.length - 1; b >= 0; b--) {
                 System.out.print((bfsMatrix[b][a] == 0 ? " " : "") + bfsMatrix[b][a] + " ");
             }
             System.out.println();
@@ -72,8 +73,8 @@ public class PuddleFeature {
         int[][] result = PathfinderBFS.distanceMapperBFS(bfsMatrix, holes);
 
         // print result of bfs
-        for(int a = result.length - 1; a >= 0; a--) {
-            for(int b = result.length - 1; b >= 0; b--) {
+        for (int a = result.length - 1; a >= 0; a--) {
+            for (int b = result.length - 1; b >= 0; b--) {
                 System.out.print((bfsMatrix[b][a] < 0 ? "" : " ") + result[b][a] + " ");
             }
             System.out.println();
