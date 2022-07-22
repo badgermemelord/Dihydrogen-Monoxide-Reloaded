@@ -93,9 +93,8 @@ public class PuddleFeature {
     }
 
     private static void move(Direction direction) {
-        int level = CachedWater.getWaterLevel(pos);
         CachedWater.setWaterLevel(0, pos);
-        CachedWater.addWater(level, pos.offset(direction));
+        CachedWater.addWater(1, pos.offset(direction));
     }
 
     // its actual test rect but ssssh...
@@ -107,7 +106,7 @@ public class PuddleFeature {
                 int relX = iX-xX;
                 int relZ = iZ-zZ;
                 testPos = new BlockPos(iX, pos.getY() - 1, iZ);
-                int uLevel = CachedWater.getWaterLevel(testPos.add(0,1,0));
+                int uLevel = CachedWater.getWaterLevel(new BlockPos(iX, pos.getY(), iZ));
                 if (CachedWater.isNotFull(CachedWater.getWaterLevel(testPos)) && (uLevel == 0 || uLevel == 1)) {
                     holes.add(new PathfinderBFS.Node(relX, relZ, 0));
                 }
