@@ -9,7 +9,6 @@ public class FlowFeature {
 
     // What is this arraylist?
     public static void execute(ArrayList<BlockPos> blocks, BlockPos center) {
-        if (!Features.FLOW_FEATURE_ENABLED) return;
 
         int[] waterlevels = new int[4];
         Arrays.fill(waterlevels, -1);

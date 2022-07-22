@@ -16,12 +16,12 @@ public class CachedWater {
 
     private static final Long2ByteMap cache = new Long2ByteOpenHashMap();
     private static final ChunkSection[] cachedSections = new ChunkSection[8];
+    private static ServerWorld world;
     public static int borX = 0;
     public static int borZ = 0;
     public static int borY = 0;
     public static int fpY = 0;
     public static int worldMinY = -64;
-    private static ServerWorld world;
 
     public static int getWaterLevel(BlockPos ipos) {
         return cache.computeIfAbsent(ipos.asLong(), pos -> {
@@ -41,7 +41,6 @@ public class CachedWater {
             return (byte) waterlevel;
         });
     }
-
     public static boolean isNotFull(int waterLevel) {
         return waterLevel < 8 && waterLevel >= 0;
     }
@@ -87,7 +86,7 @@ public class CachedWater {
      */
     @Deprecated
     public static void setBlockState(BlockPos pos, BlockState state) {
-        ChunkSection section = getSection(pos);
+        ChunkSection section =  getSection(pos);
         BlockState old = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
         if (state == old) return;
 
@@ -114,27 +113,34 @@ public class CachedWater {
             if (posZ < borZ) {
                 if (posY >= borY) {
                     sectionID = 3;
-                } else {
+                }
+                else {
                     sectionID = 7;
                 }
-            } else {
+            }
+            else {
                 if (posY >= borY) {
                     sectionID = 1;
-                } else {
+                }
+                else {
                     sectionID = 5;
                 }
             }
-        } else {
+        }
+        else {
             if (posZ < borZ) {
                 if (posY >= borY) {
                     sectionID = 2;
-                } else {
+                }
+                else {
                     sectionID = 6;
                 }
-            } else {
+            }
+            else {
                 if (posY >= borY) {
                     sectionID = 0;
-                } else {
+                }
+                else {
                     sectionID = 4;
                 }
             }
@@ -148,8 +154,9 @@ public class CachedWater {
 
         if (pos.getX() >= 0) {
             relX = pos.getX() % 16;
-        } else {
-            relX = 16 + pos.getX() % 16;
+        }
+        else {
+            relX =  16 + pos.getX() % 16;
             if ((pos.getX() % 16) == 0) {
                 relX = 0;
             }
@@ -157,15 +164,17 @@ public class CachedWater {
         }
         if (pos.getZ() >= 0) {
             relZ = pos.getZ() % 16;
-        } else {
-            relZ = 16 + pos.getZ() % 16;
-            if ((pos.getZ() % 16) == 0) {
+        }
+        else {
+            relZ =  16 + pos.getZ() % 16;
+            if ((pos.getZ() % 16) == 0)  {
                 relZ = 0;
             }
         }
         if (posY >= 0) {
             relY = posY % 16;
-        } else {
+        }
+        else {
             posY = posY + 64;
             relY = posY % 16;
         }
@@ -202,24 +211,24 @@ public class CachedWater {
         BlockPos[] cornerList = new BlockPos[8];
 
         BlockPos c0 = fluidPos;
-        BlockPos c2 = fluidPos.add(0, -1, 0);
-        BlockPos c11 = fluidPos.add(gmr, 0, gmr);
+        BlockPos c2 = fluidPos.add(0,-1,0);
+        BlockPos c11 = fluidPos.add(gmr,0,gmr);
         cornerList[0] = c11;
-        BlockPos c12 = fluidPos.add(-gmr, 0, gmr);
+        BlockPos c12 = fluidPos.add(-gmr,0,gmr);
         cornerList[1] = c12;
-        BlockPos c13 = fluidPos.add(gmr, 0, -gmr);
+        BlockPos c13 = fluidPos.add(gmr,0,-gmr);
         cornerList[2] = c13;
-        BlockPos c14 = fluidPos.add(-gmr, 0, -gmr);
+        BlockPos c14 = fluidPos.add(-gmr,0,-gmr);
         cornerList[3] = c14;
 
-        BlockPos c21 = fluidPos.add(gmr, -1, gmr);
+        BlockPos c21 = fluidPos.add(gmr,-1,gmr);
         cornerList[4] = c21;
         //System.out.println("c21 " + c21.getY());
-        BlockPos c22 = fluidPos.add(-gmr, -1, gmr);
+        BlockPos c22 = fluidPos.add(-gmr,-1,gmr);
         cornerList[5] = c22;
-        BlockPos c23 = fluidPos.add(gmr, -1, -gmr);
+        BlockPos c23 = fluidPos.add(gmr,-1,-gmr);
         cornerList[6] = c23;
-        BlockPos c24 = fluidPos.add(-gmr, -1, -gmr);
+        BlockPos c24 = fluidPos.add(-gmr,-1,-gmr);
         cornerList[7] = c24;
 
         //Getting the starting chunks
@@ -233,18 +242,21 @@ public class CachedWater {
 
         if (c11.getX() > 0) {
             relX = c11.getX() % 16;
-        } else {
-            relX = 16 + c11.getX() % 16;
+        }
+        else {
+            relX =  16 + c11.getX() % 16;
         }
         if (c11.getZ() > 0) {
             relZ = c11.getZ() % 16;
-        } else {
-            relZ = 16 + c11.getZ() % 16;
+        }
+        else {
+            relZ =  16 + c11.getZ() % 16;
         }
         if (c11.getY() > 0) {
             relY = c11.getY() % 16;
-        } else {
-            relY = (c11.getY() + 64) % 16;
+        }
+        else {
+            relY = (c11.getY()+64) % 16;
         }
 
         int fpX = c11.getX();
@@ -301,6 +313,7 @@ public class CachedWater {
 */
 
 
+
     }
 
     public static int getOriSectionID(BlockPos pos) {
@@ -319,33 +332,40 @@ public class CachedWater {
                 if (posY >= borY) {
                     sectionName = "14";
                     sectionID = 3;
-                } else {
+                }
+                else {
                     sectionName = "24";
                     sectionID = 7;
                 }
-            } else {
+            }
+            else {
                 if (posY >= borY) {
                     sectionName = "12";
                     sectionID = 1;
-                } else {
+                }
+                else {
                     sectionName = "22";
                     sectionID = 5;
                 }
             }
-        } else {
+        }
+        else {
             if (posZ < borZ) {
                 if (posY >= borY) {
                     sectionName = "13";
                     sectionID = 2;
-                } else {
+                }
+                else {
                     sectionName = "23";
                     sectionID = 6;
                 }
-            } else {
+            }
+            else {
                 if (posY >= borY) {
                     sectionName = "11";
                     sectionID = 0;
-                } else {
+                }
+                else {
                     sectionName = "21";
                     sectionID = 4;
                 }
