@@ -5,6 +5,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PuddleFeature {
 
@@ -12,6 +13,9 @@ public class PuddleFeature {
     public static final int PUDDLE_DIAMETER = PUDDLE_RADIUS * 2 + 1;
     private static BlockPos pos;
     private static int bfsMatrix[][] = new int[PUDDLE_DIAMETER][PUDDLE_DIAMETER];
+    private static List<PathfinderBFS.Node> holes = new ArrayList<>(8);
+    private static int xX;
+    private static int zZ;
     public static void execute(ArrayList<BlockPos> blocks, BlockPos center, int level, int[][] data, int[][] newData) {
         //setWaterLevel(level, center, world);
         pos = center;
@@ -22,8 +26,9 @@ public class PuddleFeature {
             int z = pos.getZ();
 
             // fill in the bfsMatrix
-            int xX = x - PUDDLE_RADIUS;
-            int zZ = z - PUDDLE_RADIUS;
+            xX = x - PUDDLE_RADIUS;
+            zZ = z - PUDDLE_RADIUS;
+
             for (int iX = 0; iX < PUDDLE_DIAMETER; iX++) {
                 for (int iZ = 0; iZ < PUDDLE_DIAMETER; iZ++) {
                     BlockPos internalPos = new BlockPos(iX + xX, y, iZ + zZ);
@@ -39,25 +44,24 @@ public class PuddleFeature {
                 int zT = z + currentRadius;
                 int zB = z - currentRadius;
 
-                BlockPos found;
-                if ((found = testLine(xL, zT, xR, zT)) == null)
-                    if ((found = testLine(xL, zB, xR, zB)) == null)
-                        if ((found = testLine(xL, zB, xL, zT)) == null)
-                            if ((found = testLine(xR, zB, xR, zT)) == null)
-                                continue;
+                holes.clear();
+
+                testLine(xL, zT, xR, zT);
+                testLine(xL, zB, xR, zB);
+                testLine(xL, zB, xL, zT);
+                testLine(xR, zB, xR, zT);
+
+                if (holes.isEmpty())
+                    continue;
 
                 bfsMatrix[4][4] = -3;
 
-                int cx = found.getX() - xX;
-                int cz = found.getZ() - zZ;
-                holeFound(cx, cz);
+                holeFound(holes);
             }
         }
     }
 
-    private static void holeFound(int cx, int cz) {
-        bfsMatrix[cx][cz] = -2;
-
+    private static void holeFound(List<PathfinderBFS.Node> holes) {
         for(int a = bfsMatrix.length - 1; a >= 0; a--) {
             for(int b = bfsMatrix.length - 1; b >= 0; b--) {
                 System.out.print((bfsMatrix[b][a] == 0 ? " " : "") + bfsMatrix[b][a] + " ");
@@ -65,7 +69,7 @@ public class PuddleFeature {
             System.out.println();
         }
 
-        int[][] result = PathfinderBFS.distanceMapperBFS(bfsMatrix, cx, cz);
+        int[][] result = PathfinderBFS.distanceMapperBFS(bfsMatrix, holes);
 
         // print result of bfs
         for(int a = result.length - 1; a >= 0; a--) {
@@ -108,19 +112,17 @@ public class PuddleFeature {
     }
 
     // its actual test rect but ssssh...
-    private static BlockPos testLine(int x, int z, int toX, int toZ) {
+    private static void testLine(int x, int z, int toX, int toZ) {
         BlockPos testPos;
 
         for (int iX = x; iX <= toX; iX++) {
             for (int iZ = z; iZ <= toZ; iZ++) {
                 testPos = new BlockPos(iX, pos.getY() - 1, iZ);
                 if (CachedWater.isNotFull(CachedWater.getWaterLevel(testPos))) {
-                    return testPos;
+                    holes.add(new PathfinderBFS.Node(iX - xX, iZ - zZ, 0));
                 }
             }
         }
-
-        return null;
     }
 
 }

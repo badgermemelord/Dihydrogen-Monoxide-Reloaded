@@ -6,18 +6,14 @@ import java.util.Queue;
 
 public class PathfinderBFS {
 
-    public static int[][] distanceMapperBFS(int[][] matrix, int startX, int startY) {
-        matrix[startX][startY] = 0;
-        pathExists(matrix, startX, startY);
+    public static int[][] distanceMapperBFS(int[][] matrix, List<Node> holes) {
+        holes.forEach((h) -> matrix[h.x][h.y] = 0);
+        pathExists(matrix, holes);
         return matrix;
     }
 
-    private static void pathExists(int[][] matrix, int startX, int startY) {
-
-        Node source = new Node(startX, startY, 0);
-        Queue<Node> queue = new LinkedList<Node>();
-
-        queue.add(source);
+    private static void pathExists(int[][] matrix, List<Node> holes) {
+        Queue<Node> queue = new LinkedList<>(holes);
 
         while(!queue.isEmpty()) {
             Node popped = queue.poll();
@@ -47,15 +43,17 @@ public class PathfinderBFS {
             queue.add(new Node(popped.x, popped.y+1, popped.distanceFromSource+1));
         }
     }
-}
-class Node {
-    int x;
-    int y;
-    int distanceFromSource;
 
-    Node(int x, int y, int dis) {
-        this.x = x;
-        this.y = y;
-        this.distanceFromSource = dis;
+    public static class Node {
+        int x;
+        int y;
+        int distanceFromSource;
+
+        public Node(int x, int y, int dis) {
+            this.x = x;
+            this.y = y;
+            this.distanceFromSource = dis;
+        }
     }
 }
+
