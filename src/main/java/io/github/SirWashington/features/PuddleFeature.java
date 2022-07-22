@@ -58,12 +58,19 @@ public class PuddleFeature {
     private static void holeFound(int cx, int cz) {
         bfsMatrix[cx][cz] = -2;
 
+        for(int a = bfsMatrix.length - 1; a >= 0; a--) {
+            for(int b = bfsMatrix.length - 1; b >= 0; b--) {
+                System.out.print((bfsMatrix[b][a] == 0 ? " " : "") + bfsMatrix[b][a] + " ");
+            }
+            System.out.println();
+        }
+
         int[][] result = PathfinderBFS.distanceMapperBFS(bfsMatrix, cx, cz);
 
         // print result of bfs
-        for(int a = 0; a < result.length; a++) {
-            for(int b = 0; b < result.length; b++) {
-                System.out.print((result[b][a] == 0 ? " " : "") + bfsMatrix[b][a] + " ");
+        for(int a = result.length - 1; a >= 0; a--) {
+            for(int b = result.length - 1; b >= 0; b--) {
+                System.out.print(" " + result[b][a] + " ");
             }
             System.out.println();
         }
@@ -71,24 +78,24 @@ public class PuddleFeature {
         int minDistance = 255;
         Direction direction = null;
 
-        if (result[cx][cz + 1] < minDistance && result[cx][cz + 1] > 0) {
-            minDistance = result[cx][cz + 1];
+        if (result[4][3] < minDistance && result[4][3] > 0) {
+            minDistance = result[4][3];
             direction = Direction.NORTH;
         }
-        if (result[cx + 1][cz] < minDistance && result[cx + 1][cz] > 0) {
-            minDistance = result[cx + 1][cz];
-            direction = Direction.EAST;
-        }
-        if (result[cx][cz - 1] < minDistance && result[cx][cz - 1] > 0) {
-            minDistance = result[cx][cz - 1];
-            direction = Direction.SOUTH;
-        }
-        if (result[cx - 1][cz] < minDistance && result[cx - 1][cz] > 0) {
-            minDistance = result[cx - 1][cz];
+        if (result[3][4] < minDistance && result[3][4] > 0) {
+            minDistance = result[3][4];
             direction = Direction.WEST;
         }
+        if (result[4][5] < minDistance && result[4][5] > 0) {
+            minDistance = result[4][5];
+            direction = Direction.SOUTH;
+        }
+        if (result[5][4] < minDistance && result[5][4] > 0) {
+            minDistance = result[5][4];
+            direction = Direction.EAST;
+        }
 
-        if (minDistance > 0 && minDistance <= 4) {
+        if (minDistance <= 4) {
             if (direction == null) return;
             move(direction);
         }
