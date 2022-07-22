@@ -27,7 +27,7 @@ public class PuddleFeature {
             for (int iX = 0; iX < PUDDLE_DIAMETER; iX++) {
                 for (int iZ = 0; iZ < PUDDLE_DIAMETER; iZ++) {
                     BlockPos internalPos = new BlockPos(iX + xX, y, iZ + zZ);
-                    bfsMatrix[iX][iZ] = CachedWater.getWaterLevel(internalPos) == 0 ? 0 : -1;
+                    bfsMatrix[iX][iZ] = CachedWater.getWaterLevel(internalPos) == 0 ? 9 : -1;
                 }
             }
 
@@ -70,7 +70,7 @@ public class PuddleFeature {
         // print result of bfs
         for(int a = result.length - 1; a >= 0; a--) {
             for(int b = result.length - 1; b >= 0; b--) {
-                System.out.print(" " + result[b][a] + " ");
+                System.out.print((bfsMatrix[b][a] < 0 ? "" : " ") + result[b][a] + " ");
             }
             System.out.println();
         }
@@ -78,19 +78,19 @@ public class PuddleFeature {
         int minDistance = 255;
         Direction direction = null;
 
-        if (result[4][3] < minDistance && result[4][3] > 0) {
+        if (result[4][3] < minDistance && result[4][3] >= 0) {
             minDistance = result[4][3];
             direction = Direction.NORTH;
         }
-        if (result[3][4] < minDistance && result[3][4] > 0) {
+        if (result[3][4] < minDistance && result[3][4] >= 0) {
             minDistance = result[3][4];
             direction = Direction.WEST;
         }
-        if (result[4][5] < minDistance && result[4][5] > 0) {
+        if (result[4][5] < minDistance && result[4][5] >= 0) {
             minDistance = result[4][5];
             direction = Direction.SOUTH;
         }
-        if (result[5][4] < minDistance && result[5][4] > 0) {
+        if (result[5][4] < minDistance && result[5][4] >= 0) {
             minDistance = result[5][4];
             direction = Direction.EAST;
         }
