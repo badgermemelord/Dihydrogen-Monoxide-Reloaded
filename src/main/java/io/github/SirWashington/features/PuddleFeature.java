@@ -17,7 +17,7 @@ public class PuddleFeature {
     private static int xX;
     private static int zZ;
 
-    public static void execute(ArrayList<BlockPos> blocks, BlockPos center, int level, int[][] data, int[][] newData) {
+    public static void execute(BlockPos center, int level) {
         if (!Features.PUDDLE_FEATURE_ENABLED) return;
         //setWaterLevel(level, center, world);
         pos = center;
@@ -38,6 +38,7 @@ public class PuddleFeature {
                 }
             }
 
+            holes.clear();
 
             //union start
             for (int currentRadius = 1; currentRadius <= PUDDLE_RADIUS; currentRadius++) {
@@ -46,20 +47,18 @@ public class PuddleFeature {
                 int zT = z + currentRadius;
                 int zB = z - currentRadius;
 
-                holes.clear();
-
                 testLine(xL, zT, xR, zT);
                 testLine(xL, zB, xR, zB);
                 testLine(xL, zB, xL, zT);
                 testLine(xR, zB, xR, zT);
 
-                if (holes.isEmpty())
-                    continue;
-
-                bfsMatrix[4][4] = -3;
-
-                holeFound(holes);
+                if (!holes.isEmpty())
+                    break;
             }
+
+            bfsMatrix[4][4] = -3;
+
+            holeFound(holes);
         }
     }
 
