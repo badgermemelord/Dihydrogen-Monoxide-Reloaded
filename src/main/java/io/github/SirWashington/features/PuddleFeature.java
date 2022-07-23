@@ -38,7 +38,7 @@ public class PuddleFeature {
                 }
             }
 
-            holes.clear();
+
 
             //union start
             for (int currentRadius = 1; currentRadius <= PUDDLE_RADIUS; currentRadius++) {
@@ -47,23 +47,27 @@ public class PuddleFeature {
                 int zT = z + currentRadius;
                 int zB = z - currentRadius;
 
+                holes.clear();
+
                 testLine(xL, zT, xR, zT);
                 testLine(xL, zB, xR, zB);
                 testLine(xL, zB, xL, zT);
                 testLine(xR, zB, xR, zT);
 
-                if (!holes.isEmpty())
+                if (holes.isEmpty())
+                    continue;
+
+                bfsMatrix[4][4] = -3;
+
+                if (holeFound(holes))
                     break;
             }
-
-            bfsMatrix[4][4] = -3;
-
-            holeFound(holes);
         }
     }
 
-    private static void holeFound(List<PathfinderBFS.Node> holes) {
+    private static boolean holeFound(List<PathfinderBFS.Node> holes) {
         int[][] result = PathfinderBFS.distanceMapperBFS(bfsMatrix, holes);
+        printMatrix(bfsMatrix);
 
         int minDistance = 255;
         Direction direction = null;
@@ -85,10 +89,11 @@ public class PuddleFeature {
             direction = Direction.EAST;
         }
 
-        if (minDistance <= 4) {
-            if (direction == null) return;
+        if (minDistance <= 4 && direction != null) {
             move(direction);
+            return true;
         }
+        return false;
     }
 
     private static void move(Direction direction) {
