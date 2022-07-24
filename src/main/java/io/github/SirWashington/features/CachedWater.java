@@ -46,6 +46,10 @@ public class CachedWater {
         return waterLevel < 8 && waterLevel >= 0;
     }
 
+    public static boolean isNotFull(BlockPos pos) {
+        return isNotFull(getWaterLevel(pos));
+    }
+
 
     public static void setWaterLevel(int level, BlockPos pos) {
         if (level == 0) {

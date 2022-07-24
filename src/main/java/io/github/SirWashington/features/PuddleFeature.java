@@ -22,7 +22,7 @@ public class PuddleFeature {
         //setWaterLevel(level, center, world);
         pos = center;
 
-        if (level == 1 && CachedWater.getWaterLevel(pos.down()) != 0) {
+        if (level == 1 && !CachedWater.isNotFull(pos.down())) {
             int x = pos.getX();
             int y = pos.getY();
             int z = pos.getZ();
@@ -67,7 +67,6 @@ public class PuddleFeature {
 
     private static boolean holeFound(List<PathfinderBFS.Node> holes) {
         int[][] result = PathfinderBFS.distanceMapperBFS(bfsMatrix, holes);
-        printMatrix(bfsMatrix);
 
         int minDistance = 255;
         Direction direction = null;
