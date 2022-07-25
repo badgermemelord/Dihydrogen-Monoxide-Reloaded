@@ -2,9 +2,7 @@ package io.github.SirWashington.features;
 
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FluidFillable;
+import net.minecraft.block.*;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -26,11 +24,17 @@ public class CachedWater {
     public static int getWaterLevel(BlockPos ipos) {
         return cache.computeIfAbsent(ipos.asLong(), pos -> {
             BlockState blockstate = getBlockState(BlockPos.fromLong(pos));
+            Block block = blockstate.getBlock();
+            boolean isFF = block instanceof FluidFillable;
+            boolean isFD = block instanceof FluidDrainable;
+
 
             if (blockstate == Blocks.AIR.getDefaultState()) return (byte) 0;
 
             FluidState fluidstate = blockstate.getFluidState();
             if (fluidstate == Fluids.EMPTY.getDefaultState()) return (byte) -1;
+
+            if(isFF && !isFD) world.breakBlock(ipos, true);
 
             int waterlevel;
             if (fluidstate.isStill()) {
