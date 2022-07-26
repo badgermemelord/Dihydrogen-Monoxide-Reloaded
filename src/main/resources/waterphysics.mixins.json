@@ -4,12 +4,13 @@
   "package": "io.github.SirWashington.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "WaterFluidMixin",
-    "FlowingMixin",
-    "LavaFluidMixin",
+    "BucketMixin",
     "FlowingLavaMixin",
+    "FlowingMixin",
+    "KelpBlockMixin",
+    "LavaFluidMixin",
     "ServerWorldMixin",
-    "BucketMixin"
+    "WaterFluidMixin"
   ],
   "injectors": {
     "defaultRequire": 1

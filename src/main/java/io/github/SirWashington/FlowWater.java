@@ -38,32 +38,12 @@ public class FlowWater {
             CachedWater.setup(FlowWater.world, fluidPos);
             CachedWater.lock();
 
-            //sectionGetBlockState(fluidPos);
-            BlockState fluidPosState = CachedWater.getBlockState(fluidPos);
-
-
             ArrayList<BlockPos> blockse = new ArrayList<>(4);
             for (Direction dir : Direction.Type.HORIZONTAL) {
                 blockse.add(fluidPos.offset(dir));
             }
 
-            boolean isFFillable = fluidPosState.getBlock() instanceof FluidFillable;
-            boolean isFDrainable = fluidPosState.getBlock() instanceof FluidDrainable;
-
-
-            if (isFFillable && isFDrainable) {
-                //System.out.println("bal2");
-                //waterLoggedFlow(fluidPos, fluidPosState, blockse);
-            }
-            if (isFFillable && !isFDrainable) {
-                //System.out.println("bal3");
-                //KelpFlow(fluidPos, fluidPosState, blockse);
-            }
-
             int centerlevel = CachedWater.getWaterLevel(fluidPos);
-            if (isFFillable) {
-                return;
-            }
             if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
 
                 CachedWater.setWaterLevel(0, fluidPos);
