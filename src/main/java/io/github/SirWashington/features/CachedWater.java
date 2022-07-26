@@ -8,6 +8,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 
 import java.util.function.LongToIntFunction;
@@ -23,7 +24,7 @@ public class CachedWater {
     public static int borY = 0;
     public static int fpY = 0;
     public static int worldMinY = -64;
-    public static ServerWorld world;
+    public static World world;
 
     public static int getWaterLevel(BlockPos ipos) {
         LongToIntFunction func = pos -> {
@@ -111,7 +112,7 @@ public class CachedWater {
             BlockState old = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
             if (state == old) return;
 
-            world.getChunkManager().markForUpdate(pos);
+            ((ServerWorld) world).getChunkManager().markForUpdate(pos);
             world.updateNeighbors(pos, old.getBlock());
             Fluid fluid = state.getFluidState().getFluid();
             world.createAndScheduleFluidTick(pos, fluid, fluid.getTickRate(world));

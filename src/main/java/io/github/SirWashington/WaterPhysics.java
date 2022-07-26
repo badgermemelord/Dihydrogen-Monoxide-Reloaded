@@ -28,7 +28,7 @@ public class WaterPhysics implements ModInitializer {
                                 } catch (Exception e) {
                                     context.getSource().sendError(Text.of("AA Something went wrong"));
                                     e.printStackTrace();
-                                    return -1;
+                                    return -9999;
                                 }
                             })));
         });
