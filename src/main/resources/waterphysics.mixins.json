@@ -7,10 +7,10 @@
     "BucketMixin",
     "FlowingLavaMixin",
     "FlowingMixin",
-    "KelpBlockMixin",
     "LavaFluidMixin",
     "ServerWorldMixin",
-    "WaterFluidMixin"
+    "WaterFluidMixin",
+    "WorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1
