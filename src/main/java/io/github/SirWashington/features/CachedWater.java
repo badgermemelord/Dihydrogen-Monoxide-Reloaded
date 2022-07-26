@@ -10,8 +10,12 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.ChunkSection;
 
+import java.util.function.LongToIntFunction;
+
 public class CachedWater {
 
+    public static boolean useSections = true;
+    public static boolean useCache = true;
     private static final Long2ByteMap cache = new Long2ByteOpenHashMap();
     private static final ChunkSection[] cachedSections = new ChunkSection[8];
     public static int borX = 0;
@@ -19,22 +23,16 @@ public class CachedWater {
     public static int borY = 0;
     public static int fpY = 0;
     public static int worldMinY = -64;
-    private static ServerWorld world;
+    public static ServerWorld world;
 
     public static int getWaterLevel(BlockPos ipos) {
-        return cache.computeIfAbsent(ipos.asLong(), pos -> {
+        LongToIntFunction func = pos -> {
             BlockState blockstate = getBlockState(BlockPos.fromLong(pos));
-            Block block = blockstate.getBlock();
-            boolean isFF = block instanceof FluidFillable;
-            boolean isFD = block instanceof FluidDrainable;
-
 
             if (blockstate == Blocks.AIR.getDefaultState()) return (byte) 0;
 
             FluidState fluidstate = blockstate.getFluidState();
             if (fluidstate == Fluids.EMPTY.getDefaultState()) return (byte) -1;
-
-            if(isFF && !isFD) world.breakBlock(ipos, true);
 
             int waterlevel;
             if (fluidstate.isStill()) {
@@ -43,7 +41,11 @@ public class CachedWater {
                 waterlevel = fluidstate.getLevel();
             }
             return (byte) waterlevel;
-        });
+        };
+
+        if (useCache) {
+            return cache.computeIfAbsent(ipos.asLong(), func);
+        } else return func.applyAsInt(ipos.asLong());
     }
 
     public static boolean isNotFull(int waterLevel) {
@@ -56,20 +58,26 @@ public class CachedWater {
 
 
     public static void setWaterLevel(int level, BlockPos pos) {
+        BlockState prev = getBlockState(pos);
         if (level == 0) {
             setBlockState(pos, Blocks.AIR.getDefaultState());
         } else if (level < 0) {
             // System.out.println("Trying to set waterlevel " + level);
         } else if (level <= 8) {
             if (level == 8) {
-                if (!(getBlockState(pos).getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
+                if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
                     setBlockState(pos, Blocks.WATER.getDefaultState());
                 }
-            } else setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
+            } else {
+                if (!prev.isAir()) world.breakBlock(pos, true);
+                setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
+            }
         } else {
             System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
         }
-        cache.put(pos.asLong(), (byte) level);
+
+        if (useCache)
+            cache.put(pos.asLong(), (byte) level);
     }
 
 
@@ -87,7 +95,10 @@ public class CachedWater {
     }
 
     public static BlockState getBlockState(BlockPos pos) {
-        return getSection(pos).getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+        if (useSections)
+            return getSection(pos).getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+        else
+            return world.getBlockState(pos);
     }
 
     /**
@@ -95,16 +106,20 @@ public class CachedWater {
      */
     @Deprecated
     public static void setBlockState(BlockPos pos, BlockState state) {
-        ChunkSection section = getSection(pos);
-        BlockState old = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-        if (state == old) return;
+        if (useSections) {
+            ChunkSection section = getSection(pos);
+            BlockState old = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+            if (state == old) return;
 
-        world.getChunkManager().markForUpdate(pos);
-        world.updateNeighbors(pos, old.getBlock());
-        Fluid fluid = state.getFluidState().getFluid();
-        world.createAndScheduleFluidTick(pos, fluid, fluid.getTickRate(world));
+            world.getChunkManager().markForUpdate(pos);
+            world.updateNeighbors(pos, old.getBlock());
+            Fluid fluid = state.getFluidState().getFluid();
+            world.createAndScheduleFluidTick(pos, fluid, fluid.getTickRate(world));
 
-        section.setBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state, false);
+            section.setBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state, false);
+        } else {
+            world.setBlockState(pos, state, 11);
+        }
     }
 
     private static ChunkSection getSection(BlockPos pos) {

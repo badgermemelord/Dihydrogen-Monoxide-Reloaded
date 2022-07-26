@@ -30,7 +30,7 @@ public class KelpFeature {
                     int level = internalBS.getFluidState().getLevel();
                     totalWaterLevel += level;
                 }
-                int level = CachedWater.getWaterLevel(block, false);
+                int level = CachedWater.getWaterLevel(block);
                 //System.out.println(level);
                 //System.out.println("tot " + totalWaterLevel);
             }
