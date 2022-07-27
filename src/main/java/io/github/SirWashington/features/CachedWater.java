@@ -70,13 +70,8 @@ public class CachedWater {
                     setBlockState(pos, Blocks.WATER.getDefaultState());
                 }
             } else {
-                if (!prev.isAir()) {
-                    if (prev.getBlock() == Blocks.WATER) {
-                        setBlockState(pos, Blocks.AIR.getDefaultState());
-                    }
-                    else {
-                        world.breakBlock(pos, true);
-                    }
+                if (prev.getBlock() != Blocks.WATER) {
+                    world.breakBlock(pos, true);
                 }
 
                 setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());

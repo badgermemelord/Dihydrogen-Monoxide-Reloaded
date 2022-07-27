@@ -2,6 +2,7 @@ package io.github.SirWashington.mixin;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
@@ -22,7 +23,7 @@ public abstract class WorldMixin {
     @Inject(at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"), method = "updateNeighbor")
     void updateNeighborFluid(BlockPos pos, Block sourceBlock, BlockPos neighborPos, CallbackInfo ci) {
         FluidState fluid = getFluidState(pos);
-        if (!fluid.isEmpty())
+        if (!fluid.isEmpty() && fluid.getBlockState().getBlock() != Blocks.WATER)
             ((ServerWorld) (Object) (this)).createAndScheduleFluidTick(pos, fluid.getFluid(), fluid.getFluid().getTickRate((World) (Object) this));
     }
 
