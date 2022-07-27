@@ -7,7 +7,6 @@
     "BucketMixin",
     "FlowingLavaMixin",
     "FlowingMixin",
-    "KelpBlockMixin",
     "LavaFluidMixin",
     "ServerWorldMixin",
     "WaterFluidMixin",
