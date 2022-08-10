@@ -20,9 +20,14 @@ public abstract class BucketMixin{
             )
     )
     private boolean bucketPlace(World instance, BlockPos pos, BlockState state, int flags) {
-        boolean returnValue;
-        returnValue = NonCachedWater.addWater(8, pos, instance);
-        return returnValue;
+        boolean returnValue = true;
+        if (!instance.isClient) {
+            returnValue = NonCachedWater.addWater(8, pos, instance);
+            return returnValue;
+        }
+        else {
+            return returnValue;
+        }
     }
 
 
