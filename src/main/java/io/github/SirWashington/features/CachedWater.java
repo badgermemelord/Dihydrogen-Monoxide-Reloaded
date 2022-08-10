@@ -7,11 +7,14 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 
 import java.util.function.LongToIntFunction;
+
+import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
 
 public class CachedWater {
 
@@ -31,6 +34,7 @@ public class CachedWater {
             BlockState blockstate = getBlockState(BlockPos.fromLong(pos));
 
             if (blockstate == Blocks.AIR.getDefaultState()) return (byte) 0;
+            if (blockstate.contains(WATER_LEVEL)) return blockstate.get(WATER_LEVEL);
 
             FluidState fluidstate = blockstate.getFluidState();
             if (fluidstate == Fluids.EMPTY.getDefaultState()) return (byte) -1;
@@ -60,24 +64,29 @@ public class CachedWater {
 
     public static void setWaterLevel(int level, BlockPos pos) {
         BlockState prev = getBlockState(pos);
-        if (level == 0) {
-            setBlockState(pos, Blocks.AIR.getDefaultState());
-        } else if (level < 0) {
-            // System.out.println("Trying to set waterlevel " + level);
-        } else if (level <= 8) {
-            if (level == 8) {
-                if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                    setBlockState(pos, Blocks.WATER.getDefaultState());
+
+        if (prev.contains(WATER_LEVEL)) {
+            setBlockState(pos, prev.with(WATER_LEVEL, level));
+        } else {
+            if (level == 0) {
+                setBlockState(pos, Blocks.AIR.getDefaultState());
+            } else if (level < 0) {
+                // System.out.println("Trying to set waterlevel " + level);
+            } else if (level <= 8) {
+                if (level == 8) {
+                    if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
+                        setBlockState(pos, Blocks.WATER.getDefaultState());
+                    }
+                } else {
+                    if (prev.getBlock() != Blocks.WATER) {
+                        world.breakBlock(pos, true);
+                        setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
+                    }
+                    setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
                 }
             } else {
-                if (prev.getBlock() != Blocks.WATER) {
-                    world.breakBlock(pos, true);
-                }
-
-                setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
+                System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
             }
-        } else {
-            System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
         }
 
         if (useCache)
