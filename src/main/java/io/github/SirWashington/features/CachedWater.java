@@ -99,6 +99,8 @@ public class CachedWater {
 
         if (useCache)
             cache.put(pos.asLong(), (byte) level);
+        else
+            cache.remove(pos.asLong());
     }
 
 
@@ -420,7 +422,11 @@ public class CachedWater {
         }
     }
 
-    public static void tick(ServerWorld serverWorld) {
+    public static void beforeTick(ServerWorld serverWorld) {
+        assert cache.isEmpty();
+    }
+
+    public static void afterTick(ServerWorld serverWorld) {
         // TODO cache per dimension
         cache.clear();
     }

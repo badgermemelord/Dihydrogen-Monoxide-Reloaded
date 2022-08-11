@@ -215,6 +215,7 @@ public class FlowWater {
             nonFullFluidBlock = true;
             //System.out.println("sex2");
         }
+        /*
         if (nonFullFluidBlock) {
             while (centerWaterLevel > 0) {
                 for (BlockPos block : blocks) {
@@ -227,7 +228,7 @@ public class FlowWater {
                 }
             }
             CachedWater.setBlockState(fluidPos, fpBS.with(Properties.WATERLOGGED, false));
-        }
+        }*/
     }
 
     public static void KelpFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
