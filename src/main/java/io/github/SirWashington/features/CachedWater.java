@@ -221,6 +221,8 @@ public class CachedWater {
         //System.out.println(Arrays.stream(SectionList).toList());
         //System.out.println("BS: " + internalBS.getBlock());
 
+        assert world.getChunk(pos).getSection(world.getChunk(pos).getSectionIndex(pos.getY())) == cachedSections[sectionID];
+
         return cachedSections[sectionID];
     }
 
