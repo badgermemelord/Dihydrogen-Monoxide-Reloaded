@@ -49,7 +49,10 @@ public class CachedWater {
         };
 
         if (useCache) {
-            return cache.computeIfAbsent(ipos.asLong(), func);
+            int result = cache.computeIfAbsent(ipos.asLong(), func);
+
+            assert result == func.applyAsInt(ipos.asLong());
+            return result;
         } else return func.applyAsInt(ipos.asLong());
     }
 
@@ -64,6 +67,11 @@ public class CachedWater {
 
     public static void setWaterLevel(int level, BlockPos pos) {
         BlockState prev = getBlockState(pos);
+
+        assert  prev.isAir() ||
+                prev.contains(WATER_LEVEL) ||
+                prev.getBlock() == Blocks.WATER ||
+                level < 0;
 
         if (prev.contains(WATER_LEVEL)) {
             setBlockState(pos, prev.with(WATER_LEVEL, level));
