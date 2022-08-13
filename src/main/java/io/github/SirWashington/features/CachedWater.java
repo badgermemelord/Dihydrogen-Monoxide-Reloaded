@@ -116,7 +116,7 @@ public class CachedWater {
     }
 
     public static BlockState getBlockState(BlockPos pos) {
-        if (useSections)
+        if (useSections && false) // sections begone
             return getSection(pos).getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
         else
             return world.getBlockState(pos);
@@ -127,7 +127,7 @@ public class CachedWater {
      */
     @Deprecated
     public static void setBlockState(BlockPos pos, BlockState state) {
-        if (useSections) {
+        if (useSections && false) { // sections begone
             ChunkSection section = getSection(pos);
             BlockState old = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
             if (state == old) return;
