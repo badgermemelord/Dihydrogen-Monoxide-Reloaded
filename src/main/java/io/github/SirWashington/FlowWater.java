@@ -36,7 +36,7 @@ public class FlowWater {
         } else {
             FlowWater.world = (ServerWorld) world;
             CachedWater.setup(FlowWater.world, fluidPos);
-            CachedWater.lock();
+            //CachedWater.lock();
 
             ArrayList<BlockPos> blockse = new ArrayList<>(4);
             for (Direction dir : Direction.Type.HORIZONTAL) {
@@ -61,7 +61,7 @@ public class FlowWater {
 
             }
 
-            CachedWater.unlock();
+            //CachedWater.unlock();
         }
     }
 
