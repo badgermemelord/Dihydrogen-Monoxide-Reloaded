@@ -84,10 +84,12 @@ public class CachedWater {
                         setBlockState(pos, Blocks.WATER.getDefaultState());
                     }
                 } else {
-                    if (prev.getBlock() != Blocks.WATER) {
+                    if (!(prev.getBlock() instanceof FluidDrainable)) {
                         world.breakBlock(pos, true);
-                        setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
+                    } else {
+                        throw new RuntimeException("TODO get trolled");
                     }
+
                     setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
                 }
             } else {
