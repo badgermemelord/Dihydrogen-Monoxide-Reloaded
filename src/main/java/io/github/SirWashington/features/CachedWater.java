@@ -31,7 +31,7 @@ public class CachedWater {
         LongToIntFunction func = pos -> {
             BlockState blockstate = getBlockState(BlockPos.fromLong(pos));
 
-            if (blockstate == Blocks.AIR.getDefaultState()) return (byte) 0;
+            if (blockstate.isAir()) return (byte) 0;
             if (blockstate.contains(WATER_LEVEL)) return blockstate.get(WATER_LEVEL);
 
             FluidState fluidstate = blockstate.getFluidState();
