@@ -87,7 +87,9 @@ public class CachedWater {
                     if (!(prev.getBlock() instanceof FluidDrainable)) {
                         world.breakBlock(pos, true);
                     } else {
-                        throw new RuntimeException("TODO get trolled");
+                        if (prev.getBlock() instanceof Waterloggable) {
+                            throw new RuntimeException("TODO get trolled");
+                        }
                     }
 
                     setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
