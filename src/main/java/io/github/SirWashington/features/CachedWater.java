@@ -88,7 +88,7 @@ public class CachedWater {
                         world.breakBlock(pos, true);
                     } else {
                         if (prev.getBlock() instanceof Waterloggable) {
-                            throw new RuntimeException("TODO get trolled");
+                            //TODO proper waterlogged flow
                         }
                     }
 
