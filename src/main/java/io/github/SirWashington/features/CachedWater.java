@@ -1,20 +1,19 @@
 package io.github.SirWashington.features;
 
+import it.unimi.dsi.fastutil.Stack;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.function.LongToIntFunction;
 
 import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
@@ -24,6 +23,7 @@ public class CachedWater {
     public static boolean useSections = true;
     public static boolean useCache = true;
     private static final Long2ByteMap cache = new Long2ByteOpenHashMap();
+    private static final Stack<BlockPosLevel> changes = new ObjectArrayList<>();
     private static final ChunkSection[] cachedSections = new ChunkSection[8];
     public static World world;
 
@@ -49,7 +49,8 @@ public class CachedWater {
         if (useCache) {
             int result = cache.computeIfAbsent(ipos.asLong(), func);
 
-            assert result == func.applyAsInt(ipos.asLong());
+            // This is allowed nowadays, cus setting happens later
+            // assert result == func.applyAsInt(ipos.asLong());
             return result;
         } else return func.applyAsInt(ipos.asLong());
     }
@@ -64,40 +65,9 @@ public class CachedWater {
 
 
     public static void setWaterLevel(int level, BlockPos pos) {
-        BlockState prev = getBlockState(pos);
+        if (cache.get(pos.asLong()) == (byte) level) return;
 
-        assert  prev.isAir() ||
-                prev.contains(WATER_LEVEL) ||
-                !prev.getFluidState().isEmpty() ||
-                level < 0;
-
-        if (prev.contains(WATER_LEVEL)) {
-            setBlockState(pos, prev.with(WATER_LEVEL, level));
-        } else {
-            if (level == 0) {
-                setBlockState(pos, Blocks.AIR.getDefaultState());
-            } else if (level < 0) {
-                // System.out.println("Trying to set waterlevel " + level);
-            } else if (level <= 8) {
-                if (level == 8) {
-                    if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                        setBlockState(pos, Blocks.WATER.getDefaultState());
-                    }
-                } else {
-                    if (!(prev.getBlock() instanceof FluidDrainable)) {
-                        world.breakBlock(pos, true);
-                    } else {
-                        if (prev.getBlock() instanceof Waterloggable) {
-                            //TODO proper waterlogged flow
-                        }
-                    }
-
-                    setBlockState(pos, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
-                }
-            } else {
-                System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
-            }
-        }
+       setBlockStateLater(pos, (byte) level);
 
         if (useCache)
             cache.put(pos.asLong(), (byte) level);
@@ -130,21 +100,9 @@ public class CachedWater {
      * @deprecated Use setWaterLevel!
      */
     @Deprecated
-    public static void setBlockState(BlockPos pos, BlockState state) {
-        if (useSections && false) { // sections begone
-            ChunkSection section = getSection(pos);
-            BlockState old = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-            if (state == old) return;
-
-            ((ServerWorld) world).getChunkManager().markForUpdate(pos);
-            world.updateNeighbors(pos, old.getBlock());
-            Fluid fluid = state.getFluidState().getFluid();
-            world.createAndScheduleFluidTick(pos, fluid, fluid.getTickRate(world));
-
-            section.setBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state, false);
-        } else {
-            world.setBlockState(pos, state, 11);
-        }
+    public static void setBlockStateLater(BlockPos pos, byte state) {
+        if (state > 0)
+            changes.push(new BlockPosLevel(pos.asLong(), state));
     }
 
     private static ChunkSection getSection(BlockPos pos) {
@@ -232,5 +190,62 @@ public class CachedWater {
     public static void afterTick(ServerWorld serverWorld) {
         // TODO cache per dimension
         cache.clear();
+
+        HashSet<BlockPos> changed = new HashSet<>();
+
+        while (!changes.isEmpty()) {
+            BlockPosLevel result = changes.pop();
+            BlockPos pos = result.getPos();
+            if (changed.contains(pos)) continue;
+            changed.add(pos);
+
+            BlockState prev = getBlockState(pos);
+            BlockState newB = result.getState(prev);
+
+            if (!prev.equals(newB)) {
+                // if the prev wasn't water and the new is water drop the block
+                if (prev.getBlock() != Blocks.WATER && newB.getBlock() == Blocks.WATER) {
+                    serverWorld.breakBlock(pos, true);
+                }
+
+                serverWorld.setBlockState(pos, newB, 11);
+            }
+        }
+    }
+
+    record BlockPosLevel(long pos, byte level) {
+
+        BlockPos getPos() {
+            return BlockPos.fromLong(pos);
+        }
+
+        BlockState getState(BlockState prev) {
+            assert  prev.isAir() ||
+                    prev.contains(WATER_LEVEL) ||
+                    !prev.getFluidState().isEmpty() ||
+                    level < 0;
+
+            if (prev.contains(WATER_LEVEL)) {
+                return prev.with(WATER_LEVEL, (int) level);
+            } else {
+                if (level == 0) {
+                    return Blocks.AIR.getDefaultState();
+                } else if (level < 0) {
+                    throw new IllegalStateException("Tried to set a negative water level");
+                } else if (level <= 8) {
+                    if (level == 8) {
+                        if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
+                            return Blocks.WATER.getDefaultState();
+                        } else {
+                            return prev;
+                        }
+                    } else {
+                        return Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState();
+                    }
+                } else {
+                    throw new IllegalStateException("HELP THY SOUL Trying to set waterlevel " + level);
+                }
+            }
+        }
     }
 }
