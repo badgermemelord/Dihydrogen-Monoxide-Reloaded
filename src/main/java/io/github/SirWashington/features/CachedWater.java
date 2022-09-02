@@ -3,7 +3,6 @@ package io.github.SirWashington.features;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import net.minecraft.block.*;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
@@ -20,7 +19,6 @@ public class CachedWater {
     public static boolean useSections = true;
     public static boolean useCache = true;
     private static final Long2ByteMap cache = new Long2ByteOpenHashMap();
-    private static final ChunkSection[] cachedSections = new ChunkSection[8];
     public static World world;
 
     public static int getWaterLevel(BlockPos ipos) {
@@ -125,10 +123,7 @@ public class CachedWater {
     }
 
     public static BlockState getBlockState(BlockPos pos) {
-        if (useSections && false) // sections begone
-            return getSection(pos).getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-        else
-            return world.getBlockState(pos);
+        return world.getBlockState(pos);
     }
 
     public static void main(String[] args) {
@@ -141,20 +136,7 @@ public class CachedWater {
      */
     @Deprecated
     public static void setBlockState(BlockPos pos, BlockState state) {
-        if (useSections && false) { // sections begone
-            ChunkSection section = getSection(pos);
-            BlockState old = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-            if (state == old) return;
-
-            ((ServerWorld) world).getChunkManager().markForUpdate(pos);
-            world.updateNeighbors(pos, old.getBlock());
-            Fluid fluid = state.getFluidState().getFluid();
-            world.createAndScheduleFluidTick(pos, fluid, fluid.getTickRate(world));
-
-            section.setBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state, false);
-        } else {
-            world.setBlockState(pos, state, 11);
-        }
+        world.setBlockState(pos, state, 11);
     }
 
     private static ChunkSection getSection(BlockPos pos) {
@@ -211,28 +193,6 @@ public class CachedWater {
             cachedSections[getSectionId(blockPos)] = section;
         }
         */
-    }
-/*
-    private static int getSectionId(BlockPos pos) {
-        return ((pos.getX() / 16) - xChunkA) + ((pos.getZ() / 16) - zChunkA) * 2 + ((pos.getY() / 16) - yChunkA) * 4;
-    }
- */
-
-    public static void lock() {
-        for (ChunkSection chunkSection : cachedSections) {
-            if (chunkSection != null) {
-                chunkSection.unlock(); // for some reason there is no isLocked method
-                chunkSection.lock();
-            }
-        }
-    }
-
-    public static void unlock() {
-        for (ChunkSection chunkSection : cachedSections) {
-            if (chunkSection != null) {
-                chunkSection.unlock();
-            }
-        }
     }
 
     public static void beforeTick(ServerWorld serverWorld) {
