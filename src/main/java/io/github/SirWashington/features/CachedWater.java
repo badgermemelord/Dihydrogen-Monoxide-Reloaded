@@ -7,14 +7,10 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 
-import java.util.Arrays;
 import java.util.function.LongToIntFunction;
 
 import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
@@ -62,14 +58,28 @@ public class CachedWater {
         return isNotFull(getWaterLevel(pos));
     }
 
+    private static final Long2ByteMap queuedWaterLevels = new Long2ByteOpenHashMap();
+
+    static {
+        queuedWaterLevels.defaultReturnValue((byte) -1);
+    }
 
     public static void setWaterLevel(int level, BlockPos pos) {
+        if (useCache) {
+            cache.put(pos.asLong(), (byte) level);
+            queuedWaterLevels.put(pos.asLong(), (byte) level);
+        } else {
+            cache.remove(pos.asLong());
+        }
+    }
+
+    private static void setWaterLevelDirect(int level, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
         assert  prev.isAir() ||
-                prev.contains(WATER_LEVEL) ||
-                !prev.getFluidState().isEmpty() ||
-                level < 0;
+            prev.contains(WATER_LEVEL) ||
+            !prev.getFluidState().isEmpty() ||
+            level < 0;
 
         if (prev.contains(WATER_LEVEL)) {
             setBlockState(pos, prev.with(WATER_LEVEL, level));
@@ -98,11 +108,6 @@ public class CachedWater {
                 System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
             }
         }
-
-        if (useCache)
-            cache.put(pos.asLong(), (byte) level);
-        else
-            cache.remove(pos.asLong());
     }
 
 
@@ -125,6 +130,11 @@ public class CachedWater {
         else
             return world.getBlockState(pos);
     }
+
+    public static void main(String[] args) {
+        System.out.println(Block.REDRAW_ON_MAIN_THREAD | Block.NOTIFY_LISTENERS | Block.NOTIFY_NEIGHBORS);
+    }
+
 
     /**
      * @deprecated Use setWaterLevel!
@@ -232,5 +242,11 @@ public class CachedWater {
     public static void afterTick(ServerWorld serverWorld) {
         // TODO cache per dimension
         cache.clear();
+
+        for (var entry : queuedWaterLevels.long2ByteEntrySet()) {
+            setWaterLevelDirect(entry.getByteValue(), BlockPos.fromLong(entry.getLongKey()));
+        }
+
+        queuedWaterLevels.clear();
     }
 }
