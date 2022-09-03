@@ -18,13 +18,5 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(World.class)
 public abstract class WorldMixin {
 
-    @Shadow public abstract FluidState getFluidState(BlockPos pos);
-
-    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"), method = "updateNeighbor")
-    void updateNeighborFluid(BlockPos pos, Block sourceBlock, BlockPos neighborPos, CallbackInfo ci) {
-        FluidState fluid = getFluidState(pos);
-        if (!fluid.isEmpty() && fluid.getBlockState().getBlock() != Blocks.WATER)
-            ((ServerWorld) (Object) (this)).createAndScheduleFluidTick(pos, fluid.getFluid(), fluid.getFluid().getTickRate((World) (Object) this));
-    }
 
 }

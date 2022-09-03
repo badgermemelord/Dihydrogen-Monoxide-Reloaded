@@ -46,7 +46,7 @@ public class PerfTests {
     private static int simulationDistance = 5;
 
     public static void init() {
-        perfTest = System.getProperty("washwater.perftest").equalsIgnoreCase("default");
+        perfTest = "default".equalsIgnoreCase(System.getProperty("washwater.perftest"));
 
         if (perfTest) {
             ServerLifecycleEvents.SERVER_STARTED.register(s -> s.getPlayerManager().setSimulationDistance(simulationDistance));

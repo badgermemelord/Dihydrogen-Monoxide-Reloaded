@@ -56,10 +56,7 @@ public class CachedWater {
         };
 
         if (useCache) {
-            int result = cache.computeIfAbsent(ipos.asLong(), func);
-
-            assert result == func.applyAsInt(ipos.asLong());
-            return result;
+            return cache.computeIfAbsent(ipos.asLong(), func);
         } else return func.applyAsInt(ipos.asLong());
     }
 
@@ -82,6 +79,7 @@ public class CachedWater {
             cache.put(pos.asLong(), (byte) level);
             queuedWaterLevels.put(pos.asLong(), (byte) level);
         } else {
+            setWaterLevelDirect(level, pos);
             cache.remove(pos.asLong());
         }
     }
@@ -153,7 +151,7 @@ public class CachedWater {
     }
 
     public static void setBlockStateNoNeighbors(BlockPos pos, BlockState state) {
-        if (state.getBlock().getClass() == FluidBlock.class) {
+        if (!state.getFluidState().isEmpty()) {
             // defer the neighbor update of a fluid block by specifying FORCE_STATE
             world.setBlockState(pos, state, Block.REDRAW_ON_MAIN_THREAD | Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 
@@ -220,7 +218,7 @@ public class CachedWater {
     }
 
     public static void beforeTick(ServerWorld serverWorld) {
-        assert cache.isEmpty();
+        assert cache.isEmpty(); //FIXME
     }
 
     private static final Map<BlockPos, BlockState> fluidsToUpdate = new HashMap<>();
@@ -234,7 +232,7 @@ public class CachedWater {
      */
     private static void updateNeighbor(BlockPos pos, Block sourceBlock, BlockPos neighborPos) {
         BlockState neighborState = world.getBlockState(pos);
-        if (neighborState.getBlock().getClass() == FluidBlock.class) {
+        if (!neighborState.getFluidState().isEmpty()) {
             fluidsToUpdate.put(pos, neighborState);
         } else {
             // Vanilla behaviour
@@ -274,10 +272,10 @@ public class CachedWater {
         }
 
         for (var entry : fluidsToUpdate.entrySet()) {
-            var fluidState = entry.getValue();
+            var state = entry.getValue();
             var pos = entry.getKey();
-            // last 3 params are ignored by FluidBlock anyway
-            fluidState.neighborUpdate(world, pos, null, null, false);
+
+            world.createAndScheduleFluidTick(pos, state.getFluidState().getFluid(), state.getFluidState().getFluid().getTickRate(world));
         }
 
         fluidsToUpdate.clear();
