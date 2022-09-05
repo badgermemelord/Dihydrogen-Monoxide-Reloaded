@@ -177,7 +177,11 @@ public class CachedWater {
             world.updateListeners(pos, oldState, state, Block.REDRAW_ON_MAIN_THREAD | Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
 
             fluidsToUpdate.put(pos, state);
+        } else if (state.isAir()) {
+            setBlockStateSection(pos, state);
+            world.updateListeners(pos, oldState, state, Block.REDRAW_ON_MAIN_THREAD | Block.NOTIFY_LISTENERS | Block.FORCE_STATE);
         } else {
+            // We could just make everything use setBlockStateSection but non fluid/air should be taken more care of
             world.setBlockState(pos, state, Block.REDRAW_ON_MAIN_THREAD | Block.NOTIFY_LISTENERS);
         }
     }
