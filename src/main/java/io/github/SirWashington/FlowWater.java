@@ -162,7 +162,7 @@ public class FlowWater {
 
         if (count == area) {
             //System.out.println("data as sent: " + Arrays.deepToString(data));
-            newData = GFG.printma(data, diameter, radius);
+            newData = FloodFill.flood(data, radius, radius);
             //System.out.println("newData original: " + Arrays.deepToString(newData));
 
             for (int i = 0; i < diameter - 1; i++) {
