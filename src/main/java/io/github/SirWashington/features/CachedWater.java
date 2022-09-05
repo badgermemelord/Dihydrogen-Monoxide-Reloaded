@@ -279,7 +279,7 @@ public class CachedWater {
             BlockPos pos = BlockPos.fromLong(entry.getLongKey());
             setWaterLevelDirect(entry.getByteValue(), pos);
 
-            Block block = world.getBlockState(pos).getBlock();
+            Block block = getBlockState(pos).getBlock();
             updateNeighbor(pos.west(), block, pos);
             updateNeighbor(pos.east(), block, pos);
             updateNeighbor(pos.down(), block, pos);
