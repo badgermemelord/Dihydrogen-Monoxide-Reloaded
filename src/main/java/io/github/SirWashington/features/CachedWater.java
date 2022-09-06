@@ -35,6 +35,12 @@ public class CachedWater {
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
     public static World world;
 
+    public static int a = 0;
+    public static int countMa() {
+        a += 1;
+        return a;
+    }
+
     public static int getWaterLevel(BlockPos ipos) {
         LongToIntFunction func = pos -> {
             BlockState blockstate = getBlockState(BlockPos.fromLong(pos));

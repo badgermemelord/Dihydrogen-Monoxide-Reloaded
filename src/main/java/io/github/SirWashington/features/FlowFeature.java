@@ -9,46 +9,56 @@ import java.util.Collections;
 
 public class FlowFeature {
 
-    // What is this arraylist?
+
     public static void execute(BlockPos center) {
         if (!Features.FLOW_FEATURE_ENABLED) return;
 
-        ArrayList<BlockPos> blocks = new ArrayList<>(4);
+        //int randShift = CachedWater.countMa() % 4;
+        int x = center.getX();
+        int y = center.getY();
+        int z = center.getZ();
+
+        // What is this arraylist?
+        //ArrayList<BlockPos> blocks = new ArrayList<>(4);
+
+        BlockPos[] blocks = new BlockPos[4];
+
+        //Collections.shuffle(blocks);
+
         for (Direction dir : Direction.Type.HORIZONTAL) {
-            blocks.add(center.offset(dir));
+            blocks[CachedWater.countMa()%4] = (center.offset(dir));
+            //randShift += 1;
         }
-        Collections.shuffle(blocks);
 
-        int[] waterlevels = new int[4];
-        Arrays.fill(waterlevels, -1);
-        int centerwaterlevel = CachedWater.getWaterLevel(center);
-        for (int i = 0; i < blocks.size(); i++) {
-            waterlevels[i] = CachedWater.getWaterLevel(blocks.get(i));
+        int[] waterLevels = new int[4];
+        //Arrays.fill(waterlevels, -1);
+        int level = CachedWater.getWaterLevel(center);
+        for (int i = 0; i < 4; i++) {
+            waterLevels[i] = CachedWater.getWaterLevel(blocks[i]);
         }
-        int waterlevelsnum = waterlevels.length;
-        int didnothings = 0;
-        int waterlevel;
+        int count = 0;
+        int internalLevel;
 
-        while (didnothings < waterlevelsnum) {
+        while (count < 4) {
             for (int i = 0; i < 4; i++) {
-                waterlevel = waterlevels[i];
-                if (waterlevel != -1) {
-                    if ((centerwaterlevel >= (waterlevel + 1))) {
-                        waterlevel += 1;
-                        waterlevels[i] = waterlevel;
-                        centerwaterlevel -= 1;
+                internalLevel = waterLevels[i];
+                if (internalLevel != -1) {
+                    if ((level >= (internalLevel + 1))) {
+                        internalLevel += 1;
+                        waterLevels[i] = internalLevel;
+                        level -= 1;
                     } else {
-                        didnothings += 1;
+                        count += 1;
                     }
                 } else {
-                    didnothings += 1;
+                    count += 1;
                 }
             }
         }
-        for (int i = 0; i < blocks.size(); i++) {
-            CachedWater.setWaterLevel(waterlevels[i], blocks.get(i));
+        for (int i = 0; i < 4; i++) {
+            CachedWater.setWaterLevel(waterLevels[i], blocks[i]);
         }
-        CachedWater.setWaterLevel(centerwaterlevel, center);
+        CachedWater.setWaterLevel(level, center);
     }
 
 }
