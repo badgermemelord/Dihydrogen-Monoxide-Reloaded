@@ -112,25 +112,19 @@ public class FlowWater {
 
     public static void equalizeWater(BlockPos center, int level) {
 
-        //FloodFill Matrix Initiation
         int radius = 2;
         int diameter = (radius * 2) + 1;
-        int area = diameter * diameter;
         int[][] data = new int[diameter][diameter];
         int[][] newData = new int[diameter][diameter];
 
-        int centerLevel = level + 10;
+        //int centerLevel = level + 10;
 
-
-        //Matrix Check Start
         int x = center.getX();
         int y = center.getY();
         int z = center.getZ();
 
-        int count = 0;
         int newX = 0;
         int newZ = 0;
-        int maxLevel = 0;
         int minLevel = 99;
 
         for (int dx = -radius; dx <= radius; dx++) {
@@ -139,42 +133,30 @@ public class FlowWater {
                 newZ = z + dz;
                 BlockPos internalPos = new BlockPos(newX, y, newZ);
                 data[dx + radius][dz + radius] = CachedWater.getWaterLevel(internalPos);
-                count += 1;
             }
         }
 
+        newData = FloodFill.flood(data, radius, radius);
 
-        if (count == area) {
-            //System.out.println("data as sent: " + Arrays.deepToString(data));
-            newData = FloodFill.flood(data, radius, radius);
-            //System.out.println("newData original: " + Arrays.deepToString(newData));
-
-            for (int i = 0; i < diameter - 1; i++) {
-                for (int j = 0; j < diameter - 1; j++) {
-                    if (newData[i][j] >= 10) {
-                        //System.out.println("newdata " + newData[i]);
-                        if (newData[i][j] > maxLevel) {
-                            maxLevel = newData[i][j];
-                        }
-                        if (newData[i][j] < minLevel) {
-                            minLevel = newData[i][j];
-                        }
+        for (int i = 0; i < diameter - 1; i++) {
+            for (int j = 0; j < diameter - 1; j++) {
+                if (newData[i][j] >= 10) {
+                    if (newData[i][j] < minLevel) {
+                        minLevel = newData[i][j];
                     }
                 }
             }
-
-            //System.out.println(matrixLevels);
-
-            int range = centerLevel - minLevel;
-
-
-            if (range == 1) {
-                PuddleFeature.execute(center, level);
-            }
-            if (range > 1) {
-                FlowFeature.execute(center);
-            }
         }
+
+        int range = level + 10 - minLevel;
+
+        if (range == 1) {
+            PuddleFeature.execute(center, level);
+        }
+        if (range > 1) {
+            FlowFeature.execute(center);
+        }
+
     }
 
 
