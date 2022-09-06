@@ -49,14 +49,7 @@ public class FlowWater {
                 CachedWater.setWaterLevel(0, fluidPos);
                 CachedWater.addWater(centerlevel, fluidPos.down());
             } else {
-                ArrayList<BlockPos> blocks = new ArrayList<>(4);
-                for (Direction dir : Direction.Type.HORIZONTAL) {
-                    blocks.add(fluidPos.offset(dir));
-                }
-
-                //blocks.removeIf(pos -> !sectionGetBlockState(pos).canBucketPlace(Fluids.WATER));
-                Collections.shuffle(blocks);
-                equalizeWater(blocks, fluidPos, centerlevel);
+                equalizeWater(fluidPos, centerlevel);
 
 
             }
@@ -117,16 +110,7 @@ public class FlowWater {
     }
 
 
-    public static void equalizeWater(ArrayList<BlockPos> blocks, BlockPos center, int level) {
-        int[] waterlevels = new int[4];
-        Arrays.fill(waterlevels, -1);
-        for (BlockPos block : blocks) {
-            waterlevels[blocks.indexOf(block)] = CachedWater.getWaterLevel(block);
-        }
-/*        int waterlevelsnum = waterlevels.length;
-        int didnothings = 0;
-        int waterlevel;*/
-        // List<Integer> matrixLevels = new ArrayList<>(Arrays.asList());
+    public static void equalizeWater(BlockPos center, int level) {
 
         //FloodFill Matrix Initiation
         int radius = 2;
@@ -188,10 +172,11 @@ public class FlowWater {
                 PuddleFeature.execute(center, level);
             }
             if (range > 1) {
-                FlowFeature.execute(blocks, center);
+                FlowFeature.execute(center);
             }
         }
     }
+
 
 
     public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
