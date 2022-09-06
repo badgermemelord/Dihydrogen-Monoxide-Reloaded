@@ -9,29 +9,19 @@ import java.util.Collections;
 
 public class FlowFeature {
 
+    public static BlockPos[] blocks = new BlockPos[4];
 
     public static void execute(BlockPos center) {
         if (!Features.FLOW_FEATURE_ENABLED) return;
 
-        //int randShift = CachedWater.countMa() % 4;
-        int x = center.getX();
-        int y = center.getY();
-        int z = center.getZ();
-
         // What is this arraylist?
-        //ArrayList<BlockPos> blocks = new ArrayList<>(4);
-
-        BlockPos[] blocks = new BlockPos[4];
-
-        //Collections.shuffle(blocks);
 
         for (Direction dir : Direction.Type.HORIZONTAL) {
             blocks[CachedWater.countMa()%4] = (center.offset(dir));
-            //randShift += 1;
         }
 
         int[] waterLevels = new int[4];
-        //Arrays.fill(waterlevels, -1);
+        //Arrays.fill(waterLevels, -1);
         int level = CachedWater.getWaterLevel(center);
         for (int i = 0; i < 4; i++) {
             waterLevels[i] = CachedWater.getWaterLevel(blocks[i]);
