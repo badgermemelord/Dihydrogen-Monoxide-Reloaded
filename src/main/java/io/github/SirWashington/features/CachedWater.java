@@ -1,5 +1,6 @@
 package io.github.SirWashington.features;
 
+import io.github.SirWashington.scheduling.WaterTickScheduler;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -15,11 +16,13 @@ import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongToIntFunction;
@@ -40,6 +43,24 @@ public class CachedWater {
         a += 1;
         return a;
     }
+
+/*    public static boolean testTick(BlockPos BP) {
+
+        world.setBlockState(BP, Blocks.GOLD_BLOCK.getDefaultState(), 11);
+
+        updateNeighbours(BP);
+        return false;
+    }
+
+    public static void updateNeighbours(BlockPos BP) {
+        ArrayList<BlockPos> neighbours = new ArrayList<>();
+
+        for (Direction dir : Direction.Type.HORIZONTAL) {
+            //neighbours.add(BP.offset(dir));
+            WaterTickScheduler.scheduleFluidBlock(BP.offset(dir));
+        }
+
+    }*/
 
     public static int getWaterLevel(BlockPos ipos) {
         LongToIntFunction func = pos -> {

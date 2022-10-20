@@ -3,16 +3,19 @@ package io.github.SirWashington;
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.FlowFeature;
 import io.github.SirWashington.features.PuddleFeature;
+import io.github.SirWashington.scheduling.WaterTickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidDrainable;
 import net.minecraft.block.FluidFillable;
+import net.minecraft.client.render.DimensionEffects;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
@@ -56,6 +59,24 @@ public class FlowWater {
 
             //CachedWater.unlock();
         }
+    }
+
+    public static boolean testTick(World world, BlockPos BP) {
+        world.setBlockState(BP, Blocks.GOLD_BLOCK.getDefaultState(), 11);
+        //System.out.println("ticked: " + BP.getX() + ", " + BP.getZ());
+        updateNeighbours(BP);
+        return false;
+    }
+
+    public static void updateNeighbours(BlockPos BP) {
+        //ArrayList<BlockPos> neighbours = new ArrayList<>();
+
+        for (Direction dir : Direction.Type.HORIZONTAL) {
+            //System.out.println(dir);
+            //neighbours.add(BP.offset(dir));
+            WaterTickScheduler.scheduleFluidBlock(BP.offset(dir));
+        }
+
     }
 
     public static boolean isNotFull(int waterLevel) {
