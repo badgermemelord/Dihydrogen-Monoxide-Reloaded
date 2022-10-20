@@ -30,7 +30,7 @@ public class FlowWater {
     private FlowWater() {
     }
 
-    public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
+    public static void flowwater(WorldAccess world, BlockPos fluidPos) {
 
         //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {

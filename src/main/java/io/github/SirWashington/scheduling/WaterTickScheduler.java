@@ -20,13 +20,12 @@ public class WaterTickScheduler {
         NextToTick.add(FluidPosToSchedule);
     }
 
-    public static void tickFluid(World world) {
-        System.out.println("curr " +  CurrentToTick);
-        System.out.println("next " +  NextToTick);
+    public static void WaterTick(World world) {
 
-        for(BlockPos iterator : NextToTick) {
-            CurrentToTick.add(iterator);
+        for(Long BPLong : CachedWater.cache) {
+            FlowWater.flowwater(world, BlockPos.fromLong(BPLong));
         }
+
         //CurrentToTick = NextToTick;
         NextToTick.clear();
         //System.out.println("curr2 " +  CurrentToTick);
