@@ -7,20 +7,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static io.github.SirWashington.FlowWater.world;
 
 public class WaterTickScheduler {
 
-    public static ArrayList<BlockPos> CurrentToTick = new ArrayList<>();
-    public static ArrayList<BlockPos> NextToTick = new ArrayList<>();
+    //public static ArrayList<BlockPos> CurrentToTick = new ArrayList<>();
+    //public static ArrayList<BlockPos> NextToTick = new ArrayList<>();
 
 
-    public static void scheduleFluidBlock(BlockPos FluidPosToSchedule) {
-        NextToTick.add(FluidPosToSchedule);
+    public static List<Long> BlocksToTickNext = new ArrayList<>();
+    public static List<Long> BlocksToTick = new ArrayList<>();
+
+    public static void scheduleFluidBlock(BlockPos pos) {
+        BlocksToTick.add(pos.asLong());
     }
 
-    public static void tickFluid(World world) {
+/*    public static void tickFluid(World world) {
         System.out.println("curr " +  CurrentToTick);
         System.out.println("next " +  NextToTick);
 
@@ -34,9 +38,9 @@ public class WaterTickScheduler {
             //FluidState FS = CachedWater.getBlockState(BP).getFluidState();
             System.out.println("bp: " + BP);
             //FlowWater.flowwater(world, BP, FS);
-            FlowWater.testTick(world, BP);
+            //FlowWater.testTick(world, BP);
         }
         CurrentToTick.clear();
-    }
+    }*/
 
 }

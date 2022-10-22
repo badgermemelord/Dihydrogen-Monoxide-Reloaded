@@ -1,5 +1,6 @@
 package io.github.SirWashington.features;
 
+import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.scheduling.WaterTickScheduler;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
@@ -42,6 +43,21 @@ public class CachedWater {
     public static int countMa() {
         a += 1;
         return a;
+    }
+
+    public static void ScheduleFluidTick(World world) {
+
+        //if(!WaterTickScheduler.BlocksToTick.isEmpty()) {
+            for (Long BPasLong : WaterTickScheduler.BlocksToTick) {
+                BlockPos BP = BlockPos.fromLong(BPasLong);
+                System.out.println("Cache BP: " + BP);
+                BlockState BS = getBlockState(BP);
+                //FluidState FS = BS.getFluidState();
+                if (BS.getBlock() == Blocks.WATER) {
+                    FlowWater.flowwater(world, BP);
+                }
+            }
+        //}
     }
 
 /*    public static boolean testTick(BlockPos BP) {
@@ -107,9 +123,24 @@ public class CachedWater {
         if (useCache) {
             cache.put(pos.asLong(), (byte) level);
             queuedWaterLevels.put(pos.asLong(), (byte) level);
+            queueNeighbours(world, pos);
         } else {
             setWaterLevelDirect(level, pos);
             cache.remove(pos.asLong());
+        }
+    }
+
+    public static void queueNeighbours(World world, BlockPos pos) {
+        for (Direction dir : Direction.Type.HORIZONTAL) {
+            //int level = getBlockState(pos).getFluidState().getLevel();
+            //cache.put(pos.offset(dir).asLong(), (byte) level);
+            WaterTickScheduler.scheduleFluidBlock(pos);
+            System.out.println(pos.offset(dir));
+        }
+        for (Direction dir : Direction.Type.VERTICAL) {
+            //int level = getBlockState(pos).getFluidState().getLevel();
+            //cache.put(pos.offset(dir).asLong(), (byte) level);
+            WaterTickScheduler.scheduleFluidBlock(pos);
         }
     }
 
@@ -302,7 +333,7 @@ public class CachedWater {
         // TODO cache per dimension
         cache.clear();
 
-        for (var entry : queuedWaterLevels.long2ByteEntrySet()) {
+/*        for (var entry : queuedWaterLevels.long2ByteEntrySet()) {
             BlockPos pos = BlockPos.fromLong(entry.getLongKey());
             setWaterLevelDirect(entry.getByteValue(), pos);
 
@@ -320,7 +351,7 @@ public class CachedWater {
             var pos = entry.getKey();
 
             world.createAndScheduleFluidTick(pos, state.getFluidState().getFluid(), state.getFluidState().getFluid().getTickRate(world));
-        }
+        }*/
 
         sections.forEach((sectionPos, section) -> section.unlock());
 
