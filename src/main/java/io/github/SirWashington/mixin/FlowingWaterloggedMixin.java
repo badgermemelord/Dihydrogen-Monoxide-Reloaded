@@ -1,6 +1,8 @@
 package io.github.SirWashington.mixin;
 
 
+import io.github.SirWashington.FlowWater;
+import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.MixinTest;
 import io.github.SirWashington.scheduling.WaterTickScheduler;
 import net.minecraft.block.BlockState;
@@ -29,8 +31,14 @@ public abstract class FlowingWaterloggedMixin {
     @Inject(at = @At("HEAD"), method = "tick",  cancellable = true)
             public void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
             ServerWorld.class.cast(this);
-            //MixinTest.mixinPrint();
-            WaterTickScheduler.tickFluid(this.toServerWorld());
+            System.out.println("ticked");
+            System.out.println("next: " + WaterTickScheduler.BlocksToTickNext);
+            WaterTickScheduler.BlocksToTick.addAll(WaterTickScheduler.BlocksToTickNext);
+            System.out.println("current: " + WaterTickScheduler.BlocksToTick);
+            WaterTickScheduler.clearNext();
+            CachedWater.ScheduleFluidTick(this.toServerWorld());
+            CachedWater.afterTick(this.toServerWorld());
+
     }
 
 /*    @Inject(at = @At("HEAD"), method = "tickFluid", cancellable = true)

@@ -21,11 +21,12 @@ public abstract class BucketMixin{
                     target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"
             )
     )
-    private boolean bucketPlace(World instance, BlockPos pos, BlockState state, int flags) {
+    private boolean bucketPlace(World world, BlockPos pos, BlockState state, int flags) {
         boolean returnValue = true;
-        if (!instance.isClient) {
+        if (!world.isClient) {
             //returnValue = NonCachedWater.addWater(8, pos, instance);
-            returnValue = FlowWater.testTick(instance, pos);
+            FlowWater.flowwater(world, pos);
+            returnValue = true;
             return returnValue;
         }
         else {

@@ -33,12 +33,13 @@ public class FlowWater {
     public static void flowwater(WorldAccess world, BlockPos fluidPos) {
 
         //System.out.println("new beginning");
+        System.out.println("ticked water: " + fluidPos);
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
             CachedWater.setWaterLevel(0, fluidPos);
         } else {
-            FlowWater.world = (ServerWorld) world;
-            CachedWater.setup(FlowWater.world, fluidPos);
+            //FlowWater.world = (ServerWorld) world;
+            //CachedWater.setup(FlowWater.world, fluidPos);
             //CachedWater.lock();
 
             ArrayList<BlockPos> blockse = new ArrayList<>(4);
@@ -59,24 +60,6 @@ public class FlowWater {
 
             //CachedWater.unlock();
         }
-    }
-
-    public static boolean testTick(World world, BlockPos BP) {
-        world.setBlockState(BP, Blocks.GOLD_BLOCK.getDefaultState(), 11);
-        //System.out.println("ticked: " + BP.getX() + ", " + BP.getZ());
-        updateNeighbours(BP);
-        return false;
-    }
-
-    public static void updateNeighbours(BlockPos BP) {
-        //ArrayList<BlockPos> neighbours = new ArrayList<>();
-
-        for (Direction dir : Direction.Type.HORIZONTAL) {
-            //System.out.println(dir);
-            //neighbours.add(BP.offset(dir));
-            WaterTickScheduler.scheduleFluidBlock(BP.offset(dir));
-        }
-
     }
 
     public static boolean isNotFull(int waterLevel) {

@@ -10,7 +10,6 @@
     "FlowingMixin",
     "LavaFluidMixin",
     "PaneBlockMixin",
-    "ServerWorldMixin",
     "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
     "perf_test.MixinPlayerManager"

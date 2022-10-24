@@ -7,25 +7,36 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static io.github.SirWashington.FlowWater.world;
 
 public class WaterTickScheduler {
 
-    public static ArrayList<BlockPos> CurrentToTick = new ArrayList<>();
-    public static ArrayList<BlockPos> NextToTick = new ArrayList<>();
+    //public static ArrayList<BlockPos> CurrentToTick = new ArrayList<>();
+    //public static ArrayList<BlockPos> NextToTick = new ArrayList<>();
 
 
-    public static void scheduleFluidBlock(BlockPos FluidPosToSchedule) {
-        NextToTick.add(FluidPosToSchedule);
-    }
+    public static List<Long> BlocksToTickNext = new ArrayList<>();
 
-    public static void WaterTick(World world) {
+    public static List<Long> BlocksToTick = new ArrayList<>();
 
-        for(Long BPLong : CachedWater.cache) {
-            FlowWater.flowwater(world, BlockPos.fromLong(BPLong));
+    public static void scheduleFluidBlock(BlockPos pos) {
+        if(!BlocksToTickNext.contains(pos.asLong())) {
+            BlocksToTickNext.add(pos.asLong());
         }
+    }
+    public static void clearQueue() { BlocksToTick.clear();}
+    public static void clearNext() { BlocksToTickNext.clear();}
 
+
+/*    public static void tickFluid(World world) {
+        System.out.println("curr " +  CurrentToTick);
+        System.out.println("next " +  NextToTick);
+
+        for(BlockPos iterator : NextToTick) {
+            CurrentToTick.add(iterator);
+        }
         //CurrentToTick = NextToTick;
         NextToTick.clear();
         //System.out.println("curr2 " +  CurrentToTick);
@@ -33,9 +44,9 @@ public class WaterTickScheduler {
             //FluidState FS = CachedWater.getBlockState(BP).getFluidState();
             System.out.println("bp: " + BP);
             //FlowWater.flowwater(world, BP, FS);
-            FlowWater.testTick(world, BP);
+            //FlowWater.testTick(world, BP);
         }
         CurrentToTick.clear();
-    }
+    }*/
 
 }
