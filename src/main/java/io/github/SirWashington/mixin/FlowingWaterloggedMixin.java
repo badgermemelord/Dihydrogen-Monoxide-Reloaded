@@ -32,6 +32,10 @@ public abstract class FlowingWaterloggedMixin {
             public void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
             ServerWorld.class.cast(this);
             System.out.println("ticked");
+            System.out.println("next: " + WaterTickScheduler.BlocksToTickNext);
+            WaterTickScheduler.BlocksToTick.addAll(WaterTickScheduler.BlocksToTickNext);
+            System.out.println("current: " + WaterTickScheduler.BlocksToTick);
+            WaterTickScheduler.clearNext();
             CachedWater.ScheduleFluidTick(this.toServerWorld());
             CachedWater.afterTick(this.toServerWorld());
 

@@ -1,6 +1,5 @@
 package io.github.SirWashington.features;
 
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -33,7 +32,7 @@ public class NonCachedWater {
     private static void setup(World world) {
         CachedWater.useCache = false;
         CachedWater.useSections = false;
-        CachedWater.world = world;
+        CachedWater.cacheWorld = world;
     }
 
     private static void unSetup() {

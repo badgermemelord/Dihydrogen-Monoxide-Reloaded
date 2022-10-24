@@ -18,11 +18,17 @@ public class WaterTickScheduler {
 
 
     public static List<Long> BlocksToTickNext = new ArrayList<>();
+
     public static List<Long> BlocksToTick = new ArrayList<>();
 
     public static void scheduleFluidBlock(BlockPos pos) {
-        BlocksToTick.add(pos.asLong());
+        if(!BlocksToTickNext.contains(pos.asLong())) {
+            BlocksToTickNext.add(pos.asLong());
+        }
     }
+    public static void clearQueue() { BlocksToTick.clear();}
+    public static void clearNext() { BlocksToTickNext.clear();}
+
 
 /*    public static void tickFluid(World world) {
         System.out.println("curr " +  CurrentToTick);
