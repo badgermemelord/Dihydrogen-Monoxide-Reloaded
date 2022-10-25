@@ -45,14 +45,21 @@ public class CachedWater {
             cacheWorld = world;
             for (Long BPasLong : WaterTickScheduler.BlocksToTick) {
                 BlockPos BP = BlockPos.fromLong(BPasLong);
-                System.out.println("Cache BP: " + BP);
-                BlockState BS = getBlockState(BP);
+                //System.out.println("Cache BP: " + BP);
+                //BlockState BS = getBlockState(BP);
                 //FluidState FS = BS.getFluidState();
-                if (BS.getBlock() == Blocks.WATER) {
+                /*if (BS.getBlock() == Blocks.WATER) {
                     FlowWater.flowwater(world, BP);
-                }
+                }*/
+                TickThisBlock(world, BP);
             }
         //}
+    }
+    public static void TickThisBlock(World world, BlockPos pos) {
+        BlockState BS = getBlockState(pos);
+        if (BS.getBlock() == Blocks.WATER) {
+            FlowWater.flowwater(world, pos);
+        }
     }
 
 /*    public static boolean testTick(BlockPos BP) {
@@ -115,7 +122,7 @@ public class CachedWater {
     }
 
     public static void setWaterLevel(int level, BlockPos pos) {
-        System.out.println("Water level set attempt");
+        System.out.println("Water level set attempt, level: " + level + " BP: " + pos);
         if (useCache) {
             cache.put(pos.asLong(), (byte) level);
             queuedWaterLevels.put(pos.asLong(), (byte) level);

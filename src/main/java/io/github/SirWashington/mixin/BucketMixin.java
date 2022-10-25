@@ -3,6 +3,7 @@ package io.github.SirWashington.mixin;
 import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.NonCachedWater;
+import io.github.SirWashington.scheduling.WaterTickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -25,7 +26,9 @@ public abstract class BucketMixin{
         boolean returnValue = true;
         if (!world.isClient) {
             //returnValue = NonCachedWater.addWater(8, pos, instance);
-            FlowWater.flowwater(world, pos);
+            //FlowWater.flowwater(world, pos);
+            //CachedWater.TickThisBlock(world, pos);
+            WaterTickScheduler.scheduleFluidBlock(pos);
             returnValue = true;
             return returnValue;
         }

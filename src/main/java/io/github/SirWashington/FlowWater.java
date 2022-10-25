@@ -33,7 +33,7 @@ public class FlowWater {
     public static void flowwater(WorldAccess world, BlockPos fluidPos) {
 
         //System.out.println("new beginning");
-        System.out.println("ticked water: " + fluidPos);
+        //System.out.println("ticked water: " + fluidPos);
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
             CachedWater.setWaterLevel(0, fluidPos);
