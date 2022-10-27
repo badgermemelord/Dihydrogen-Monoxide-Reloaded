@@ -5,14 +5,21 @@ import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.MixinTest;
 import io.github.SirWashington.scheduling.WaterTickScheduler;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Waterloggable;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkManager;
+import org.apache.commons.compress.utils.Lists;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 @Mixin(net.minecraft.server.world.ServerWorld.class)
@@ -27,6 +35,12 @@ import java.util.function.BooleanSupplier;
 public abstract class FlowingWaterloggedMixin {
 
     @Shadow public abstract ServerWorld toServerWorld();
+
+    @Shadow public abstract ChunkManager getChunkManager();
+
+    @Shadow public abstract boolean isChunkLoaded(long chunkPos);
+
+    @Shadow @Final private static int MAX_TICKS;
 
     @Inject(at = @At("HEAD"), method = "tick",  cancellable = true)
             public void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
@@ -38,6 +52,9 @@ public abstract class FlowingWaterloggedMixin {
             //WaterTickScheduler.clearNext();
             CachedWater.ScheduleFluidTick(this.toServerWorld());
             CachedWater.afterTick(this.toServerWorld());
+            this.getChunkManager().getLoadedChunkCount();
+            ServerChunkEvents.CHUNK_LOAD.getClass()
+
 
     }
 
@@ -58,8 +75,8 @@ public abstract class FlowingWaterloggedMixin {
     }*/
 
     /**
-     * @author Dn
-     * @reason Mald
+     * @author SirWashington
+     * @reason get outta here
      */
     @Overwrite
     private void tickFluid(BlockPos pos, Fluid fluid) {

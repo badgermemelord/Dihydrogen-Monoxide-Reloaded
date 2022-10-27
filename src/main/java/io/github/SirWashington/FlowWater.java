@@ -54,8 +54,6 @@ public class FlowWater {
                 CachedWater.addWater(centerlevel, fluidPos.down());
             } else {
                 equalizeWater(fluidPos, centerlevel);
-
-
             }
 
             //CachedWater.unlock();

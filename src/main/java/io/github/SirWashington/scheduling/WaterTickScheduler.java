@@ -5,6 +5,7 @@ import io.github.SirWashington.features.CachedWater;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class WaterTickScheduler {
     public static List<Long> BlocksToTick = new ArrayList<>();
 
     public static void scheduleFluidBlock(BlockPos pos) {
+
         if(!BlocksToTickNext.contains(pos.asLong())) {
             BlocksToTickNext.add(pos.asLong());
         }
