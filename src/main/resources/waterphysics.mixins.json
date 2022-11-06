@@ -12,7 +12,8 @@
     "PaneBlockMixin",
     "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
-    "perf_test.MixinPlayerManager"
+    "perf_test.MixinPlayerManager",
+    "ChunkMapAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
