@@ -3,6 +3,7 @@ package io.github.SirWashington.mixin;
 
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.scheduling.ChunkHandling;
+import io.github.SirWashington.scheduling.TickSpeedHandler;
 import io.github.SirWashington.scheduling.WaterTickScheduler;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.server.world.ServerWorld;
@@ -37,13 +38,17 @@ public abstract class FlowingWaterloggedMixin {
 
     @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
     public void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        ServerWorld.class.cast(this);
 
-        ChunkHandling.chunkFetcher(this.toServerWorld());
+        if(TickSpeedHandler.shouldTick()) {
+            ServerWorld.class.cast(this);
 
-        CachedWater.ScheduleFluidTick(this.toServerWorld());
+            ChunkHandling.chunkFetcher(this.toServerWorld());
 
-        CachedWater.afterTick(this.toServerWorld());
+            CachedWater.ScheduleFluidTick(this.toServerWorld());
+
+            CachedWater.afterTick(this.toServerWorld());
+        }
+
 
 
 /*        ServerChunkManager chunkSource = this.toServerWorld().getChunkManager();
@@ -77,7 +82,7 @@ public abstract class FlowingWaterloggedMixin {
     }
         /**
          * @author SirWashington
-         * @reason get outta here
+         * @reason I am de captain now
          */
         @Overwrite
         private void tickFluid (BlockPos pos, Fluid fluid){

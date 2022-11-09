@@ -44,19 +44,20 @@ public class CachedWater {
 
     public static void ScheduleFluidTick(World world) {
         cacheWorld = world;
-        BlockPos BP;
         for (long worldChunkLong : WaterTickScheduler.Chunk2BlockMap.keySet()) {
-            //LongSet value = WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong);
-            if(!WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong).isEmpty() && WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong) != null) {
+            if(WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong) != null) {
                 LongSet value = WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong);
-                //System.out.println("value " + value);
-                for (long blockLong : value) {
-                    BP = BlockPos.fromLong(blockLong);
-                    TickThisBlock(world, BP);
-                }
+                value.forEach((long l) -> setIterator(l, world));
             }
         }
     }
+
+    public static void setIterator(long l,  World world) {
+        BlockPos BP;
+        BP = BlockPos.fromLong(l);
+        TickThisBlock(world, BP);
+    }
+
     public static void TickThisBlock(World world, BlockPos pos) {
         BlockState BS = getBlockState(pos);
         if (BS.getBlock() == Blocks.WATER) {
@@ -124,7 +125,7 @@ public class CachedWater {
     }
 
     public static void setWaterLevel(int level, BlockPos pos) {
-        System.out.println("Water level set attempt, level: " + level + " BP: " + pos);
+        //System.out.println("Water level set attempt, level: " + level + " BP: " + pos);
         if (useCache) {
             cache.put(pos.asLong(), (byte) level);
             queuedWaterLevels.put(pos.asLong(), (byte) level);

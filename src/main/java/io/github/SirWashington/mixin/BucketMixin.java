@@ -23,13 +23,12 @@ public abstract class BucketMixin{
             )
     )
     private boolean bucketPlace(World world, BlockPos pos, BlockState state, int flags) {
-        boolean returnValue = true;
+        boolean returnValue = false;
         if (!world.isClient) {
-            //returnValue = NonCachedWater.addWater(8, pos, instance);
+            returnValue = NonCachedWater.addWater(8, pos, world);
             //FlowWater.flowwater(world, pos);
-            //CachedWater.TickThisBlock(world, pos);
+            CachedWater.TickThisBlock(world, pos);
             WaterTickScheduler.scheduleFluidBlock(pos, world);
-            returnValue = true;
             return returnValue;
         }
         else {
