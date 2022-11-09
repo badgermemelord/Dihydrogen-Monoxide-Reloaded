@@ -2,19 +2,19 @@ package io.github.SirWashington.scheduling;
 
 import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.features.CachedWater;
-import it.unimi.dsi.fastutil.longs.Long2LongArrayMap;
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrays;
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.longs.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraft.world.chunk.*;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static io.github.SirWashington.FlowWater.world;
 
@@ -24,31 +24,102 @@ public class WaterTickScheduler {
     //public static ArrayList<BlockPos> NextToTick = new ArrayList<>();
 
 
-    public static List<Long> BlocksToTickNext = new ArrayList<>();
-    public static List<List<Long>> Chunks = new ArrayList<>();
-    public static Long2LongArrayMap Chunk2BlockMap = new Long2LongArrayMap();
-    public static List<Long> BlocksToTick = new ArrayList<>();
+    //public static List<Long> BlocksToTickNext = new ArrayList<>();
+    //public static List<List<Long>> Chunks = new ArrayList<>();
 
-    public static void unloadChunk(ChunkPos chunkPos) {
-        Long posToUnload = chunkPos.toLong();
+    //public static HashMap<Long, List<Long>> Chunk2BlockMap = new HashMap<>();
+    public static Long2ObjectMap<LongSet> Chunk2BlockMap = new Long2ObjectArrayMap<>();
+
+
+    //public static List<Long> BlocksToTick = new ArrayList<>();
+
+    public static void unloadChunk(ChunkPos chunkPos, World world) {
+        long posToUnload = chunkPos.toLong();
         Chunk2BlockMap.remove(posToUnload);
     }
-    public static void loadChunk(ChunkPos chunkPos, Long[] waterBlocksArray) {
-        Long posToLoad = chunkPos.toLong();
-        Chunk2BlockMap.put(posToLoad, waterBlocksArray);
-        Chunk2BlockMap.
-    }
 
-    public static void scheduleFluidBlock(BlockPos pos, ChunkPos chunkPos) {
-
-        Long chunkPosAsLong = chunkPos.toLong();
-
-        if(!BlocksToTickNext.contains(pos.asLong())) {
-            BlocksToTickNext.add(pos.asLong());
+    public static void checkIfPresent(ChunkPos pos, World world) {
+        long posLong = pos.toLong();
+        if (!Chunk2BlockMap.containsKey(posLong)){
+            preLoadChunk(pos, world);
         }
     }
-    public static void clearQueue() { BlocksToTick.clear();}
-    public static void clearNext() { BlocksToTickNext.clear();}
+    public static void preLoadChunk(ChunkPos chunkPos, World world) {
+        WorldChunk chunk = world.getWorldChunk(chunkPos.getStartPos());
+        LongSet waterBlocksSet = getWaterInChunk(chunk);
+        loadChunk(chunkPos, waterBlocksSet);
+    }
+
+    public static void loadChunk(ChunkPos chunkPos, LongSet waterBlocksSet) {
+        long posToLoad = chunkPos.toLong();
+        Chunk2BlockMap.put(posToLoad, waterBlocksSet);
+    }
+
+    public static void scheduleFluidBlock(BlockPos pos, World localWorld) {
+
+        ChunkPos chunkPos = localWorld.getChunk(pos).getPos();
+        long chunkPosAsLong = chunkPos.toLong();
+        long blockPosAsLong = pos.asLong();
+
+        if(Chunk2BlockMap.containsKey(chunkPosAsLong)) {
+            //Chunk2BlockMap.computeIfAbsent(chunkPosAsLong, s -> getLongSet(blockPosAsLong));
+            LongSet oldSet = Chunk2BlockMap.get(chunkPosAsLong);
+            oldSet.add(blockPosAsLong);
+            Chunk2BlockMap.put(chunkPosAsLong, oldSet);
+        }
+        else {
+            LongSet putValue = new LongOpenHashSet();
+            putValue.add(blockPosAsLong);
+            Chunk2BlockMap.put(chunkPosAsLong, putValue);
+        }
+    }
+
+    public static LongSet getLongSet(long pos) {
+        LongSet set = new LongOpenHashSet();
+        set.add(pos);
+        return set;
+    }
+
+    public static LongSet getWaterInChunk(WorldChunk chunk) {
+
+        //System.out.println("getwater start");
+        World localWorld = chunk.getWorld();
+        int chunkStartX = chunk.getPos().getStartX();
+        int chunkStartZ = chunk.getPos().getStartZ();
+
+        int worldMinY = localWorld.getBottomY();
+        int worldMaxY = localWorld.getTopY();
+        int sectionNo = (worldMaxY - worldMinY) / 16;
+
+        LongSet blockSet = new LongOpenHashSet();
+
+        List<ChunkSection> sectionList = new ArrayList<>(sectionNo);
+
+        for (int a = 0; a < sectionNo; a++) {
+            sectionList.add(chunk.getSection(a));
+        }
+
+        for (ChunkSection section : sectionList) {
+            for (int a = 0; a < 15; a++) {
+                for (int b = 0; b < 15; b++) {
+                    for (int c = 0; c < 15; c++) {
+                        BlockState internalBS = section.getBlockState(a, b, c);
+                        BlockPos realWorldPos = new BlockPos(chunkStartX + a, section.getYOffset() + b, chunkStartZ + c);
+                        long realWorldPosLong = realWorldPos.asLong();
+                        Block internalBlock = internalBS.getBlock();
+                        if (internalBlock == Blocks.WATER) {
+                            blockSet.add(realWorldPosLong);
+                            //System.out.println("wotah");
+                            //System.out.println(realWorldPos);
+                        }
+                    }
+                }
+            }
+        }
+        return blockSet;
+    }
+    //public static void clearQueue() { BlocksToTick.clear();}
+    // static void clearNext() { BlocksToTickNext.clear();}
 
 
 /*    public static void tickFluid(World world) {

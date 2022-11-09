@@ -28,7 +28,7 @@ public abstract class BucketMixin{
             //returnValue = NonCachedWater.addWater(8, pos, instance);
             //FlowWater.flowwater(world, pos);
             //CachedWater.TickThisBlock(world, pos);
-            WaterTickScheduler.scheduleFluidBlock(pos);
+            WaterTickScheduler.scheduleFluidBlock(pos, world);
             returnValue = true;
             return returnValue;
         }

@@ -4,6 +4,7 @@ import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.scheduling.WaterTickScheduler;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -17,7 +18,9 @@ import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,20 +43,19 @@ public class CachedWater {
     }
 
     public static void ScheduleFluidTick(World world) {
-
-        //if(!WaterTickScheduler.BlocksToTick.isEmpty()) {
-            cacheWorld = world;
-            for (Long BPasLong : WaterTickScheduler.BlocksToTick) {
-                BlockPos BP = BlockPos.fromLong(BPasLong);
-                //System.out.println("Cache BP: " + BP);
-                //BlockState BS = getBlockState(BP);
-                //FluidState FS = BS.getFluidState();
-                /*if (BS.getBlock() == Blocks.WATER) {
-                    FlowWater.flowwater(world, BP);
-                }*/
-                TickThisBlock(world, BP);
+        cacheWorld = world;
+        BlockPos BP;
+        for (long worldChunkLong : WaterTickScheduler.Chunk2BlockMap.keySet()) {
+            //LongSet value = WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong);
+            if(!WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong).isEmpty() && WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong) != null) {
+                LongSet value = WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong);
+                //System.out.println("value " + value);
+                for (long blockLong : value) {
+                    BP = BlockPos.fromLong(blockLong);
+                    TickThisBlock(world, BP);
+                }
             }
-        //}
+        }
     }
     public static void TickThisBlock(World world, BlockPos pos) {
         BlockState BS = getBlockState(pos);
@@ -134,16 +136,16 @@ public class CachedWater {
     }
 
     public static void queueNeighbours(World world, BlockPos pos) {
-        WaterTickScheduler.scheduleFluidBlock(pos);
+        WaterTickScheduler.scheduleFluidBlock(pos, world);
         for (Direction dir : Direction.Type.HORIZONTAL) {
             //int level = getBlockState(pos).getFluidState().getLevel();
             //cache.put(pos.offset(dir).asLong(), (byte) level);
-            WaterTickScheduler.scheduleFluidBlock(pos);
+            WaterTickScheduler.scheduleFluidBlock(pos, world);
         }
         for (Direction dir : Direction.Type.VERTICAL) {
             //int level = getBlockState(pos).getFluidState().getLevel();
             //cache.put(pos.offset(dir).asLong(), (byte) level);
-            WaterTickScheduler.scheduleFluidBlock(pos);
+            WaterTickScheduler.scheduleFluidBlock(pos, world);
         }
     }
 
@@ -335,27 +337,17 @@ public class CachedWater {
     public static void afterTick(ServerWorld serverWorld) {
         // TODO cache per dimension
         cache.clear();
-        WaterTickScheduler.clearQueue();
 
         for (var entry : queuedWaterLevels.long2ByteEntrySet()) {
             BlockPos pos = BlockPos.fromLong(entry.getLongKey());
             setWaterLevelDirect(entry.getByteValue(), pos);
-
-/*          Block block = getBlockState(pos).getBlock();
-            updateNeighbor(pos.west(), block, pos);
-            updateNeighbor(pos.east(), block, pos);
-            updateNeighbor(pos.down(), block, pos);
-            updateNeighbor(pos.up(), block, pos);
-            updateNeighbor(pos.north(), block, pos);
-            updateNeighbor(pos.south(), block, pos);*/
         }
 
-/*        for (var entry : fluidsToUpdate.entrySet()) {
+        for (var entry : fluidsToUpdate.entrySet()) {
             var state = entry.getValue();
             var pos = entry.getKey();
-
-            cacheWorld.createAndScheduleFluidTick(pos, state.getFluidState().getFluid(), state.getFluidState().getFluid().getTickRate(world));
-        }*/
+            WaterTickScheduler.scheduleFluidBlock(pos, serverWorld);
+        }
 
         sections.forEach((sectionPos, section) -> section.unlock());
 
