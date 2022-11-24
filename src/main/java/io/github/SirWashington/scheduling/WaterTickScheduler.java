@@ -37,21 +37,31 @@ public class WaterTickScheduler {
         long posToUnload = chunkPos.toLong();
         Chunk2BlockMap.remove(posToUnload);
     }
-
-    public static void checkIfPresent(ChunkPos pos, World world) {
-        long posLong = pos.toLong();
-        if (!Chunk2BlockMap.containsKey(posLong)){
-            preLoadChunk(pos, world);
+    public static void checkForAbsent(LongSet ChunkCache, World world) {
+        //System.out.println("bal");
+        //System.out.println(ChunkCache);
+        for(Long keyLong : Chunk2BlockMap.keySet()) {
+            if(!ChunkCache.contains(keyLong)) {
+                Chunk2BlockMap.remove(keyLong);
+                //System.out.println("removed");
+            }
         }
     }
-    public static void preLoadChunk(ChunkPos chunkPos, World world) {
-        WorldChunk chunk = world.getWorldChunk(chunkPos.getStartPos());
+    public static void checkIfPresent(long chunkPosLong, World world) {
+        if (!Chunk2BlockMap.containsKey(chunkPosLong)){
+            preLoadChunk(chunkPosLong, world);
+        }
+    }
+    public static void preLoadChunk(long chunkPosLong, World world) {
+        int posX = ChunkPos.getPackedX(chunkPosLong);
+        int posZ = ChunkPos.getPackedZ(chunkPosLong);
+        ChunkPos pos = new ChunkPos(posX, posZ);
+        WorldChunk chunk = world.getWorldChunk(pos.getStartPos());
         LongSet waterBlocksSet = getWaterInChunk(chunk);
-        loadChunk(chunkPos, waterBlocksSet);
+        loadChunk(chunkPosLong, waterBlocksSet);
     }
 
-    public static void loadChunk(ChunkPos chunkPos, LongSet waterBlocksSet) {
-        long posToLoad = chunkPos.toLong();
+    public static void loadChunk(long posToLoad, LongSet waterBlocksSet) {
         Chunk2BlockMap.put(posToLoad, waterBlocksSet);
     }
 

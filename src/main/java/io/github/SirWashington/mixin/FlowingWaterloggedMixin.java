@@ -38,11 +38,11 @@ public abstract class FlowingWaterloggedMixin {
 
     @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
     public void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-
+        ServerWorld.class.cast(this);
         if(TickSpeedHandler.shouldTick()) {
             ServerWorld.class.cast(this);
 
-            ChunkHandling.chunkFetcher(this.toServerWorld());
+            ChunkHandling.chunkTick(this.toServerWorld());
 
             CachedWater.ScheduleFluidTick(this.toServerWorld());
 
