@@ -16,7 +16,7 @@ import java.util.*;
 public class ChunkHandling {
 
     //public static Set<Chunk> ChunkCache = new HashSet<>();
-
+    public static WorldCache localCache = new WorldCache();
 
 
     public static void chunkTick(ServerWorld world) {
@@ -39,6 +39,8 @@ public class ChunkHandling {
             WaterTickScheduler.checkIfPresent(longe, world);
         }
         WaterTickScheduler.checkForAbsent(ChunkCache, world);
+
+
 
 
     }

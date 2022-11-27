@@ -42,7 +42,7 @@ public class CachedWater {
         return a;
     }
 
-    public static void ScheduleFluidTick(World world) {
+    /*public static void ScheduleFluidTick(World world) {
         cacheWorld = world;
         for (long worldChunkLong : WaterTickScheduler.Chunk2BlockMap.keySet()) {
             if(WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong) != null) {
@@ -50,7 +50,7 @@ public class CachedWater {
                 value.forEach((long l) -> setIterator(l, world));
             }
         }
-    }
+    }*/
 
     public static void setIterator(long l,  World world) {
         BlockPos BP;

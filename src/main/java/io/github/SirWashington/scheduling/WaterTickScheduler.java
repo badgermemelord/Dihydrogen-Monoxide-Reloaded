@@ -28,27 +28,29 @@ public class WaterTickScheduler {
     //public static List<List<Long>> Chunks = new ArrayList<>();
 
     //public static HashMap<Long, List<Long>> Chunk2BlockMap = new HashMap<>();
-    public static Long2ObjectMap<LongSet> Chunk2BlockMap = new Long2ObjectArrayMap<>();
+    //public static Long2ObjectMap<LongSet> Chunk2BlockMap = new Long2ObjectArrayMap<>();
+    //public static WorldCache localCache = new WorldCache();
 
 
     //public static List<Long> BlocksToTick = new ArrayList<>();
 
     public static void unloadChunk(ChunkPos chunkPos, World world) {
         long posToUnload = chunkPos.toLong();
-        Chunk2BlockMap.remove(posToUnload);
+        ChunkHandling.localCache.Chunk2BlockMap.remove(posToUnload);
+
     }
     public static void checkForAbsent(LongSet ChunkCache, World world) {
         //System.out.println("bal");
         //System.out.println(ChunkCache);
-        for(Long keyLong : Chunk2BlockMap.keySet()) {
+        for(Long keyLong : ChunkHandling.localCache.Chunk2BlockMap.keySet()) {
             if(!ChunkCache.contains(keyLong)) {
-                Chunk2BlockMap.remove(keyLong);
+                ChunkHandling.localCache.Chunk2BlockMap.remove(keyLong);
                 //System.out.println("removed");
             }
         }
     }
     public static void checkIfPresent(long chunkPosLong, World world) {
-        if (!Chunk2BlockMap.containsKey(chunkPosLong)){
+        if (!ChunkHandling.localCache.Chunk2BlockMap.containsKey(chunkPosLong)){
             preLoadChunk(chunkPosLong, world);
         }
     }
@@ -62,7 +64,7 @@ public class WaterTickScheduler {
     }
 
     public static void loadChunk(long posToLoad, LongSet waterBlocksSet) {
-        Chunk2BlockMap.put(posToLoad, waterBlocksSet);
+        ChunkHandling.localCache.Chunk2BlockMap.put(posToLoad, waterBlocksSet);
     }
 
     public static void scheduleFluidBlock(BlockPos pos, World localWorld) {
@@ -71,16 +73,16 @@ public class WaterTickScheduler {
         long chunkPosAsLong = chunkPos.toLong();
         long blockPosAsLong = pos.asLong();
 
-        if(Chunk2BlockMap.containsKey(chunkPosAsLong)) {
+        if(ChunkHandling.localCache.Chunk2BlockMap.containsKey(chunkPosAsLong)) {
             //Chunk2BlockMap.computeIfAbsent(chunkPosAsLong, s -> getLongSet(blockPosAsLong));
-            LongSet oldSet = Chunk2BlockMap.get(chunkPosAsLong);
+            LongSet oldSet = ChunkHandling.localCache.Chunk2BlockMap.get(chunkPosAsLong);
             oldSet.add(blockPosAsLong);
-            Chunk2BlockMap.put(chunkPosAsLong, oldSet);
+            ChunkHandling.localCache.Chunk2BlockMap.put(chunkPosAsLong, oldSet);
         }
         else {
             LongSet putValue = new LongOpenHashSet();
             putValue.add(blockPosAsLong);
-            Chunk2BlockMap.put(chunkPosAsLong, putValue);
+            ChunkHandling.localCache.Chunk2BlockMap.put(chunkPosAsLong, putValue);
         }
     }
 

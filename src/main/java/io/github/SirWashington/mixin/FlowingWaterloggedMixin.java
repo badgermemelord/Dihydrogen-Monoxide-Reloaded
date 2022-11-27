@@ -44,13 +44,10 @@ public abstract class FlowingWaterloggedMixin {
 
             ChunkHandling.chunkTick(this.toServerWorld());
 
-            CachedWater.ScheduleFluidTick(this.toServerWorld());
+            //CachedWater.ScheduleFluidTick(this.toServerWorld());
 
             CachedWater.afterTick(this.toServerWorld());
         }
-
-
-
 /*        ServerChunkManager chunkSource = this.toServerWorld().getChunkManager();
         ((ChunkMapAccessor) chunkSource.threadedAnvilChunkStorage).callGetChunkHolder();
         final List<ChunkHolder> loadedChunksList = Lists.newArrayList(
@@ -63,23 +60,21 @@ public abstract class FlowingWaterloggedMixin {
                 final WorldChunk worldChunk = worldChunkOptional.get();
             }
         }*/
-
 /*    @Inject(at = @At("HEAD"), method = "tickFluid", cancellable = true)
     private void tickFluid(BlockPos pos, Fluid fluid, CallbackInfo ci) {
-
     }
     @Redirect(at = @At("HEAD"), method = "tickFluid", target = "FluidState.isOf(fluid)")
     private void tickFluid(BlockPos pos, Fluid fluid) {
-
     }
-
-
     @Redirect(method = "tickFluid",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;isOf(Lnet/minecraft/fluid/Fluid;)Z"))
     private void tickFluid(FluidState instance, Fluid fluid) {
 
     }*/
     }
+    @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
+
+
         /**
          * @author SirWashington
          * @reason I am de captain now
