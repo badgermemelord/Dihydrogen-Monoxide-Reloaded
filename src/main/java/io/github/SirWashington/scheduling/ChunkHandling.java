@@ -14,14 +14,9 @@ import org.apache.commons.compress.utils.Lists;
 import java.util.*;
 
 public class ChunkHandling {
-
-    //public static Set<Chunk> ChunkCache = new HashSet<>();
-    public static WorldCache localCache = new WorldCache();
-
-
     public static void chunkTick(ServerWorld world) {
-        LongSet ChunkCache = new LongOpenHashSet();
-        System.out.println(world.asString());
+
+        LongSet ChunkCache = ((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList;
         ServerChunkManager chunkSource = world.toServerWorld().getChunkManager();
         ((ChunkMapAccessor) chunkSource.threadedAnvilChunkStorage).callGetChunkHolder();
         final List<ChunkHolder> loadedChunksList = Lists.newArrayList(

@@ -13,6 +13,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.*;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.transformer.meta.MixinMerged;
 
 import java.util.*;
 
@@ -36,21 +37,22 @@ public class WaterTickScheduler {
 
     public static void unloadChunk(ChunkPos chunkPos, World world) {
         long posToUnload = chunkPos.toLong();
-        ChunkHandling.localCache.Chunk2BlockMap.remove(posToUnload);
+        //ChunkHandling.localCache.Chunk2BlockMap.remove(posToUnload);
+        ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.remove(posToUnload);
 
     }
     public static void checkForAbsent(LongSet ChunkCache, World world) {
         //System.out.println("bal");
         //System.out.println(ChunkCache);
-        for(Long keyLong : ChunkHandling.localCache.Chunk2BlockMap.keySet()) {
+        for(long keyLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
             if(!ChunkCache.contains(keyLong)) {
-                ChunkHandling.localCache.Chunk2BlockMap.remove(keyLong);
+                ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.remove(keyLong);
                 //System.out.println("removed");
             }
         }
     }
     public static void checkIfPresent(long chunkPosLong, World world) {
-        if (!ChunkHandling.localCache.Chunk2BlockMap.containsKey(chunkPosLong)){
+        if (!((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosLong)){
             preLoadChunk(chunkPosLong, world);
         }
     }
@@ -64,7 +66,7 @@ public class WaterTickScheduler {
     }
 
     public static void loadChunk(long posToLoad, LongSet waterBlocksSet) {
-        ChunkHandling.localCache.Chunk2BlockMap.put(posToLoad, waterBlocksSet);
+        ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(posToLoad, waterBlocksSet);
     }
 
     public static void scheduleFluidBlock(BlockPos pos, World localWorld) {
@@ -73,16 +75,16 @@ public class WaterTickScheduler {
         long chunkPosAsLong = chunkPos.toLong();
         long blockPosAsLong = pos.asLong();
 
-        if(ChunkHandling.localCache.Chunk2BlockMap.containsKey(chunkPosAsLong)) {
+        if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosAsLong)) {
             //Chunk2BlockMap.computeIfAbsent(chunkPosAsLong, s -> getLongSet(blockPosAsLong));
-            LongSet oldSet = ChunkHandling.localCache.Chunk2BlockMap.get(chunkPosAsLong);
+            LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
             oldSet.add(blockPosAsLong);
-            ChunkHandling.localCache.Chunk2BlockMap.put(chunkPosAsLong, oldSet);
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
         }
         else {
             LongSet putValue = new LongOpenHashSet();
             putValue.add(blockPosAsLong);
-            ChunkHandling.localCache.Chunk2BlockMap.put(chunkPosAsLong, putValue);
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, putValue);
         }
     }
 

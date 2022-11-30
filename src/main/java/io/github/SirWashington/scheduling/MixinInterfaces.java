@@ -8,6 +8,7 @@ public abstract class MixinInterfaces {
     public interface DuckInterface {
         //public abstract Long2ObjectMap<LongSet> getWorldCache();
         public abstract WorldCache getWorldCache();
+        public abstract ChunkListCache getChunkListCache();
     }
 
 }
