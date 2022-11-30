@@ -9,7 +9,6 @@
     "FlowingLavaMixin",
     "FlowingMixin",
     "LavaFluidMixin",
-    "PaneBlockMixin",
     "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
     "perf_test.MixinPlayerManager",
