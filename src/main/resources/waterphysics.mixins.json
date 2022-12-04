@@ -9,7 +9,6 @@
     "FlowingLavaMixin",
     "FlowingMixin",
     "LavaFluidMixin",
-    "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
     "perf_test.MixinPlayerManager",
     "ChunkMapAccessor"

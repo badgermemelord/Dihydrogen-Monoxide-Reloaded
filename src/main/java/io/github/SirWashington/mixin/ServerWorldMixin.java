@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,10 +16,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.BooleanSupplier;
 
 @Mixin(net.minecraft.server.world.ServerWorld.class)
-public abstract class ServerWorldMixin {
-    public class ServerWorld implements MixinInterfaces.DuckInterface {
-        public static WorldCache perWorldCache = new WorldCache();
-        public static ChunkListCache perWorldChunkList = new ChunkListCache();
+public abstract class ServerWorldMixin implements MixinInterfaces.DuckInterface{
+        //public static WorldCache perWorldCache = new WorldCache();
+        //public static ChunkListCache perWorldChunkList = new ChunkListCache();
+
+    @Unique
+        private static WorldCache perWorldCache = new WorldCache();
+    @Unique
+        private static ChunkListCache perWorldChunkList = new ChunkListCache();
         @Override
         public WorldCache getWorldCache() {
             return perWorldCache;
@@ -27,6 +32,5 @@ public abstract class ServerWorldMixin {
         public ChunkListCache getChunkListCache() {
             return perWorldChunkList;
         }
-    }
 }
 
