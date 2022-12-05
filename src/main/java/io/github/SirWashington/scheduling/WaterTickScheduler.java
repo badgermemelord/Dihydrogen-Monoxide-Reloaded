@@ -62,16 +62,16 @@ public class WaterTickScheduler {
         ChunkPos pos = new ChunkPos(posX, posZ);
         WorldChunk chunk = world.getWorldChunk(pos.getStartPos());
         LongSet waterBlocksSet = getWaterInChunk(chunk);
-        loadChunk(chunkPosLong, waterBlocksSet);
+        loadChunk(chunkPosLong, waterBlocksSet, world);
     }
 
-    public static void loadChunk(long posToLoad, LongSet waterBlocksSet) {
+    public static void loadChunk(long posToLoad, LongSet waterBlocksSet, World world) {
         ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(posToLoad, waterBlocksSet);
     }
 
-    public static void scheduleFluidBlock(BlockPos pos, World localWorld) {
+    public static void scheduleFluidBlock(BlockPos pos, World world) {
 
-        ChunkPos chunkPos = localWorld.getChunk(pos).getPos();
+        ChunkPos chunkPos = world.getChunk(pos).getPos();
         long chunkPosAsLong = chunkPos.toLong();
         long blockPosAsLong = pos.asLong();
 

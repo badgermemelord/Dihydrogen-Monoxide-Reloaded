@@ -21,7 +21,7 @@ public class ChunkHandling {
         ((ChunkMapAccessor) chunkSource.threadedAnvilChunkStorage).callGetChunkHolder();
         final List<ChunkHolder> loadedChunksList = Lists.newArrayList(
                 ((ChunkMapAccessor) chunkSource.threadedAnvilChunkStorage).callGetChunkHolder().iterator());
-        System.out.println(loadedChunksList.isEmpty());
+        //System.out.println(loadedChunksList.isEmpty());
         for (final ChunkHolder chunkHolder : loadedChunksList) {
             final Optional<WorldChunk> worldChunkOptional =
                     chunkHolder.getTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();

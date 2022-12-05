@@ -72,7 +72,6 @@ public abstract class FlowingWaterloggedMixin {
 
     }*/
     }
-    @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
 
         /**
          * @author SirWashington

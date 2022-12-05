@@ -4,6 +4,7 @@
   "package": "io.github.SirWashington.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ServerWorldMixin",
     "FlowingWaterloggedMixin",
     "BucketMixin",
     "FlowingLavaMixin",
