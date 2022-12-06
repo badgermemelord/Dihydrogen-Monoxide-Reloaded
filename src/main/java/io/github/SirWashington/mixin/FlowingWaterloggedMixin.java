@@ -44,7 +44,7 @@ public abstract class FlowingWaterloggedMixin {
 
             ChunkHandling.chunkTick(this.toServerWorld());
 
-            //CachedWater.ScheduleFluidTick(this.toServerWorld());
+            CachedWater.ScheduleFluidTick(this.toServerWorld());
 
             CachedWater.afterTick(this.toServerWorld());
         }

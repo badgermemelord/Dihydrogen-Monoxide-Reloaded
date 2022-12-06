@@ -1,6 +1,7 @@
 package io.github.SirWashington.features;
 
 import io.github.SirWashington.FlowWater;
+import io.github.SirWashington.scheduling.MixinInterfaces;
 import io.github.SirWashington.scheduling.WaterTickScheduler;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
@@ -42,15 +43,15 @@ public class CachedWater {
         return a;
     }
 
-    /*public static void ScheduleFluidTick(World world) {
+    public static void ScheduleFluidTick(World world) {
         cacheWorld = world;
-        for (long worldChunkLong : WaterTickScheduler.Chunk2BlockMap.keySet()) {
-            if(WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong) != null) {
-                LongSet value = WaterTickScheduler.Chunk2BlockMap.get(worldChunkLong);
+        for (long worldChunkLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
+            if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong) != null) {
+                LongSet value = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong);
                 value.forEach((long l) -> setIterator(l, world));
             }
         }
-    }*/
+    }
 
     public static void setIterator(long l,  World world) {
         BlockPos BP;

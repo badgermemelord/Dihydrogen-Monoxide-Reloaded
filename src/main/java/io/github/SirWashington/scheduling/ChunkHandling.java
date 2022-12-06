@@ -16,7 +16,7 @@ import java.util.*;
 public class ChunkHandling {
     public static void chunkTick(ServerWorld world) {
 
-        LongSet ChunkCache = ((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList;
+        //LongSet ChunkCache = ((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList;
         ServerChunkManager chunkSource = world.toServerWorld().getChunkManager();
         ((ChunkMapAccessor) chunkSource.threadedAnvilChunkStorage).callGetChunkHolder();
         final List<ChunkHolder> loadedChunksList = Lists.newArrayList(
@@ -27,13 +27,15 @@ public class ChunkHandling {
                     chunkHolder.getTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();
             if (worldChunkOptional.isPresent()) {
                 final WorldChunk worldChunk = worldChunkOptional.get();
-                ChunkCache.add(worldChunk.getPos().toLong());
+                ((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList.add(worldChunk.getPos().toLong());
             }
         }
-        for(Long longe : ChunkCache) {
+        for(Long longe : ((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList) {
             WaterTickScheduler.checkIfPresent(longe, world);
         }
-        WaterTickScheduler.checkForAbsent(ChunkCache, world);
+        WaterTickScheduler.checkForAbsent(((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList, world);
+
+
 
 
 
