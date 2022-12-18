@@ -15,6 +15,7 @@ import java.util.*;
 
 public class ChunkHandling {
     public static void chunkTick(ServerWorld world) {
+        //System.out.println("Tick start");
 
         //LongSet ChunkCache = ((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList;
         ServerChunkManager chunkSource = world.toServerWorld().getChunkManager();

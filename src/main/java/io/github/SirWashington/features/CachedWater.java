@@ -7,8 +7,10 @@ import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.block.*;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.fluid.WaterFluid;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.crash.CrashCallable;
 import net.minecraft.util.crash.CrashException;
@@ -45,8 +47,10 @@ public class CachedWater {
 
     public static void ScheduleFluidTick(World world) {
         cacheWorld = world;
+        //System.out.println("fluidtick with following non-empty chunk longs: ");
         for (long worldChunkLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
-            if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong) != null) {
+            if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong) != null && !((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong).isEmpty()) {
+                //System.out.println("ticked chunk long: " + worldChunkLong);
                 LongSet value = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong);
                 value.forEach((long l) -> setIterator(l, world));
             }
@@ -56,6 +60,7 @@ public class CachedWater {
     public static void setIterator(long l,  World world) {
         BlockPos BP;
         BP = BlockPos.fromLong(l);
+        //System.out.println("ticked blockpos:" + BP);
         TickThisBlock(world, BP);
     }
 
@@ -111,6 +116,16 @@ public class CachedWater {
         } else return func.applyAsInt(ipos.asLong());
     }
 
+    public static boolean isFlowable(BlockPos pos) {
+        BlockState internalBS = getBlockState(pos);
+        Block internalB = internalBS.getBlock();
+        System.out.println(internalB);
+        Boolean returnValue = false;
+        if (internalB == Blocks.WATER || internalB == Blocks.AIR) returnValue = true;
+        System.out.println(pos + " " + returnValue);
+        return returnValue;
+    }
+
     public static boolean isNotFull(int waterLevel) {
         return waterLevel < 8 && waterLevel >= 0;
     }
@@ -138,17 +153,25 @@ public class CachedWater {
     }
 
     public static void queueNeighbours(World world, BlockPos pos) {
-        WaterTickScheduler.scheduleFluidBlock(pos, world);
+/*        System.out.println("original bp: " + pos);
+        //WaterTickScheduler.scheduleFluidBlock(pos, world);
         for (Direction dir : Direction.Type.HORIZONTAL) {
+            System.out.println("horizontal dir: " + dir);
+            System.out.println("offset pos: " + pos.offset(dir));
             //int level = getBlockState(pos).getFluidState().getLevel();
             //cache.put(pos.offset(dir).asLong(), (byte) level);
-            WaterTickScheduler.scheduleFluidBlock(pos, world);
+            if(isFlowable(pos.offset(dir))) {
+                System.out.println("scheduled");
+                WaterTickScheduler.scheduleFluidBlock(pos.offset(dir), world);
+            }
         }
         for (Direction dir : Direction.Type.VERTICAL) {
             //int level = getBlockState(pos).getFluidState().getLevel();
             //cache.put(pos.offset(dir).asLong(), (byte) level);
-            WaterTickScheduler.scheduleFluidBlock(pos, world);
-        }
+            if(isFlowable(pos.offset(dir))) {
+                WaterTickScheduler.scheduleFluidBlock(pos.offset(dir), world);
+            }
+        }*/
     }
 
     private static void setWaterLevelDirect(int level, BlockPos pos) {
