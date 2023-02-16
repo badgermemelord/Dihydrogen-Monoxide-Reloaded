@@ -41,11 +41,11 @@ public class WaterTickScheduler {
         ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.remove(posToUnload);
 
     }
-    public static void checkForAbsent(LongSet ChunkCache, World world) {
+    public static void checkForAbsent(LongSet ChunkList, World world) {
         //System.out.println("bal");
         //System.out.println(ChunkCache);
         for(long keyLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
-            if(!ChunkCache.contains(keyLong)) {
+            if(!ChunkList.contains(keyLong)) {
                 ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.remove(keyLong);
                 //System.out.println("removed");
             }

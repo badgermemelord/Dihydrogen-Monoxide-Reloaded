@@ -7,13 +7,18 @@ import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.*;
 
 public class ChunkHandling {
+
+    public static LongSet ChunkListOld = new LongOpenHashSet();
+    public static DimensionType OldWorldDimension;
     public static void chunkTick(ServerWorld world) {
         //System.out.println("Tick start");
 
@@ -27,6 +32,7 @@ public class ChunkHandling {
                 ((ChunkMapAccessor) chunkSource.threadedAnvilChunkStorage).callGetChunkHolder().iterator());
         //System.out.println(loadedChunksList.isEmpty());
         for (final ChunkHolder chunkHolder : loadedChunksList) {
+            //System.out.println("holder: " + chunkHolder);
             final Optional<WorldChunk> worldChunkOptional =
                     chunkHolder.getTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();
             if (worldChunkOptional.isPresent()) {
