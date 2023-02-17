@@ -7,10 +7,8 @@ import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.block.*;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.WaterFluid;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.crash.CrashCallable;
 import net.minecraft.util.crash.CrashException;
@@ -18,12 +16,9 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +40,7 @@ public class CachedWater {
         return a;
     }
 
-    public static void ScheduleFluidTick(World world) {
+    public static void tickFluidsInWorld(World world) {
         cacheWorld = world;
         //System.out.println("fluidtick with following non-empty chunk longs: ");
         for (long worldChunkLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
@@ -92,6 +87,7 @@ public class CachedWater {
     public static int getWaterLevel(BlockPos ipos) {
         LongToIntFunction func = pos -> {
             BlockState blockstate = getBlockState(BlockPos.fromLong(pos));
+            System.out.println("cacheworld: " + cacheWorld.getDimension());
 
             if (blockstate.isAir())
                 return (byte) 0;
@@ -141,7 +137,6 @@ public class CachedWater {
     }
 
     public static void setWaterLevel(int level, BlockPos pos) {
-        //System.out.println("Water level set attempt, level: " + level + " BP: " + pos);
         if (useCache) {
             cache.put(pos.asLong(), (byte) level);
             queuedWaterLevels.put(pos.asLong(), (byte) level);

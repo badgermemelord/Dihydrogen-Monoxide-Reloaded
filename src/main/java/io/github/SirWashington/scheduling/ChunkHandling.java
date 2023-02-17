@@ -6,9 +6,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.compress.utils.Lists;
@@ -19,9 +16,7 @@ public class ChunkHandling {
 
     public static LongSet ChunkListOld = new LongOpenHashSet();
     public static DimensionType OldWorldDimension;
-    public static void chunkTick(ServerWorld world) {
-        //System.out.println("Tick start");
-
+    public static void getActiveWorldChunks(ServerWorld world) {
         //LongSet ChunkCache = ((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList;
         LongSet ChunkCache = new LongOpenHashSet();
         LongSet ChunkList = new LongOpenHashSet();

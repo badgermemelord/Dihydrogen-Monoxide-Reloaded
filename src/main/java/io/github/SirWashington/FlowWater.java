@@ -47,13 +47,13 @@ public class FlowWater {
                 blockse.add(fluidPos.offset(dir));
             }
 
-            int centerlevel = CachedWater.getWaterLevel(fluidPos);
+            int centerLevel = CachedWater.getWaterLevel(fluidPos);
             if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
 
                 CachedWater.setWaterLevel(0, fluidPos);
-                CachedWater.addWater(centerlevel, fluidPos.down());
+                CachedWater.addWater(centerLevel, fluidPos.down());
             } else {
-                equalizeWater(fluidPos, centerlevel);
+                equalizeWater(fluidPos, centerLevel);
             }
 
             //CachedWater.unlock();
