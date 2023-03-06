@@ -53,6 +53,9 @@ public class WaterTickScheduler {
     }
     public static void checkIfPresent(long chunkPosLong, World world) {
         if (!((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosLong)){
+            System.out.println(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap);
+            System.out.println("chunkpos that was not contained: " + chunkPosLong);
+            //System.out.println("not contained");
             preLoadChunk(chunkPosLong, world);
         }
     }
@@ -66,6 +69,7 @@ public class WaterTickScheduler {
     }
 
     public static void loadChunk(long posToLoad, LongSet waterBlocksSet, World world) {
+        System.out.println("pos to load: " + posToLoad);
         ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(posToLoad, waterBlocksSet);
     }
 

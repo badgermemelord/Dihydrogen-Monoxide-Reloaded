@@ -40,7 +40,7 @@ public abstract class FlowingWaterloggedMixin {
         ServerWorld.class.cast(this);
         if(TickSpeedHandler.shouldTick()) {
             ServerWorld.class.cast(this);
-            System.out.println("deem: " + this.toServerWorld().getDimension());
+            //System.out.println("deem: " + this.toServerWorld().getDimension());
 
             ChunkHandling.getActiveWorldChunks(this.toServerWorld());
 

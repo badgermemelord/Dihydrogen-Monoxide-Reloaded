@@ -87,7 +87,7 @@ public class CachedWater {
     public static int getWaterLevel(BlockPos ipos) {
         LongToIntFunction func = pos -> {
             BlockState blockstate = getBlockState(BlockPos.fromLong(pos));
-            System.out.println("cacheworld: " + cacheWorld.getDimension());
+            //System.out.println("cacheworld: " + cacheWorld.getDimension());
 
             if (blockstate.isAir())
                 return (byte) 0;

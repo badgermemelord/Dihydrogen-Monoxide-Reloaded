@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.compress.utils.Lists;
@@ -31,11 +32,12 @@ public class ChunkHandling {
             final Optional<WorldChunk> worldChunkOptional =
                     chunkHolder.getTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();
             if (worldChunkOptional.isPresent()) {
-                final WorldChunk worldChunk = worldChunkOptional.get();
+                final Chunk worldChunk = worldChunkOptional.get();
                 ChunkList.add(worldChunk.getPos().toLong());
             }
         }
         for(Long longe : ChunkList) {
+            System.out.println("longe: " + longe);
             WaterTickScheduler.checkIfPresent(longe, world);
         }
         WaterTickScheduler.checkForAbsent(ChunkList, world);
