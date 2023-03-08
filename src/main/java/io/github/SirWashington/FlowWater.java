@@ -5,34 +5,27 @@ import io.github.SirWashington.features.FlowFeature;
 import io.github.SirWashington.features.PuddleFeature;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.FluidDrainable;
-import net.minecraft.block.FluidFillable;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 
 public class FlowWater {
     public static int worldMinY = -64;
     public static BlockPos ce24;
     public static ServerWorld world;
-    public static int a = 0;
     private FlowWater() {
     }
 
-    public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
+    public static void flowWater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
         //Tick Counter
-        a += 1;
-
         //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
@@ -53,7 +46,7 @@ public class FlowWater {
                 CachedWater.setWaterLevel(0, fluidPos);
                 CachedWater.addWater(centerlevel, fluidPos.down());
             } else {
-                equalizeWater(fluidPos, centerlevel);
+                equalizeWater(fluidPos, centerlevel, world);
 
 
             }
@@ -114,7 +107,7 @@ public class FlowWater {
     }
 
 
-    public static void equalizeWater(BlockPos center, int level) {
+    public static void equalizeWater(BlockPos center, int level, WorldAccess world) {
 
         int radius = 2;
         int diameter = (radius * 2) + 1;
@@ -154,9 +147,25 @@ public class FlowWater {
 
         int range = level + 10 - minLevel;
 
-        if (range == 1 && a == 1) {
-            PuddleFeature.execute(center, level);
-                a = 0;
+        if (range == 1) {
+            //if tick divisible by 2 and x/y/z divisible by 2 then tick
+            //else if x/y/z not divisible by 2 then tick?
+/*            if (x % 2 == z % 2 && a % 2 == y % 2) {
+                System.out.println("puddled");
+                PuddleFeature.execute(center, level);
+            }
+            else {
+                ((ServerWorld) world).getChunkManager().markForUpdate(center);
+            }*/
+            int a = (int) ((ServerWorld) world).getTime();
+            if ((x % 2 == z % 2 && a % 2 == 1) ||
+            (x % 2 != z % 2 && a % 2 != 0)){
+               // System.out.println("puddled 2");
+                PuddleFeature.execute(center, level);
+            }
+            else {
+                world.createAndScheduleFluidTick(center, Fluids.WATER, 5);
+            }
         }
         if (range > 1) {
             FlowFeature.execute(center);

@@ -38,7 +38,7 @@ public class FlowingMixin {
     @Inject(at = @At("HEAD"), method = "tryFlow", cancellable = true)
     private void tryFlow(WorldAccess world, BlockPos fluidPos, FluidState state, CallbackInfo bruh) {
         if (isWater(state.getFluid())) {
-            FlowWater.flowwater(world, fluidPos, state);
+            FlowWater.flowWater(world, fluidPos, state);
             bruh.cancel();
         }
     }
