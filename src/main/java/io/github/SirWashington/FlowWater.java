@@ -24,10 +24,14 @@ public class FlowWater {
     public static int worldMinY = -64;
     public static BlockPos ce24;
     public static ServerWorld world;
+    public static int a = 0;
     private FlowWater() {
     }
 
     public static void flowwater(WorldAccess world, BlockPos fluidPos, FluidState state) {
+
+        //Tick Counter
+        a += 1;
 
         //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
@@ -150,8 +154,9 @@ public class FlowWater {
 
         int range = level + 10 - minLevel;
 
-        if (range == 1) {
+        if (range == 1 && a == 1) {
             PuddleFeature.execute(center, level);
+                a = 0;
         }
         if (range > 1) {
             FlowFeature.execute(center);
