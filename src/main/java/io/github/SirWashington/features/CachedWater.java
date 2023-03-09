@@ -244,7 +244,7 @@ public class CachedWater {
         assert cache.isEmpty(); //FIXME
     }
 
-    private static final Map<BlockPos, BlockState> fluidsToUpdate = new HashMap<>();
+    public static final Map<BlockPos, BlockState> fluidsToUpdate = new HashMap<>();
 
     /**
      * The majority of time spent in setBlockState is spent updating neighbors, which, when a lot of water is moving,

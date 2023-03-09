@@ -161,7 +161,7 @@ public class FlowWater {
             if ((x % 2 == z % 2 && a % 2 == y % 2) || (x % 2 != z % 2 && a % 2 != y % 2)){
                 PuddleFeature.execute(center, level);
             } else {
-                CachedWater.setWaterLevel(level, center);
+                CachedWater.fluidsToUpdate.put(center, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
             }
         }
 
