@@ -157,20 +157,17 @@ public class FlowWater {
             else {
                 ((ServerWorld) world).getChunkManager().markForUpdate(center);
             }*/
-            int a = (int) ((ServerWorld) world).getTime();
-            if ((x % 2 == z % 2 && a % 2 == 1) ||
-            (x % 2 != z % 2 && a % 2 != 0)){
-               // System.out.println("puddled 2");
+            int a = (int) ((ServerWorld) world).getTime() / 2;
+            if ((x % 2 == z % 2 && a % 2 == y % 2) || (x % 2 != z % 2 && a % 2 != y % 2)){
                 PuddleFeature.execute(center, level);
-            }
-            else {
-                world.createAndScheduleFluidTick(center, Fluids.WATER, 5);
+            } else {
+                CachedWater.setWaterLevel(level, center);
             }
         }
+
         if (range > 1) {
             FlowFeature.execute(center);
         }
-
     }
 
 
