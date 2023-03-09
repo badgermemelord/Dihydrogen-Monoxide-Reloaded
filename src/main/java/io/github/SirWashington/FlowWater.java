@@ -157,8 +157,11 @@ public class FlowWater {
             else {
                 ((ServerWorld) world).getChunkManager().markForUpdate(center);
             }*/
-            int a = (int) ((ServerWorld) world).getTime() / 2;
-            if ((x % 2 == z % 2 && a % 2 == y % 2) || (x % 2 != z % 2 && a % 2 != y % 2)){
+            int tick = (((int) ((ServerWorld) world).getTime()) >> 1) & 0b1;
+            int xI = x & 0b1;
+            int yI = y & 0b1;
+            int zI = z & 0b1;
+            if ((xI == zI && tick == yI) || (xI != zI && tick != yI)){
                 PuddleFeature.execute(center, level);
             } else {
                 CachedWater.fluidsToUpdate.put(center, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
