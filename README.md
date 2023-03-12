@@ -1,6 +1,7 @@
 # Immersive Fluids
 
 Finite water and water physics mod for Fabric 1.18.2
+A fork of coolmineman
 
 ## License
 
