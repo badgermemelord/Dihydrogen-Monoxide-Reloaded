@@ -12,6 +12,7 @@
     "ServerWorldMixin",
     "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
+    "WaterLoggableMixin",
     "perf_test.MixinPlayerManager"
   ],
   "injectors": {
