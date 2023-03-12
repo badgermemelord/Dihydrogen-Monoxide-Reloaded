@@ -1,8 +1,6 @@
-# Fabric Example Mod
+# Immersive Fluids
 
-## Setup
-
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+Finite water and water physics mod for Fabric 1.18.2
 
 ## License
 
