@@ -32,8 +32,8 @@ public class FlowingWaterloggedMixin {
     }*/
 
     /**
-     * @author SirWashington
-     * @reason not used
+     * @author Dn
+     * @reason Mald
      */
     @Overwrite
     private void tickFluid(BlockPos pos, Fluid fluid) {
@@ -44,11 +44,11 @@ public class FlowingWaterloggedMixin {
 
         if (fluidState.isOf(fluid)) {
             fluidState.onScheduledTick(World.class.cast(this), pos);
-            System.out.println("1");
+            System.out.println("deez");
         }
         if (isWaterLoggable && blockState.get(Properties.WATERLOGGED)) {
             fluidState.onScheduledTick(World.class.cast(this), pos);
-            System.out.println("2");
+            System.out.println("deez2");
         }
 
 
