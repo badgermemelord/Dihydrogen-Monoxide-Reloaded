@@ -17,17 +17,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
 
 @Mixin(Waterloggable.class)
-public class WaterLoggableMixin {
+public interface WaterLoggableMixin {
 
     @Inject(at = @At("HEAD"), method = "canFillWithFluid", cancellable = true)
-    void canFill(BlockView world, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
+    default void canFill(BlockView world, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
         if (state.contains(WATER_LEVEL)) {
             cir.setReturnValue(state.get(WATER_LEVEL) < 8);
         }
     }
 
     @Inject(at = @At("HEAD"), method = "tryFillWithFluid", cancellable = true)
-    void tryFill(WorldAccess world, BlockPos pos, BlockState state, FluidState fluidState, CallbackInfoReturnable<Boolean> cir) {
+    default void tryFill(WorldAccess world, BlockPos pos, BlockState state, FluidState fluidState, CallbackInfoReturnable<Boolean> cir) {
         if (state.contains(WATER_LEVEL)) {
             cir.setReturnValue(false);
             if (state.get(WATER_LEVEL) < 8) {
@@ -38,7 +38,7 @@ public class WaterLoggableMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "tryDrainFluid", cancellable = true)
-    void tryDrain(WorldAccess world, BlockPos pos, BlockState state, CallbackInfoReturnable<ItemStack> cir) {
+    default void tryDrain(WorldAccess world, BlockPos pos, BlockState state, CallbackInfoReturnable<ItemStack> cir) {
         if (state.contains(WATER_LEVEL)) {
             cir.setReturnValue(ItemStack.EMPTY);
             if (state.get(WATER_LEVEL) == 8) {

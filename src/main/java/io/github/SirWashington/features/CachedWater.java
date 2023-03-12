@@ -8,6 +8,7 @@ import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.crash.CrashCallable;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
@@ -20,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongToIntFunction;
@@ -43,24 +45,8 @@ public class CachedWater {
 
     public static int getWaterLevel(BlockPos ipos) {
         LongToIntFunction func = pos -> {
-            BlockState blockstate = getBlockState(BlockPos.fromLong(pos));
-
-            if (blockstate.isAir())
-                return (byte) 0;
-            if (blockstate.contains(WATER_LEVEL))
-                return blockstate.get(WATER_LEVEL);
-
-            FluidState fluidstate = blockstate.getFluidState();
-            if (fluidstate == Fluids.EMPTY.getDefaultState())
-                return (byte) -1;
-
-            int waterlevel;
-            if (fluidstate.isStill()) {
-                waterlevel = 8;
-            } else {
-                waterlevel = fluidstate.getLevel();
-            }
-            return (byte) waterlevel;
+            BlockState state = getBlockState(BlockPos.fromLong(pos));
+            return (byte) getWaterLevelOfState(state);
         };
 
         if (useCache) {
@@ -74,6 +60,30 @@ public class CachedWater {
 
     public static boolean isNotFull(BlockPos pos) {
         return isNotFull(getWaterLevel(pos));
+    }
+
+    public static int getWaterLevelOfState(BlockState state) {
+        if (state.isAir())
+            return (byte) 0;
+        if (state.contains(WATER_LEVEL))
+            return state.get(WATER_LEVEL);
+
+        FluidState fluidstate = state.getFluidState();
+        if (fluidstate == Fluids.EMPTY.getDefaultState())
+            return (byte) -1;
+
+        int waterLevel;
+        if (fluidstate.isStill()) {
+            waterLevel = 8;
+        } else {
+            waterLevel = fluidstate.getLevel();
+        }
+        return waterLevel;
+    }
+
+
+    public static boolean isWater(BlockState state) {
+        return !state.isAir() && (state.getFluidState() != Fluids.EMPTY.getDefaultState()) && !state.contains(Properties.WATERLOGGED);
     }
 
     private static final Long2ByteMap queuedWaterLevels = new Long2ByteOpenHashMap();

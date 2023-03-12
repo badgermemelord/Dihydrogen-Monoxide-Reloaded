@@ -26,33 +26,30 @@ public class FlowWater {
     public static void flowWater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
         //Tick Counter
-        //System.out.println("new beginning");
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
             CachedWater.setWaterLevel(0, fluidPos);
         } else {
             FlowWater.world = (ServerWorld) world;
             CachedWater.setup(FlowWater.world, fluidPos);
-            //CachedWater.lock();
 
             BlockState current = CachedWater.getBlockState(fluidPos);
-            if (!current.contains(WaterPhysics.WATER_LEVEL)) {
+            if (!CachedWater.isWater(current)) {
                 return;
             }
+            int centerLevel = CachedWater.getWaterLevelOfState(current);
 
-            int centerlevel = current.get(WaterPhysics.WATER_LEVEL);
-
-            ArrayList<BlockPos> blockse = new ArrayList<>(4);
+            ArrayList<BlockPos> adjacentBlockLevels = new ArrayList<>(4);
             for (Direction dir : Direction.Type.HORIZONTAL) {
-                blockse.add(fluidPos.offset(dir));
+                adjacentBlockLevels.add(fluidPos.offset(dir));
             }
 
             if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
 
                 CachedWater.setWaterLevel(0, fluidPos);
-                CachedWater.addWater(centerlevel, fluidPos.down());
+                CachedWater.addWater(centerLevel, fluidPos.down());
             } else {
-                equalizeWater(fluidPos, centerlevel, world);
+                equalizeWater(fluidPos, centerLevel, world);
 
 
             }
