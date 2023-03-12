@@ -23,11 +23,8 @@ public abstract class BucketMixin{
         boolean returnValue = true;
         if (!instance.isClient) {
             returnValue = NonCachedWater.addWater(8, pos, instance);
-            return returnValue;
         }
-        else {
-            return returnValue;
-        }
+        return returnValue;
     }
 
 
