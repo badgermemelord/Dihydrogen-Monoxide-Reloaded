@@ -35,12 +35,18 @@ public class FlowWater {
             CachedWater.setup(FlowWater.world, fluidPos);
             //CachedWater.lock();
 
+            BlockState current = CachedWater.getBlockState(fluidPos);
+            if (!current.contains(WaterPhysics.WATER_LEVEL)) {
+                return;
+            }
+
+            int centerlevel = current.get(WaterPhysics.WATER_LEVEL);
+
             ArrayList<BlockPos> blockse = new ArrayList<>(4);
             for (Direction dir : Direction.Type.HORIZONTAL) {
                 blockse.add(fluidPos.offset(dir));
             }
 
-            int centerlevel = CachedWater.getWaterLevel(fluidPos);
             if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
 
                 CachedWater.setWaterLevel(0, fluidPos);
