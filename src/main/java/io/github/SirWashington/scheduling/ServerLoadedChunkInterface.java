@@ -1,6 +1,7 @@
 package io.github.SirWashington.scheduling;
 
 import io.github.SirWashington.mixin.ChunkMapAccessor;
+import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.world.ChunkHolder;
@@ -13,7 +14,7 @@ import org.apache.commons.compress.utils.Lists;
 
 import java.util.*;
 
-public class ChunkHandling {
+public class ServerLoadedChunkInterface {
 
     public static LongSet ChunkListOld = new LongOpenHashSet();
     public static DimensionType OldWorldDimension;
@@ -36,11 +37,11 @@ public class ChunkHandling {
                 ChunkList.add(worldChunk.getPos().toLong());
             }
         }
-        for(Long longe : ChunkList) {
-            System.out.println("longe: " + longe);
-            WaterTickScheduler.checkIfPresent(longe, world);
+        for(Long chunkLong : ChunkList) {
+            //System.out.println("chunkLong: " + chunkLong);
+            ChunkHandlingMethods.checkIfPresent(chunkLong, world);
         }
-        WaterTickScheduler.checkForAbsent(ChunkList, world);
+        ChunkHandlingMethods.checkForAbsent(ChunkList, world);
 
 
 

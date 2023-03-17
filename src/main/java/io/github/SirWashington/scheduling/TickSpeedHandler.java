@@ -7,7 +7,7 @@ public class TickSpeedHandler {
 
     public static boolean shouldTick() {
         boolean returnValue = false;
-        if(counter == 0 || counter%n == 0) {
+        if(counter%n == 0) {
             returnValue = true;
             counter = 0;
         }

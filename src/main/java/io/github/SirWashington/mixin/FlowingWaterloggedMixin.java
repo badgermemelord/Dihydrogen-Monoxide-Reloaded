@@ -2,7 +2,7 @@ package io.github.SirWashington.mixin;
 
 
 import io.github.SirWashington.features.CachedWater;
-import io.github.SirWashington.scheduling.ChunkHandling;
+import io.github.SirWashington.scheduling.ServerLoadedChunkInterface;
 import io.github.SirWashington.scheduling.TickSpeedHandler;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.server.world.ServerWorld;
@@ -42,7 +42,7 @@ public abstract class FlowingWaterloggedMixin {
             ServerWorld.class.cast(this);
             //System.out.println("deem: " + this.toServerWorld().getDimension());
 
-            ChunkHandling.getActiveWorldChunks(this.toServerWorld());
+            ServerLoadedChunkInterface.getActiveWorldChunks(this.toServerWorld());
 
             CachedWater.tickFluidsInWorld(this.toServerWorld());
 
