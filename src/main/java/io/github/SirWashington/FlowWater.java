@@ -39,27 +39,13 @@ public class FlowWater {
             }
 
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
-            //int centerLevel = CachedWater.getWaterLevelOfState(current);
-/*            if (fluidPos.equals(new BlockPos(8, -61, 8))) {
-                System.out.println("flow start, level A: " + state.getLevel());
-                System.out.println("level B: " + CachedWater.getWaterLevel(fluidPos));
-                System.out.println("level C: " + centerLevel);
-            }*/
-            ArrayList<BlockPos> adjacentBlockLevels = new ArrayList<>(4);
-            for (Direction dir : Direction.Type.HORIZONTAL) {
-                adjacentBlockLevels.add(fluidPos.offset(dir));
-            }
 
             if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
-
                 CachedWater.setWaterLevel(0, fluidPos);
                 CachedWater.addWater(centerLevel, fluidPos.down());
             } else {
                 equalizeWater(fluidPos, centerLevel, world);
-
-
             }
-
             //CachedWater.unlock();
         }
     }
@@ -69,7 +55,7 @@ public class FlowWater {
     }
 
 
-    public static boolean isWithinChunk(BlockPos pos, BlockPos origin) {
+    /*public static boolean isWithinChunk(BlockPos pos, BlockPos origin) {
 
         //System.out.println("pos" + pos.getY());
         boolean isWithin = true;
@@ -113,7 +99,7 @@ public class FlowWater {
 
         //System.out.println(isWithin);
         return isWithin;
-    }
+    }*/
 
 
     public static void equalizeWater(BlockPos center, int level, WorldAccess world) {
@@ -157,6 +143,7 @@ public class FlowWater {
         int range = level + 10 - minLevel;
 
         if (range == 1) {
+            PuddleFeature.execute(center, level);
             //if tick divisible by 2 and x/y/z divisible by 2 then tick
             //else if x/y/z not divisible by 2 then tick?
 /*            if (x % 2 == z % 2 && a % 2 == y % 2) {
@@ -166,7 +153,7 @@ public class FlowWater {
             else {
                 ((ServerWorld) world).getChunkManager().markForUpdate(center);
             }*/
-            int tick = (((int) ((ServerWorld) world).getTime()) >> 1) & 0b1;
+/*            int tick = (((int) ((ServerWorld) world).getTime()) >> 1) & 0b1;
             int xI = x & 0b1;
             int yI = y & 0b1;
             int zI = z & 0b1;
@@ -174,7 +161,7 @@ public class FlowWater {
                 PuddleFeature.execute(center, level);
             } else {
                 CachedWater.fluidsToUpdate.put(center, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
-            }
+            }*/
         }
 
         if (range > 1) {
@@ -184,7 +171,7 @@ public class FlowWater {
 
 
 
-    public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
+    /*public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
 
         int count = 0;
         boolean nonFullFluidBlock = false;
@@ -205,7 +192,7 @@ public class FlowWater {
             nonFullFluidBlock = true;
             //System.out.println("sex2");
         }
-        /*
+        *//*
         if (nonFullFluidBlock) {
             while (centerWaterLevel > 0) {
                 for (BlockPos block : blocks) {
@@ -218,10 +205,10 @@ public class FlowWater {
                 }
             }
             CachedWater.setBlockState(fluidPos, fpBS.with(Properties.WATERLOGGED, false));
-        }*/
+        }*//*
     }
-
-    public static void KelpFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
+*/
+    /*public static void KelpFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
 
         int count = 0;
         boolean nonFullFluidBlock = false;
@@ -247,5 +234,5 @@ public class FlowWater {
         if (nonFullFluidBlock) {
             world.breakBlock(fluidPos, true);
         }
-    }
+    }*/
 }

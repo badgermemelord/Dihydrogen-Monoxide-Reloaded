@@ -141,15 +141,15 @@ public class CachedWater {
 
 
     public static void addWater(int level, BlockPos pos) {
-        int existingwater = getWaterLevel(pos);
-        if (existingwater == -1) throw new IllegalStateException("Tried to add water to a full block");
+        int existingWater = getWaterLevel(pos);
+        if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
 
-        int totalwater = existingwater + level;
-        if (totalwater > 8) {
-            addWater(totalwater - 8, pos.up());
+        int totalWater = existingWater + level;
+        if (totalWater > 8) {
+            addWater(totalWater - 8, pos.up());
             setWaterLevel(8, pos);
         } else {
-            setWaterLevel(totalwater, pos);
+            setWaterLevel(totalWater, pos);
         }
     }
 
