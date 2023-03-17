@@ -37,8 +37,14 @@ public class FlowWater {
             if (!CachedWater.isWater(current)) {
                 return;
             }
-            int centerLevel = CachedWater.getWaterLevelOfState(current);
 
+            int centerLevel = CachedWater.getWaterLevel(fluidPos);
+            //int centerLevel = CachedWater.getWaterLevelOfState(current);
+/*            if (fluidPos.equals(new BlockPos(8, -61, 8))) {
+                System.out.println("flow start, level A: " + state.getLevel());
+                System.out.println("level B: " + CachedWater.getWaterLevel(fluidPos));
+                System.out.println("level C: " + centerLevel);
+            }*/
             ArrayList<BlockPos> adjacentBlockLevels = new ArrayList<>(4);
             for (Direction dir : Direction.Type.HORIZONTAL) {
                 adjacentBlockLevels.add(fluidPos.offset(dir));
