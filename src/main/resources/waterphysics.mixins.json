@@ -4,6 +4,9 @@
   "package": "io.github.SirWashington.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "GenerationShapeConfigAccessor",
+    "DensityFunctionInvoker",
+    "ChunkGeneratorSettingsMixin",
     "BucketMixin",
     "FlowingLavaMixin",
     "FlowingMixin",
