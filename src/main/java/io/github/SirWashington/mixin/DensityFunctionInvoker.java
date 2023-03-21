@@ -15,5 +15,9 @@ public interface DensityFunctionInvoker {
     public static SimpleNoiseRouter invokeMethod_41118(GenerationShapeConfig generationShapeConfig) {
         throw new AssertionError();
     }
+    @Invoker("method_41103")
+    public static SimpleNoiseRouter invokeMethod_41103(GenerationShapeConfig generationShapeConfig, boolean bl) {
+        throw new AssertionError();
+    }
 
 }

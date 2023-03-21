@@ -12,6 +12,5 @@ public interface GenerationShapeConfigAccessor {
     public static GenerationShapeConfig getField_37138() {
         throw new AssertionError();
     }
-
 }
 
