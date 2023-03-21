@@ -2,6 +2,7 @@ package io.github.SirWashington.mixin;
 
 import io.github.SirWashington.features.NonCachedWater;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -22,7 +23,12 @@ public abstract class BucketMixin{
     private boolean bucketPlace(World instance, BlockPos pos, BlockState state, int flags) {
         boolean returnValue = true;
         if (!instance.isClient) {
-            returnValue = NonCachedWater.addWater(8, pos, instance);
+            if(state.getBlock() == Blocks.WATER) {
+                returnValue = NonCachedWater.addWater(8, pos, instance);
+            }
+            else {
+                returnValue = instance.setBlockState(pos, state);
+            }
             return returnValue;
         }
         else {
