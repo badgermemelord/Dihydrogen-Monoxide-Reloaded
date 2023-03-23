@@ -8,12 +8,15 @@ import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import java.util.ArrayList;
+
+import static io.github.SirWashington.properties.WaterFluidProperties.ISINFINITE;
 
 
 public class FlowWater {
@@ -25,6 +28,8 @@ public class FlowWater {
 
     public static void flowWater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
+
+
         //Tick Counter
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
@@ -34,8 +39,12 @@ public class FlowWater {
             CachedWater.setup(FlowWater.world, fluidPos);
 
             BlockState current = CachedWater.getBlockState(fluidPos);
-            if (!CachedWater.isWater(current)) {
-                return;
+
+            //world.setBlockState(fluidPos, current.with(ISINFINITE, true));
+            CachedWater.setBlockStateNoNeighbors(fluidPos, current, current.with(ISINFINITE, true));
+
+            if (current.getProperties().contains(ISINFINITE)) {
+                System.out.println("hehehehe");
             }
 
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
