@@ -2,21 +2,16 @@ package io.github.SirWashington;
 
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.FlowFeature;
+import io.github.SirWashington.features.FlowFeatureInfinite;
 import io.github.SirWashington.features.PuddleFeature;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-import java.util.ArrayList;
-
-import static io.github.SirWashington.properties.WaterFluidProperties.ISINFINITE;
+import static io.github.SirWashington.properties.WaterFluidProperties.ISFINITE;
 
 
 public class FlowWater {
@@ -37,25 +32,46 @@ public class FlowWater {
         } else {
             FlowWater.world = (ServerWorld) world;
             CachedWater.setup(FlowWater.world, fluidPos);
-
             BlockState current = CachedWater.getBlockState(fluidPos);
-
-            //world.setBlockState(fluidPos, current.with(ISINFINITE, true));
-            CachedWater.setBlockStateNoNeighbors(fluidPos, current, current.with(ISINFINITE, true));
-
-            if (current.getProperties().contains(ISINFINITE)) {
-                System.out.println("hehehehe");
-            }
-
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
 
-            if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
-                CachedWater.setWaterLevel(0, fluidPos);
-                CachedWater.addWater(centerLevel, fluidPos.down());
-            } else {
-                equalizeWater(fluidPos, centerLevel, world);
+            //System.out.println(current.get(ISINFINITE));
+            if (CachedWater.isInfinite(fluidPos)) {
+                infiniteWaterFlow(world, fluidPos, state);
+                //System.out.println("a");
             }
+            else {
+                if(CachedWater.isInfinite(fluidPos.down())) {
+                    CachedWater.setWaterLevel(0, fluidPos);
+                }
+                if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
+                    CachedWater.setWaterLevel(0, fluidPos);
+                    CachedWater.addWater(centerLevel, fluidPos.down());
+                } else {
+                    equalizeWater(fluidPos, centerLevel, world);
+                }
+            }
+
+
+
             //CachedWater.unlock();
+        }
+    }
+
+    public static void infiniteWaterFlow(WorldAccess world, BlockPos fluidPos, FluidState state) {
+        if (fluidPos.getY() == worldMinY) {
+            // TODO INSECURE
+            CachedWater.setWaterLevel(0, fluidPos);
+        } else {
+            FlowWater.world = (ServerWorld) world;
+            CachedWater.setup(FlowWater.world, fluidPos);
+
+            if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
+                CachedWater.setWaterLevel(8, fluidPos.down());
+                System.out.println("set below");
+            } else {
+                FlowFeatureInfinite.execute(fluidPos);
+            }
         }
     }
 

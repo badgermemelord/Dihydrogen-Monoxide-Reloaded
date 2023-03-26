@@ -2,8 +2,6 @@ package io.github.SirWashington.features;
 
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -14,20 +12,17 @@ import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 
-import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongToIntFunction;
-import java.util.function.Supplier;
 
 import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
+import static io.github.SirWashington.properties.WaterFluidProperties.ISFINITE;
 
 public class CachedWater {
 
@@ -54,6 +49,11 @@ public class CachedWater {
         } else return func.applyAsInt(ipos.asLong());
     }
 
+    public static boolean isInfinite(BlockPos pos) {
+        BlockState state = getBlockState(pos);
+        return (state.contains(ISFINITE) && !state.get(ISFINITE));
+    }
+
     public static boolean isNotFull(int waterLevel) {
         return waterLevel < 8 && waterLevel >= 0;
     }
@@ -65,6 +65,32 @@ public class CachedWater {
     public static int getWaterLevelOfState(BlockState state) {
         if (state.isAir())
             return (byte) 0;
+        if (state.contains(ISFINITE) && !state.get(ISFINITE)) {
+            return (byte) -2;
+        }
+        if (state.contains(WATER_LEVEL))
+            return state.get(WATER_LEVEL);
+
+        FluidState fluidstate = state.getFluidState();
+        if (fluidstate == Fluids.EMPTY.getDefaultState())
+            return (byte) -1;
+
+        int waterLevel;
+        if (fluidstate.isStill()) {
+            waterLevel = 8;
+        } else {
+            waterLevel = fluidstate.getLevel();
+        }
+        return waterLevel;
+    }
+
+    public static int getWaterLevelForPF(BlockPos pos) {
+        BlockState state = getBlockState(pos);
+        if (state.isAir())
+            return (byte) 0;
+        if (state.contains(ISFINITE) && !state.get(ISFINITE)) {
+            return (byte) 1;
+        }
         if (state.contains(WATER_LEVEL))
             return state.get(WATER_LEVEL);
 
