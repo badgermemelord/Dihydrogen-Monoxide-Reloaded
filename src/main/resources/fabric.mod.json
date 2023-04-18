@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "id": "immersivefluids",
-  "version": "0.1.0a",
+  "version": "${version}",
 
   "name": "Immersive Fluids",
   "description": "Physics based behaviour for your minecraft fluids.",
   "authors": [
     "SirWashington",
     "Ewoudje",
-    "Ruby",
+    "Copper",
     "CoolMineman"
   ],
   "contact": {
@@ -35,6 +35,7 @@
     "minecraft": "1.18.2"
   },
   "suggests": {
+    "flamingo": "*",
     "lithium": "*"
   }
 }

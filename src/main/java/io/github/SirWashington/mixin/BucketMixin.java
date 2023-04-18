@@ -1,8 +1,10 @@
 package io.github.SirWashington.mixin;
 
+import io.github.SirWashington.FlowWater;
+import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.NonCachedWater;
+import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -20,15 +22,13 @@ public abstract class BucketMixin{
                     target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"
             )
     )
-    private boolean bucketPlace(World instance, BlockPos pos, BlockState state, int flags) {
-        boolean returnValue = true;
-        if (!instance.isClient) {
-            if(state.getBlock() == Blocks.WATER) {
-                returnValue = NonCachedWater.addWater(8, pos, instance);
-            }
-            else {
-                returnValue = instance.setBlockState(pos, state);
-            }
+    private boolean bucketPlace(World world, BlockPos pos, BlockState state, int flags) {
+        boolean returnValue = false;
+        if (!world.isClient) {
+            returnValue = NonCachedWater.addWater(8, pos, world);
+            //FlowWater.flowwater(world, pos);
+            CachedWater.TickThisBlock(world, pos);
+            ChunkHandlingMethods.scheduleFluidBlock(pos, world);
             return returnValue;
         }
         else {
