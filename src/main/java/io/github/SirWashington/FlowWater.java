@@ -2,25 +2,16 @@ package io.github.SirWashington;
 
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.FlowFeature;
+import io.github.SirWashington.features.FlowFeatureInfinite;
 import io.github.SirWashington.features.PuddleFeature;
-import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FluidDrainable;
-import net.minecraft.block.FluidFillable;
-import net.minecraft.client.render.DimensionEffects;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import static io.github.SirWashington.properties.WaterFluidProperties.ISFINITE;
 
 
 public class FlowWater {
@@ -30,33 +21,57 @@ public class FlowWater {
     private FlowWater() {
     }
 
-    public static void flowwater(WorldAccess world, BlockPos fluidPos) {
+    public static void flowWater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
-        //System.out.println("new beginning");
-        //System.out.println("ticked water: " + fluidPos);
+
+
+        //Tick Counter
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
             CachedWater.setWaterLevel(0, fluidPos);
         } else {
-            //FlowWater.world = (ServerWorld) world;
-            //CachedWater.setup(FlowWater.world, fluidPos);
-            //CachedWater.lock();
-
-            ArrayList<BlockPos> blockse = new ArrayList<>(4);
-            for (Direction dir : Direction.Type.HORIZONTAL) {
-                blockse.add(fluidPos.offset(dir));
-            }
-
+            FlowWater.world = (ServerWorld) world;
+            CachedWater.setup(FlowWater.world, fluidPos);
+            BlockState current = CachedWater.getBlockState(fluidPos);
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
-            if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
 
-                CachedWater.setWaterLevel(0, fluidPos);
-                CachedWater.addWater(centerLevel, fluidPos.down());
-            } else {
-                equalizeWater(fluidPos, centerLevel);
+            //System.out.println(current.get(ISINFINITE));
+            if (CachedWater.isInfinite(fluidPos)) {
+                infiniteWaterFlow(world, fluidPos, state);
+                //System.out.println("a");
             }
+            else {
+                if(CachedWater.isInfinite(fluidPos.down())) {
+                    CachedWater.setWaterLevel(0, fluidPos);
+                }
+                if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
+                    CachedWater.setWaterLevel(0, fluidPos);
+                    CachedWater.addWater(centerLevel, fluidPos.down());
+                } else {
+                    equalizeWater(fluidPos, centerLevel, world);
+                }
+            }
+
+
 
             //CachedWater.unlock();
+        }
+    }
+
+    public static void infiniteWaterFlow(WorldAccess world, BlockPos fluidPos, FluidState state) {
+        if (fluidPos.getY() == worldMinY) {
+            // TODO INSECURE
+            CachedWater.setWaterLevel(0, fluidPos);
+        } else {
+            FlowWater.world = (ServerWorld) world;
+            CachedWater.setup(FlowWater.world, fluidPos);
+
+            if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
+                CachedWater.setWaterLevel(8, fluidPos.down());
+                System.out.println("set below");
+            } else {
+                FlowFeatureInfinite.execute(fluidPos);
+            }
         }
     }
 
@@ -65,7 +80,7 @@ public class FlowWater {
     }
 
 
-    public static boolean isWithinChunk(BlockPos pos, BlockPos origin) {
+    /*public static boolean isWithinChunk(BlockPos pos, BlockPos origin) {
 
         //System.out.println("pos" + pos.getY());
         boolean isWithin = true;
@@ -109,10 +124,10 @@ public class FlowWater {
 
         //System.out.println(isWithin);
         return isWithin;
-    }
+    }*/
 
 
-    public static void equalizeWater(BlockPos center, int level) {
+    public static void equalizeWater(BlockPos center, int level, WorldAccess world) {
 
         int radius = 2;
         int diameter = (radius * 2) + 1;
@@ -154,16 +169,34 @@ public class FlowWater {
 
         if (range == 1) {
             PuddleFeature.execute(center, level);
+            //if tick divisible by 2 and x/y/z divisible by 2 then tick
+            //else if x/y/z not divisible by 2 then tick?
+/*            if (x % 2 == z % 2 && a % 2 == y % 2) {
+                System.out.println("puddled");
+                PuddleFeature.execute(center, level);
+            }
+            else {
+                ((ServerWorld) world).getChunkManager().markForUpdate(center);
+            }*/
+/*            int tick = (((int) ((ServerWorld) world).getTime()) >> 1) & 0b1;
+            int xI = x & 0b1;
+            int yI = y & 0b1;
+            int zI = z & 0b1;
+            if ((xI == zI && tick == yI) || (xI != zI && tick != yI)){
+                PuddleFeature.execute(center, level);
+            } else {
+                CachedWater.fluidsToUpdate.put(center, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
+            }*/
         }
+
         if (range > 1) {
             FlowFeature.execute(center);
         }
-
     }
 
 
 
-    public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
+    /*public static void waterLoggedFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
 
         int count = 0;
         boolean nonFullFluidBlock = false;
@@ -184,7 +217,7 @@ public class FlowWater {
             nonFullFluidBlock = true;
             //System.out.println("sex2");
         }
-        /*
+        *//*
         if (nonFullFluidBlock) {
             while (centerWaterLevel > 0) {
                 for (BlockPos block : blocks) {
@@ -197,10 +230,10 @@ public class FlowWater {
                 }
             }
             CachedWater.setBlockState(fluidPos, fpBS.with(Properties.WATERLOGGED, false));
-        }*/
+        }*//*
     }
-
-    public static void KelpFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
+*/
+    /*public static void KelpFlow(BlockPos fluidPos, BlockState fpBS, ArrayList<BlockPos> blocks) {
 
         int count = 0;
         boolean nonFullFluidBlock = false;
@@ -226,5 +259,5 @@ public class FlowWater {
         if (nonFullFluidBlock) {
             world.breakBlock(fluidPos, true);
         }
-    }
+    }*/
 }

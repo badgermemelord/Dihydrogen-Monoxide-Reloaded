@@ -4,15 +4,20 @@
   "package": "io.github.SirWashington.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ServerWorldMixin",
-    "FlowingWaterloggedMixin",
+    "StillWaterPropertiesMixin",
+    "GenerationShapeConfigInvoker",
+    "DensityFunctionInvoker",
+    "ChunkGeneratorSettingsMixin",
     "BucketMixin",
     "FlowingLavaMixin",
     "FlowingMixin",
     "LavaFluidMixin",
+    "PaneBlockMixin",
+    "ServerWorldMixin",
+    "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
-    "perf_test.MixinPlayerManager",
-    "ChunkMapAccessor"
+    "WaterLoggableMixin",
+    "perf_test.MixinPlayerManager"
   ],
   "injectors": {
     "defaultRequire": 1
