@@ -21,7 +21,7 @@ public abstract class ServerWorldMixin implements MixinInterfaces.DuckInterface{
         //public static ChunkListCache perWorldChunkList = new ChunkListCache();
 
     @Unique
-        private static WorldCache perWorldCache = new WorldCache();
+        private WorldCache perWorldCache = new WorldCache();
     @Unique
         private static ChunkListCache perWorldChunkList = new ChunkListCache();
         @Override

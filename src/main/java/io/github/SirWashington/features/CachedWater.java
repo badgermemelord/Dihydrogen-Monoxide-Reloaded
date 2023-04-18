@@ -2,7 +2,7 @@ package io.github.SirWashington.features;
 
 import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.scheduling.MixinInterfaces;
-import io.github.SirWashington.scheduling.WaterTickScheduler;
+import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -366,7 +366,7 @@ public class CachedWater {
         for (var entry : fluidsToUpdate.entrySet()) {
             var state = entry.getValue();
             var pos = entry.getKey();
-            WaterTickScheduler.scheduleFluidBlock(pos, serverWorld);
+            ChunkHandlingMethods.scheduleFluidBlock(pos, serverWorld);
         }
 
         sections.forEach((sectionPos, section) -> section.unlock());

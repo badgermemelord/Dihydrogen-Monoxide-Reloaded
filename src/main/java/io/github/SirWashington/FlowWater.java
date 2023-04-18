@@ -3,7 +3,7 @@ package io.github.SirWashington;
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.FlowFeature;
 import io.github.SirWashington.features.PuddleFeature;
-import io.github.SirWashington.scheduling.WaterTickScheduler;
+import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidDrainable;

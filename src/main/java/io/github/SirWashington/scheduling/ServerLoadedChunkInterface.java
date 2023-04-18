@@ -1,7 +1,6 @@
 package io.github.SirWashington.scheduling;
 
 import io.github.SirWashington.mixin.ChunkMapAccessor;
-import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.world.ChunkHolder;
@@ -18,6 +17,7 @@ public class ServerLoadedChunkInterface {
 
     public static LongSet ChunkListOld = new LongOpenHashSet();
     public static DimensionType OldWorldDimension;
+    public static LongSet PreviousChunkList = new LongOpenHashSet();
     public static void getActiveWorldChunks(ServerWorld world) {
         //LongSet ChunkCache = ((MixinInterfaces.DuckInterface)world).getChunkListCache().ChunkList;
         LongSet ChunkCache = new LongOpenHashSet();
@@ -37,11 +37,19 @@ public class ServerLoadedChunkInterface {
                 ChunkList.add(worldChunk.getPos().toLong());
             }
         }
-        for(Long chunkLong : ChunkList) {
-            //System.out.println("chunkLong: " + chunkLong);
+        /*System.out.println("new : " + ChunkList);
+        System.out.println("old : " + PreviousChunkList);
+        System.out.println("world is client: " + world.isClient);
+        System.out.println("world dim: " + world.getDimension());
+        System.out.println("cache for this dim: " + ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet());*/
+
+        PreviousChunkList = ChunkList;
+/*        for(Long chunkLong : ChunkList) {
+            System.out.println("chunkLong: " + chunkLong);
             ChunkHandlingMethods.checkIfPresent(chunkLong, world);
-        }
-        ChunkHandlingMethods.checkForAbsent(ChunkList, world);
+        }*/
+        ChunkHandlingMethods.checkForAlreadyPresent(ChunkList, world);
+        ChunkHandlingMethods.checkForNoLongerPresent(ChunkList, world);
 
 
 

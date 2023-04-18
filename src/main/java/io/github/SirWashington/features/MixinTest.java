@@ -1,7 +1,7 @@
 package io.github.SirWashington.features;
 
 
-import io.github.SirWashington.scheduling.WaterTickScheduler;
+import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 
 public class MixinTest {
 

@@ -33,20 +33,28 @@ public class ChunkHandlingMethods {
         ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.remove(posToUnload);
 
     }
-    public static void checkForAbsent(LongSet ChunkList, World world) {
+    public static void checkForNoLongerPresent(LongSet ChunkList, World world) {
         //System.out.println("bal");
         //System.out.println(ChunkCache);
         for(long keyLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
             if(!ChunkList.contains(keyLong)) {
                 ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.remove(keyLong);
-                //System.out.println("removed");
+                //System.out.println("removed " + keyLong);
+            }
+        }
+    }
+    public static void checkForAlreadyPresent(LongSet ChunkList, World world) {
+        for(long keyLong : ChunkList) {
+            if(!((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet().contains(keyLong)) {
+                preLoadChunk(keyLong, world);
             }
         }
     }
     public static void checkIfPresent(long chunkPosLong, World world) {
+        //System.out.println("ddn: " + ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet());
         if (!((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosLong)){
-            System.out.println(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap);
-            System.out.println("chunkpos that was not contained: " + chunkPosLong);
+            //System.out.println(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap);
+            //System.out.println("chunkpos that was not contained: " + chunkPosLong);
             //System.out.println("not contained");
             preLoadChunk(chunkPosLong, world);
         }
@@ -61,7 +69,7 @@ public class ChunkHandlingMethods {
     }
 
     public static void loadChunk(long posToLoad, LongSet waterBlocksSet, World world) {
-        System.out.println("pos to load: " + posToLoad);
+        //System.out.println("pos to load: " + posToLoad);
         ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(posToLoad, waterBlocksSet);
     }
 
