@@ -32,7 +32,7 @@ public class NonCachedWater {
     private static void setup(World world) {
         CachedWater.useCache = false;
         CachedWater.useSections = false;
-        CachedWater.cacheWorld = world;
+        CachedWater.world = world;
     }
 
     private static void unSetup() {
