@@ -9,6 +9,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import static io.github.SirWashington.properties.WaterFluidProperties.ISFINITE;
@@ -168,7 +169,7 @@ public class FlowWater {
         int range = level + 10 - minLevel;
 
         if (range == 1) {
-            PuddleFeature.execute(center, level);
+            PuddleFeature.execute(center, level, (World) world);
             //if tick divisible by 2 and x/y/z divisible by 2 then tick
             //else if x/y/z not divisible by 2 then tick?
 /*            if (x % 2 == z % 2 && a % 2 == y % 2) {
@@ -190,7 +191,7 @@ public class FlowWater {
         }
 
         if (range > 1) {
-            FlowFeature.execute(center);
+            FlowFeature.execute(center, (World) world);
         }
     }
 

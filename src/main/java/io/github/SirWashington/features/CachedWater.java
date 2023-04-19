@@ -45,18 +45,20 @@ public class CachedWater {
         cacheWorld = world;
         //System.out.println("fluidtick with following non-empty chunk longs: ");
         for (long worldChunkLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
-            if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong) != null && !((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong).isEmpty()) {
-                //System.out.println("ticked chunk long: " + worldChunkLong);
+            if(!((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong).isEmpty()) {
                 LongSet value = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong);
                 value.forEach((long l) -> setIterator(l, world));
             }
         }
     }
     public static void setIterator(long l,  World world) {
-        BlockPos BP;
-        BP = BlockPos.fromLong(l);
-        //System.out.println("ticked blockpos:" + BP);
-        TickThisBlock(world, BP);
+        //System.out.println(((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap);
+        //System.out.println(l);
+        if (((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(l) > 0) {
+            BlockPos BP;
+            BP = BlockPos.fromLong(l);
+            TickThisBlock(world, BP);
+        }
     }
     public static void TickThisBlock(World world, BlockPos pos) {
         BlockState BS = getBlockState(pos);
