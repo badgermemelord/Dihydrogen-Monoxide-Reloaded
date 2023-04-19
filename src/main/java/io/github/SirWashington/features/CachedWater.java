@@ -62,7 +62,7 @@ public class CachedWater {
     }
     public static void TickThisBlock(World world, BlockPos pos) {
         BlockState BS = getBlockState(pos);
-        if (BS.getBlock() == Blocks.WATER) {
+        if (BS.getBlock() == Blocks.WATER && !ChunkHandlingMethods.checkIfTicketLess(pos.asLong(), world)) {
             FlowWater.flowWater(world, pos, BS.getFluidState());
         }
     }
@@ -360,6 +360,7 @@ public class CachedWater {
             updateNeighbor(pos.north(), block, pos);
             updateNeighbor(pos.south(), block, pos);
         }
+        ChunkHandlingMethods.subtractTickTickets(serverWorld);
 
         for (var entry : fluidsToUpdate.entrySet()) {
             var state = entry.getValue();

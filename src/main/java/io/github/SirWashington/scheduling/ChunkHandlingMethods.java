@@ -50,7 +50,21 @@ public class ChunkHandlingMethods {
             }
         }
     }
-    public static void checkForTicketLess()
+    public static void checkForTicketLess(World world) {
+        for (long fluidPos :  ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet()) {
+            if(((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos) == (short) 0) {
+                //((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.remove(fluidPos);
+                unScheduleFluidBlock(fluidPos, world);
+            }
+        }
+    }
+    public static boolean checkIfTicketLess(long fluidPos, World world) {
+        if(((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos) == (short) 0) {
+            unScheduleFluidBlock(fluidPos, world);
+            return true;
+        }
+        return false;
+    }
     public static void checkIfPresent(long chunkPosLong, World world) {
         //System.out.println("ddn: " + ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet());
         if (!((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosLong)){
@@ -94,6 +108,18 @@ public class ChunkHandlingMethods {
             registerTickTickets(blockPosAsLong, world);
         }
     }
+    public static void unScheduleFluidBlock(long blockPosAsLong, World world) {
+        ChunkPos chunkPos = world.getChunk(BlockPos.fromLong(blockPosAsLong)).getPos();
+        long chunkPosAsLong = chunkPos.toLong();
+
+        if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosAsLong)) {
+            LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
+            if(oldSet.contains(blockPosAsLong)) {
+                oldSet.remove(blockPosAsLong);
+                ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
+            }
+        }
+    }
 
     public static LongSet getLongSet(long pos) {
         LongSet set = new LongOpenHashSet();
@@ -130,7 +156,7 @@ public class ChunkHandlingMethods {
                         Block internalBlock = internalBS.getBlock();
                         if (internalBlock == Blocks.WATER) {
                             blockSet.add(realWorldPosLong);
-                            registerTickTickets(realWorldPosLong, world);
+                            registerTickTicketsOnLoad(realWorldPosLong, world);
                             //System.out.println("wotah");
                             //System.out.println(realWorldPos);
                         }
@@ -146,11 +172,25 @@ public class ChunkHandlingMethods {
         //if(!((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet().contains(fluidPos))
             ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, defaultStartingTickets);
     }
+    public static void registerTickTicketsOnLoad(long fluidPos, World world) {
+        Short defaultStartingTickets = 1;
+        //if(!((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet().contains(fluidPos))
+        ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, defaultStartingTickets);
+    }
     public static void subtractTickTicket(BlockPos blockPos, World world) {
         long fluidPos = blockPos.asLong();
         Short oldTickets = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos);
         Short newTickets = (short) (oldTickets - 1);
         ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, newTickets);
+    }
+    public static void subtractTickTickets(World world) {
+        for (long fluidPos :  ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet()) {
+            Short oldTickets = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos);
+            if (oldTickets > 0) {
+                Short newTickets = (short) (oldTickets - 1);
+                ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, newTickets);
+            }
+        }
     }
     //public static void clearQueue() { BlocksToTick.clear();}
     // static void clearNext() { BlocksToTickNext.clear();}
