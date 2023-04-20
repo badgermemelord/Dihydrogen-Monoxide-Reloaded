@@ -112,13 +112,13 @@ public class ChunkHandlingMethods {
         ChunkPos chunkPos = world.getChunk(BlockPos.fromLong(blockPosAsLong)).getPos();
         long chunkPosAsLong = chunkPos.toLong();
 
-        if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosAsLong)) {
+        //if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosAsLong)) {
             LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
             if(oldSet.contains(blockPosAsLong)) {
                 oldSet.remove(blockPosAsLong);
                 ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
             }
-        }
+        //}
     }
 
     public static LongSet getLongSet(long pos) {
