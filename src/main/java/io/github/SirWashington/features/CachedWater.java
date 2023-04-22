@@ -61,6 +61,7 @@ public class CachedWater {
     public static void TickThisBlock(World world, BlockPos pos) {
         BlockState BS = getBlockState(pos);
         //System.out.println("ticked block");
+        //TODO delete BlockState check once other systems are working reliably
         if (BS.getBlock() == Blocks.WATER) {
             FlowWater.flowWater(world, pos, BS.getFluidState());
         }

@@ -188,11 +188,10 @@ public class ChunkHandlingMethods {
     }
     public static void subtractTickTickets(World world) {
         for (long fluidPos :  ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet()) {
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.forEach((long fluidpos) -> subtract );
             Short oldTickets = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos);
-            //System.out.println("subtracted from: " + oldTickets);
             Short newTickets = (short) (oldTickets - 1);
             if (newTickets < 1) {
-                //System.out.println("eee");
                 unScheduleFluidBlock(fluidPos, world);
             }
             else{

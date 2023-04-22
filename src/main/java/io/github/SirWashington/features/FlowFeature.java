@@ -16,7 +16,6 @@ public class FlowFeature {
     public static void execute(BlockPos center, World world) {
         if (!Features.FLOW_FEATURE_ENABLED) return;
 
-        Boolean didSomething = false;
 
         for (Direction dir : Direction.Type.HORIZONTAL) {
             blocks[CachedWater.countMa()%4] = (center.offset(dir));
@@ -35,7 +34,6 @@ public class FlowFeature {
                 internalLevel = waterLevels[i];
                 if (internalLevel != -1) {
                     if ((level >= (internalLevel + 1))) {
-                        didSomething = true;
                         internalLevel += 1;
                         waterLevels[i] = internalLevel;
                         level -= 1;
@@ -47,14 +45,11 @@ public class FlowFeature {
                 }
             }
         }
-        if (didSomething) {
             for (int i = 0; i < 4; i++) {
                 CachedWater.setWaterLevel(waterLevels[i], blocks[i]);
             }
-        }
-        else {
-            ChunkHandlingMethods.subtractTickTicket(center, world);
-        }
+
+
 
         CachedWater.setWaterLevel(level, center);
     }

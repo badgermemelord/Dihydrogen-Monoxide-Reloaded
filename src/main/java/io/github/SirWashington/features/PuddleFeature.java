@@ -18,11 +18,9 @@ public class PuddleFeature {
     private static List<PathfinderBFS.Node> holes = new ArrayList<>(8);
     private static int xX;
     private static int zZ;
-    static Boolean didSomething = false;
 
     public static void execute(BlockPos center, int level, World world) {
         if (!Features.PUDDLE_FEATURE_ENABLED) return;
-        didSomething = false;
         //setWaterLevel(level, center, world);
         pos = center;
 
@@ -67,8 +65,6 @@ public class PuddleFeature {
                     break;
             }
         }
-        if(!didSomething)
-            ChunkHandlingMethods.subtractTickTicket(center, world);
     }
 
     private static boolean holeFound(List<PathfinderBFS.Node> holes) {
@@ -102,7 +98,6 @@ public class PuddleFeature {
     }
 
     private static void move(Direction direction) {
-        didSomething = true;
         CachedWater.setWaterLevel(0, pos);
         CachedWater.addWater(1, pos.offset(direction));
     }
