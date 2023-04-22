@@ -59,7 +59,9 @@ public class ChunkHandlingMethods {
         }
     }
     public static boolean checkIfTicketLess(long fluidPos, World world) {
+        //System.out.println("tickets: " + ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos));
         if(((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos) == (short) 0) {
+            //System.out.println("ticketless");
             unScheduleFluidBlock(fluidPos, world);
             return true;
         }
@@ -111,12 +113,13 @@ public class ChunkHandlingMethods {
     public static void unScheduleFluidBlock(long blockPosAsLong, World world) {
         ChunkPos chunkPos = world.getChunk(BlockPos.fromLong(blockPosAsLong)).getPos();
         long chunkPosAsLong = chunkPos.toLong();
-
+        //System.out.println("unscheduled");
         //if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosAsLong)) {
             LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
             if(oldSet.contains(blockPosAsLong)) {
                 oldSet.remove(blockPosAsLong);
                 ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
+                ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.remove(blockPosAsLong);
             }
         //}
     }
@@ -186,8 +189,13 @@ public class ChunkHandlingMethods {
     public static void subtractTickTickets(World world) {
         for (long fluidPos :  ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet()) {
             Short oldTickets = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos);
-            if (oldTickets > 0) {
-                Short newTickets = (short) (oldTickets - 1);
+            //System.out.println("subtracted from: " + oldTickets);
+            Short newTickets = (short) (oldTickets - 1);
+            if (newTickets < 1) {
+                //System.out.println("eee");
+                unScheduleFluidBlock(fluidPos, world);
+            }
+            else{
                 ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, newTickets);
             }
         }

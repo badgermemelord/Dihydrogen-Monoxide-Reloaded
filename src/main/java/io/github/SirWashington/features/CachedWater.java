@@ -54,15 +54,14 @@ public class CachedWater {
     public static void setIterator(long l,  World world) {
         //System.out.println(((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap);
         //System.out.println(l);
-        if (((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(l) > 0) {
-            BlockPos BP;
-            BP = BlockPos.fromLong(l);
-            TickThisBlock(world, BP);
-        }
+        BlockPos BP;
+        BP = BlockPos.fromLong(l);
+        TickThisBlock(world, BP);
     }
     public static void TickThisBlock(World world, BlockPos pos) {
         BlockState BS = getBlockState(pos);
-        if (BS.getBlock() == Blocks.WATER && !ChunkHandlingMethods.checkIfTicketLess(pos.asLong(), world)) {
+        //System.out.println("ticked block");
+        if (BS.getBlock() == Blocks.WATER) {
             FlowWater.flowWater(world, pos, BS.getFluidState());
         }
     }
