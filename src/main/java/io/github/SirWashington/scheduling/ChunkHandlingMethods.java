@@ -187,18 +187,29 @@ public class ChunkHandlingMethods {
         ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, newTickets);
     }
     public static void subtractTickTickets(World world) {
-        for (long fluidPos :  ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet()) {
-            ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.forEach((long fluidpos) -> subtract );
-            Short oldTickets = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos);
-            Short newTickets = (short) (oldTickets - 1);
-            if (newTickets < 1) {
-                unScheduleFluidBlock(fluidPos, world);
-            }
-            else{
-                ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, newTickets);
-            }
-        }
+        //((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.forEach((long blockPos) -> subtractTicket(blockPos, world));
+        LongSet value = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet();
+        value.forEach((long l) -> subtractTicketFromBlock(l, world));
+        value.forEach((long l) -> removeIfNoTickets(l, world));
+/*        for (long l : value) {
+            subtractTicketFromBlock(l, world);
+        }*/
     }
+    public static void removeIfNoTickets(long l, World world) {
+
+    }
+    public static void subtractTicketFromBlock(long blockPos, World world) {
+        //Short oldTickets = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(blockPos);
+        Short newTickets = (short) (((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(blockPos) - 1);
+        if (newTickets < 1) {
+            unScheduleFluidBlock(blockPos, world);
+        }
+        else{
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(blockPos, newTickets);
+        }
+
+    }
+
     //public static void clearQueue() { BlocksToTick.clear();}
     // static void clearNext() { BlocksToTickNext.clear();}
 
