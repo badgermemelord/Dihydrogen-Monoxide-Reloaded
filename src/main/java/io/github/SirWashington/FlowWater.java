@@ -9,7 +9,6 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import static io.github.SirWashington.properties.WaterFluidProperties.ISFINITE;
@@ -24,6 +23,8 @@ public class FlowWater {
 
     public static void flowWater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
+
+
         //Tick Counter
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
@@ -34,10 +35,8 @@ public class FlowWater {
             BlockState current = CachedWater.getBlockState(fluidPos);
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
 
-            //System.out.println(current.get(ISINFINITE));
             if (CachedWater.isInfinite(fluidPos)) {
                 infiniteWaterFlow(world, fluidPos, state);
-                //System.out.println("a");
             }
             else {
                 if(CachedWater.isInfinite(fluidPos.down())) {
@@ -67,6 +66,7 @@ public class FlowWater {
 
             if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
                 CachedWater.setWaterLevel(8, fluidPos.down());
+                System.out.println("set below");
             } else {
                 FlowFeatureInfinite.execute(fluidPos);
             }
@@ -166,7 +166,7 @@ public class FlowWater {
         int range = level + 10 - minLevel;
 
         if (range == 1) {
-            PuddleFeature.execute(center, level, (World) world);
+            PuddleFeature.execute(center, level);
             //if tick divisible by 2 and x/y/z divisible by 2 then tick
             //else if x/y/z not divisible by 2 then tick?
 /*            if (x % 2 == z % 2 && a % 2 == y % 2) {
@@ -188,7 +188,7 @@ public class FlowWater {
         }
 
         if (range > 1) {
-            FlowFeature.execute(center, (World) world);
+            FlowFeature.execute(center);
         }
     }
 
