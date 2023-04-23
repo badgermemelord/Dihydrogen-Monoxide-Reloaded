@@ -24,8 +24,6 @@ public class FlowWater {
 
     public static void flowWater(WorldAccess world, BlockPos fluidPos, FluidState state) {
 
-
-
         //Tick Counter
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
@@ -69,7 +67,6 @@ public class FlowWater {
 
             if ((CachedWater.getBlockState(fluidPos.down()).canBucketPlace(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.down()))) {
                 CachedWater.setWaterLevel(8, fluidPos.down());
-                System.out.println("set below");
             } else {
                 FlowFeatureInfinite.execute(fluidPos);
             }

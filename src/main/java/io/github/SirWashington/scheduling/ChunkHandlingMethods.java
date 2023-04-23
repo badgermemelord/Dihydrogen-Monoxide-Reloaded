@@ -34,10 +34,10 @@ public class ChunkHandlingMethods {
 
     }
     public static void checkForNoLongerPresent(LongSet ChunkList, World world) {
-        //System.out.println("bal");
-        //System.out.println(ChunkCache);
+        //TODO concurrent this
         for(long keyLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
             if(!ChunkList.contains(keyLong)) {
+                removeTicketsForChunk(keyLong, world);
                 ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.remove(keyLong);
                 //System.out.println("removed " + keyLong);
             }
@@ -113,17 +113,22 @@ public class ChunkHandlingMethods {
     public static void unScheduleFluidBlock(long blockPosAsLong, World world) {
         ChunkPos chunkPos = world.getChunk(BlockPos.fromLong(blockPosAsLong)).getPos();
         long chunkPosAsLong = chunkPos.toLong();
-        //System.out.println("unscheduled");
-        //if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosAsLong)) {
+        //TODO optimise this, try new approach
+/*        if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsValue(blockPosAsLong)) {
             LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
             if(oldSet.contains(blockPosAsLong)) {
                 oldSet.remove(blockPosAsLong);
                 ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
                 ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.remove(blockPosAsLong);
             }
-        //}
+        }*/
+        LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
+        if(oldSet.contains(blockPosAsLong)) {
+            oldSet.remove(blockPosAsLong);
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.remove(blockPosAsLong);
+        }
     }
-
     public static LongSet getLongSet(long pos) {
         LongSet set = new LongOpenHashSet();
         set.add(pos);
@@ -189,6 +194,16 @@ public class ChunkHandlingMethods {
     public static void subtractTickTickets(World world) {
         ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.replaceAll((block, tickets) -> subtractFromShort(tickets));
         ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.forEach((block, tickets) -> removeIfNoTickets(block, tickets, world));
+    }
+    public static void removeTicketsForChunk(long chunkPos, World world) {
+        LongSet set = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPos);
+        set.forEach((long l) -> removeFromTicketMap(l, world));
+    }
+    public static void removeFromTicketMap(long l, World world) {
+        if(((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.containsKey(l)) {
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.remove(l);
+        }
+
     }
     public static void removeIfNoTickets(long blockPos, short tickets, World world) {
         if (tickets < 1) {
