@@ -187,16 +187,8 @@ public class ChunkHandlingMethods {
         ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, newTickets);
     }
     public static void subtractTickTickets(World world) {
-        //((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.forEach((long blockPos) -> subtractTicket(blockPos, world));
-        //HashMap<Long, Short> value = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap;
         ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.replaceAll((block, tickets) -> subtractFromShort(tickets));
         ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.forEach((block, tickets) -> removeIfNoTickets(block, tickets, world));
-
-        //value.forEach((long l) -> subtractTicketFromBlock(l, world));
-        //value.forEach((long l) -> removeIfNoTickets(l, world));
-/*        for (long l : value) {
-            subtractTicketFromBlock(l, world);
-        }*/
     }
     public static void removeIfNoTickets(long blockPos, short tickets, World world) {
         if (tickets < 1) {
@@ -218,27 +210,5 @@ public class ChunkHandlingMethods {
 
     }
 
-    //public static void clearQueue() { BlocksToTick.clear();}
-    // static void clearNext() { BlocksToTickNext.clear();}
-
-
-/*    public static void tickFluid(World world) {
-        System.out.println("curr " +  CurrentToTick);
-        System.out.println("next " +  NextToTick);
-
-        for(BlockPos iterator : NextToTick) {
-            CurrentToTick.add(iterator);
-        }
-        //CurrentToTick = NextToTick;
-        NextToTick.clear();
-        //System.out.println("curr2 " +  CurrentToTick);
-        for(BlockPos BP : CurrentToTick) {
-            //FluidState FS = CachedWater.getBlockState(BP).getFluidState();
-            System.out.println("bp: " + BP);
-            //FlowWater.flowwater(world, BP, FS);
-            //FlowWater.testTick(world, BP);
-        }
-        CurrentToTick.clear();
-    }*/
 
 }
