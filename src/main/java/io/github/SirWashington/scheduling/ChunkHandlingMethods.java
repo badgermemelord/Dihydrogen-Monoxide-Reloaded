@@ -103,12 +103,13 @@ public class ChunkHandlingMethods {
             ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
             registerTickTickets(blockPosAsLong, world);
         }
-        else {
+/*        else {
+            System.out.println("tried to load new chunk");
             LongSet putValue = new LongOpenHashSet();
             putValue.add(blockPosAsLong);
             ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, putValue);
             registerTickTickets(blockPosAsLong, world);
-        }
+        }*/
     }
     public static void unScheduleFluidBlock(long blockPosAsLong, World world) {
         ChunkPos chunkPos = world.getChunk(BlockPos.fromLong(blockPosAsLong)).getPos();
