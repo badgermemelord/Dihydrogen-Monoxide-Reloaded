@@ -188,15 +188,18 @@ public class ChunkHandlingMethods {
     }
     public static void subtractTickTickets(World world) {
         //((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.forEach((long blockPos) -> subtractTicket(blockPos, world));
-        LongSet value = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet();
-        value.forEach((long l) -> subtractTicketFromBlock(l, world));
-        value.forEach((long l) -> removeIfNoTickets(l, world));
+        //HashMap<Long, Short> value = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap;
+        ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.replaceAll((block, tickets) -> subtractFromShort(tickets));
+        //value.forEach((long l) -> subtractTicketFromBlock(l, world));
+        //value.forEach((long l) -> removeIfNoTickets(l, world));
 /*        for (long l : value) {
             subtractTicketFromBlock(l, world);
         }*/
     }
     public static void removeIfNoTickets(long l, World world) {
-
+    }
+    public static short subtractFromShort(short s) {
+        return (short) (s - 1);
     }
     public static void subtractTicketFromBlock(long blockPos, World world) {
         //Short oldTickets = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(blockPos);
