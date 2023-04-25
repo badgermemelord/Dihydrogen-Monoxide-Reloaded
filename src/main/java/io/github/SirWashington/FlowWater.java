@@ -167,24 +167,6 @@ public class FlowWater {
 
         if (range == 1) {
             PuddleFeature.execute(center, level);
-            //if tick divisible by 2 and x/y/z divisible by 2 then tick
-            //else if x/y/z not divisible by 2 then tick?
-/*            if (x % 2 == z % 2 && a % 2 == y % 2) {
-                System.out.println("puddled");
-                PuddleFeature.execute(center, level);
-            }
-            else {
-                ((ServerWorld) world).getChunkManager().markForUpdate(center);
-            }*/
-/*            int tick = (((int) ((ServerWorld) world).getTime()) >> 1) & 0b1;
-            int xI = x & 0b1;
-            int yI = y & 0b1;
-            int zI = z & 0b1;
-            if ((xI == zI && tick == yI) || (xI != zI && tick != yI)){
-                PuddleFeature.execute(center, level);
-            } else {
-                CachedWater.fluidsToUpdate.put(center, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
-            }*/
         }
 
         if (range > 1) {

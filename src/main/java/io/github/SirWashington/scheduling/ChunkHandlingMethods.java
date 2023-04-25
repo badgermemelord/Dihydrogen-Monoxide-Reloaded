@@ -111,6 +111,27 @@ public class ChunkHandlingMethods {
             registerTickTickets(blockPosAsLong, world);
         }*/
     }
+    public static void scheduleFluidBlockExternal(BlockPos pos, World world) {
+
+        ChunkPos chunkPos = world.getChunk(pos).getPos();
+        long chunkPosAsLong = chunkPos.toLong();
+        long blockPosAsLong = pos.asLong();
+
+        if(((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.containsKey(chunkPosAsLong)) {
+            //Chunk2BlockMap.computeIfAbsent(chunkPosAsLong, s -> getLongSet(blockPosAsLong));
+            LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
+            oldSet.add(blockPosAsLong);
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
+            registerTickTickets(blockPosAsLong, world);
+        }
+        else {
+            System.out.println("tried to load new chunk");
+            LongSet putValue = new LongOpenHashSet();
+            putValue.add(blockPosAsLong);
+            ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, putValue);
+            registerTickTickets(blockPosAsLong, world);
+        }
+    }
     public static void unScheduleFluidBlock(long blockPosAsLong, World world) {
         ChunkPos chunkPos = world.getChunk(BlockPos.fromLong(blockPosAsLong)).getPos();
         long chunkPosAsLong = chunkPos.toLong();
