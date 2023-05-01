@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.function.LongToIntFunction;
 
 import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
+import static io.github.SirWashington.properties.WaterFluidProperties.INTERNALLEVEL;
 import static io.github.SirWashington.properties.WaterFluidProperties.ISFINITE;
 
 public class CachedWater {
@@ -83,6 +84,10 @@ public class CachedWater {
     public static boolean isInfinite(BlockPos pos) {
         BlockState state = getBlockState(pos);
         return (state.contains(ISFINITE) && !state.get(ISFINITE));
+    }
+    public static void printInternalLevel(BlockPos pos) {
+        BlockState state = getBlockState(pos);
+        System.out.println("Internal Level: " + state.get(INTERNALLEVEL));
     }
 
     public static boolean isNotFull(int waterLevel) {

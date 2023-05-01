@@ -23,7 +23,6 @@ public interface WorldAccessMixin {
     default void createAndScheduleFluidTick(BlockPos pos, Fluid fluid, int delay) {
         if (this instanceof ServerWorld) {
             World world = (ServerWorld) this;
-            System.out.println("e");
             ChunkHandlingMethods.scheduleFluidBlockExternal(pos, world);
         }
     }
