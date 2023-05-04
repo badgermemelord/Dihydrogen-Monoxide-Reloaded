@@ -3,9 +3,7 @@ package io.github.SirWashington.features;
 import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import io.github.SirWashington.scheduling.MixinInterfaces;
-import it.unimi.dsi.fastutil.longs.Long2ByteMap;
-import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -23,17 +21,21 @@ import net.minecraft.world.chunk.ChunkSection;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.LongToIntFunction;
 
 import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
-import static io.github.SirWashington.properties.WaterFluidProperties.INTERNALLEVEL;
-import static io.github.SirWashington.properties.WaterFluidProperties.ISFINITE;
+import static io.github.SirWashington.properties.WaterFluidProperties.*;
+import static io.github.SirWashington.properties.WaterFluidProperties.VOLUME;
 
 public class CachedWater {
 
     public static boolean useSections = true;
     public static boolean useCache = true;
-    private static final Long2ByteMap cache = new Long2ByteOpenHashMap();
+    public static boolean useHighResFlow = true;
+    public static int volumePerBlock = 1000;
+    private static final Long2ByteMap levelCache = new Long2ByteOpenHashMap();
+    private static final Long2IntMap volumeCache = new Long2IntOpenHashMap();
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
     public static World cacheWorld;
 
@@ -77,7 +79,7 @@ public class CachedWater {
         };
 
         if (useCache) {
-            return cache.computeIfAbsent(ipos.asLong(), func);
+            return levelCache.computeIfAbsent(ipos.asLong(), func);
         } else return func.applyAsInt(ipos.asLong());
     }
 
@@ -85,9 +87,9 @@ public class CachedWater {
         BlockState state = getBlockState(pos);
         return (state.contains(ISFINITE) && !state.get(ISFINITE));
     }
-    public static void printInternalLevel(BlockPos pos) {
+    public static void printVolume(BlockPos pos) {
         BlockState state = getBlockState(pos);
-        System.out.println("Internal Level: " + state.get(INTERNALLEVEL));
+        System.out.println("Water volume: " + state.get(VOLUME));
     }
 
     public static boolean isNotFull(int waterLevel) {
@@ -149,6 +151,9 @@ public class CachedWater {
     }
 
     private static final Long2ByteMap queuedWaterLevels = new Long2ByteOpenHashMap();
+    private static final Long2IntMap queuedWaterVolumes = new Long2IntOpenHashMap();
+
+    //private static final ConcurrentHashMap<Long, > queuedWaterLevels = new ConcurrentHashMap();
 
     static {
         queuedWaterLevels.defaultReturnValue((byte) -1);
@@ -156,11 +161,11 @@ public class CachedWater {
 
     public static void setWaterLevel(int level, BlockPos pos) {
         if (useCache) {
-            cache.put(pos.asLong(), (byte) level);
+            levelCache.put(pos.asLong(), (byte) level);
             queuedWaterLevels.put(pos.asLong(), (byte) level);
         } else {
             setWaterLevelDirect(level, pos);
-            cache.remove(pos.asLong());
+            levelCache.remove(pos.asLong());
         }
     }
 
@@ -264,56 +269,105 @@ public class CachedWater {
         }
     }
 
+    // VOLUME RELATED CODE
+
+    public static void setWaterVolume(int volume, BlockPos pos) {
+        if (useCache) {
+            volumeCache.put(pos.asLong(), volume);
+            queuedWaterVolumes.put(pos.asLong(), volume);
+        } else {
+            setWaterVolumeDirect(volume, pos);
+            volumeCache.remove(pos.asLong());
+        }
+    }
+
+    private static void setWaterVolumeDirect(int volume, BlockPos pos) {
+        BlockState prev = getBlockState(pos);
+
+        assert  prev.isAir() ||
+                prev.contains(VOLUME) ||
+                !prev.getFluidState().isEmpty() ||
+                volume < 0;
+
+        if (prev.contains(VOLUME)) {
+            setBlockStateNoNeighbors(pos, prev, prev.with(VOLUME, volume));
+        } else {
+            if (volume == 0) {
+                setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
+            } else if (volume < 0) {
+                // System.out.println("Trying to set waterlevel " + level);
+            } else if (volume <= volumePerBlock) {
+                if (volume == volumePerBlock) {
+                    if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
+                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState());
+                    }
+                } else {
+                    if (!(prev.getBlock() instanceof FluidDrainable)) {
+                        cacheWorld.breakBlock(pos, true);
+                    } else {
+                        if (prev.getBlock() instanceof Waterloggable) {
+                            //TODO proper waterlogged flow
+                        }
+                    }
+
+                    setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState().with(VOLUME, volume));
+                }
+            } else {
+                System.out.println("HELP THY SOUL Trying to set water volume " + volume);
+            }
+        }
+    }
+
+    public static int getWaterVolumeOfState(BlockState state) {
+        if (state.isAir())
+            return 0;
+        if (state.contains(VOLUME))
+            return state.get(VOLUME);
+
+        FluidState fluidstate = state.getFluidState();
+        if (fluidstate == Fluids.EMPTY.getDefaultState())
+            return -1;
+
+        int waterVolume;
+        if (fluidstate.isStill()) {
+            waterVolume = volumePerBlock;
+        } else {
+            waterVolume = fluidstate.getLevel();
+            System.out.println("e");
+        }
+        return waterVolume;
+    }
+
+    public static int getWaterVolume(BlockPos ipos) {
+        LongToIntFunction func = pos -> {
+            BlockState state = getBlockState(BlockPos.fromLong(pos));
+            return getWaterLevelOfState(state);
+        };
+
+        if (useCache) {
+            return volumeCache.computeIfAbsent(ipos.asLong(), func);
+        } else return func.applyAsInt(ipos.asLong());
+    }
+
+    public static byte getLevelForVolume(int volume) {
+        if (volume == volumePerBlock){
+            return 8;
+        }
+        else {
+            return (byte) ((volume/125)+1);
+        }
+    }
+
+
+    //VOLUME CODE END
+
+
     public static void setup(ServerWorld world, BlockPos fluidPos) {
         CachedWater.cacheWorld = world;
-/*
-        int gmr = 7; //generalMaxRange, the maximum range that will ever be used in checks
-
-        BlockPos[] cornerList = new BlockPos[8];
-
-        BlockPos c11 = fluidPos.add(gmr, 0, gmr);
-        cornerList[0] = c11;
-        BlockPos c12 = fluidPos.add(-gmr, 0, gmr);
-        cornerList[1] = c12;
-        BlockPos c13 = fluidPos.add(gmr, 0, -gmr);
-        cornerList[2] = c13;
-        BlockPos c14 = fluidPos.add(-gmr, 0, -gmr);
-        cornerList[3] = c14;
-
-        BlockPos c21 = fluidPos.add(gmr, -1, gmr);
-        cornerList[4] = c21;
-        BlockPos c22 = fluidPos.add(-gmr, -1, gmr);
-        cornerList[5] = c22;
-        BlockPos c23 = fluidPos.add(gmr, -1, -gmr);
-        cornerList[6] = c23;
-        BlockPos c24 = fluidPos.add(-gmr, -1, -gmr);
-        cornerList[7] = c24;
-
-        int smallestX = Integer.MAX_VALUE;
-        int smallestY = Integer.MAX_VALUE;
-        int smallestZ = Integer.MAX_VALUE;
-
-        for (BlockPos blockPos : cornerList) {
-            smallestX = Math.min(smallestX, blockPos.getX());
-            smallestY = Math.min(smallestY, blockPos.getY());
-            smallestZ = Math.min(smallestZ, blockPos.getZ());
-        }
-
-        xChunkA = smallestX / 16;
-        yChunkA = smallestY / 16;
-        zChunkA = smallestZ / 16;
-
-        for (BlockPos blockPos : cornerList) {
-            Chunk chunk = world.getChunk(blockPos);
-            ChunkSection section = chunk.getSection(chunk.getSectionIndex(blockPos.getY()));
-
-            cachedSections[getSectionId(blockPos)] = section;
-        }
-        */
     }
 
     public static void beforeTick(ServerWorld serverWorld) {
-        assert cache.isEmpty(); //FIXME
+        assert levelCache.isEmpty(); //FIXME
     }
 
     public static final Map<BlockPos, BlockState> fluidsToUpdate = new HashMap<>();
@@ -351,11 +405,12 @@ public class CachedWater {
 
     public static void afterTick(ServerWorld serverWorld) {
         // TODO cache per dimension
-        cache.clear();
+        levelCache.clear();
 
-        for (var entry : queuedWaterLevels.long2ByteEntrySet()) {
+        for (var entry : queuedWaterVolumes.long2IntEntrySet()) {
             BlockPos pos = BlockPos.fromLong(entry.getLongKey());
-            setWaterLevelDirect(entry.getByteValue(), pos);
+            setWaterVolumeDirect(entry.getIntValue(), pos);
+            setWaterLevelDirect(getLevelForVolume(entry.getIntValue()), pos);
 
             Block block = getBlockState(pos).getBlock();
             updateNeighbor(pos.west(), block, pos);
@@ -365,6 +420,7 @@ public class CachedWater {
             updateNeighbor(pos.north(), block, pos);
             updateNeighbor(pos.south(), block, pos);
         }
+
         ChunkHandlingMethods.subtractTickTickets(serverWorld);
 
         for (var entry : fluidsToUpdate.entrySet()) {
@@ -378,6 +434,7 @@ public class CachedWater {
 
         fluidsToUpdate.clear();
         queuedWaterLevels.clear();
+        queuedWaterVolumes.clear();
         sections.clear();
     }
 }

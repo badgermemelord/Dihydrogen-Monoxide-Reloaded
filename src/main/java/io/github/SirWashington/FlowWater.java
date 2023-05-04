@@ -1,9 +1,6 @@
 package io.github.SirWashington;
 
-import io.github.SirWashington.features.CachedWater;
-import io.github.SirWashington.features.FlowFeature;
-import io.github.SirWashington.features.FlowFeatureInfinite;
-import io.github.SirWashington.features.PuddleFeature;
+import io.github.SirWashington.features.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -34,7 +31,7 @@ public class FlowWater {
             CachedWater.setup(FlowWater.world, fluidPos);
             BlockState current = CachedWater.getBlockState(fluidPos);
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
-            CachedWater.printInternalLevel(fluidPos);
+            CachedWater.printVolume(fluidPos);
 
             if (CachedWater.isInfinite(fluidPos)) {
                 infiniteWaterFlow(world, fluidPos, state);
@@ -47,7 +44,7 @@ public class FlowWater {
                     CachedWater.setWaterLevel(0, fluidPos);
                     CachedWater.addWater(centerLevel, fluidPos.down());
                 } else {
-                    equalizeWater(fluidPos, centerLevel, world);
+                    FlowFeatureHR.execute(fluidPos);
                 }
             }
 
