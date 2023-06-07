@@ -34,7 +34,6 @@ public class FlowWater {
             CachedWater.setup(FlowWater.world, fluidPos);
             BlockState current = CachedWater.getBlockState(fluidPos);
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
-            CachedWater.printInternalLevel(fluidPos);
 
             if (CachedWater.isInfinite(fluidPos)) {
                 infiniteWaterFlow(world, fluidPos, state);
