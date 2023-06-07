@@ -30,10 +30,12 @@ import static io.github.SirWashington.properties.WaterFluidProperties.VOLUME;
 
 public class CachedWater {
 
+    // THIS IS THE REAL REPO
+
     public static boolean useSections = true;
     public static boolean useCache = true;
     public static boolean useHighResFlow = true;
-    public static int volumePerBlock = 1000;
+    public static int volumePerBlock = 100;
     private static final Long2ByteMap levelCache = new Long2ByteOpenHashMap();
     private static final Long2IntMap volumeCache = new Long2IntOpenHashMap();
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
@@ -244,7 +246,9 @@ public class CachedWater {
     }
 
     public static ChunkSection getChunkSection(ChunkSectionPos pos) {
+        System.out.println(cacheWorld.getChunk(pos.getCenterPos()).getSectionArray()[cacheWorld.sectionCoordToIndex(pos.getY())]);
         ChunkSection result = cacheWorld.getChunk(pos.getCenterPos()).getSectionArray()[cacheWorld.sectionCoordToIndex(pos.getY())];
+        System.out.println("e");
         result.unlock(); // FIXME
         result.lock();
         return result;
@@ -272,6 +276,7 @@ public class CachedWater {
     // VOLUME RELATED CODE
 
     public static void setWaterVolume(int volume, BlockPos pos) {
+        System.out.println("volume: " + volume);
         if (useCache) {
             volumeCache.put(pos.asLong(), volume);
             queuedWaterVolumes.put(pos.asLong(), volume);
@@ -321,6 +326,8 @@ public class CachedWater {
     public static int getWaterVolumeOfState(BlockState state) {
         if (state.isAir())
             return 0;
+        if (state.getBlock() != Blocks.WATER)
+            return 0;
         if (state.contains(VOLUME))
             return state.get(VOLUME);
 
@@ -332,8 +339,8 @@ public class CachedWater {
         if (fluidstate.isStill()) {
             waterVolume = volumePerBlock;
         } else {
-            waterVolume = fluidstate.getLevel();
-            System.out.println("e");
+            waterVolume = fluidstate.get(VOLUME);
+            //System.out.println("e");
         }
         return waterVolume;
     }
@@ -341,7 +348,8 @@ public class CachedWater {
     public static int getWaterVolume(BlockPos ipos) {
         LongToIntFunction func = pos -> {
             BlockState state = getBlockState(BlockPos.fromLong(pos));
-            return getWaterLevelOfState(state);
+            //return getWaterLevelOfState(state);
+            return getWaterVolumeOfState(state);
         };
 
         if (useCache) {

@@ -19,9 +19,11 @@ public class FlowFeatureHR {
         int[] waterVolumes = new int[4];
         //Arrays.fill(waterVolumes, -1);
         int volume = CachedWater.getWaterVolume(center);
+        System.out.println("volume at FF " + volume);
         for (int i = 0; i < 4; i++) {
             waterVolumes[i] = CachedWater.getWaterVolume(blocks[i]);
         }
+        System.out.println("watervolumes " + waterVolumes);
         int count = 0;
         int internalVolume;
 
@@ -33,6 +35,7 @@ public class FlowFeatureHR {
                         internalVolume += 1;
                         waterVolumes[i] = internalVolume;
                         volume -= 1;
+                        System.out.println("internal : " + volume + "iv: " + internalVolume);
                     } else {
                         count += 1;
                     }
@@ -42,8 +45,10 @@ public class FlowFeatureHR {
             }
         }
         for (int i = 0; i < 4; i++) {
+            System.out.println("a " + waterVolumes[i]);
             CachedWater.setWaterVolume(waterVolumes[i], blocks[i]);
         }
+        System.out.println("b " + volume);
         CachedWater.setWaterVolume(volume, center);
     }
 
