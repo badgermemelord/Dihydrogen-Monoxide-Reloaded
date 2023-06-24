@@ -48,6 +48,7 @@ public class CachedWater {
     }
     public static void tickFluidsInWorld(World world) {
         cacheWorld = world;
+        //System.out.println("world set to " + world.getDimension().getMinimumY());
         //System.out.println("fluidtick with following non-empty chunk longs: ");
         for (long worldChunkLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
             if(!((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(worldChunkLong).isEmpty()) {
@@ -235,6 +236,7 @@ public class CachedWater {
     }
 
     public static BlockState getBlockStateSection(BlockPos pos) {
+        System.out.println("le blockpos est: " + pos);
         return sections.computeIfAbsent(ChunkSectionPos.from(pos), CachedWater::getChunkSection)
                 .getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
     }
@@ -246,6 +248,8 @@ public class CachedWater {
     }
 
     public static ChunkSection getChunkSection(ChunkSectionPos pos) {
+        System.out.println("le pos est: " + pos);
+        System.out.println("le world est: " + cacheWorld.getDimension().getMinimumY());
         System.out.println(cacheWorld.getChunk(pos.getCenterPos()).getSectionArray()[cacheWorld.sectionCoordToIndex(pos.getY())]);
         ChunkSection result = cacheWorld.getChunk(pos.getCenterPos()).getSectionArray()[cacheWorld.sectionCoordToIndex(pos.getY())];
         System.out.println("e");
@@ -276,7 +280,7 @@ public class CachedWater {
     // VOLUME RELATED CODE
 
     public static void setWaterVolume(int volume, BlockPos pos) {
-        System.out.println("volume: " + volume);
+        //System.out.println("volume: " + volume);
         if (useCache) {
             volumeCache.put(pos.asLong(), volume);
             queuedWaterVolumes.put(pos.asLong(), volume);
@@ -295,12 +299,19 @@ public class CachedWater {
                 volume < 0;
 
         if (prev.contains(VOLUME)) {
-            setBlockStateNoNeighbors(pos, prev, prev.with(VOLUME, volume));
+            if(volume == 0) {
+                System.out.println("tried to set 0");
+                setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
+            }
+            else {
+                setBlockStateNoNeighbors(pos, prev, prev.with(VOLUME, volume));
+            }
         } else {
             if (volume == 0) {
+                System.out.println("tried set 0a");
                 setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
             } else if (volume < 0) {
-                // System.out.println("Trying to set waterlevel " + level);
+                System.out.println("Trying to set negative volume");
             } else if (volume <= volumePerBlock) {
                 if (volume == volumePerBlock) {
                     if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
@@ -314,7 +325,6 @@ public class CachedWater {
                             //TODO proper waterlogged flow
                         }
                     }
-
                     setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState().with(VOLUME, volume));
                 }
             } else {
@@ -374,9 +384,11 @@ public class CachedWater {
         CachedWater.cacheWorld = world;
     }
 
+/*
     public static void beforeTick(ServerWorld serverWorld) {
         assert levelCache.isEmpty(); //FIXME
     }
+*/
 
     public static final Map<BlockPos, BlockState> fluidsToUpdate = new HashMap<>();
 
@@ -414,9 +426,12 @@ public class CachedWater {
     public static void afterTick(ServerWorld serverWorld) {
         // TODO cache per dimension
         levelCache.clear();
+        volumeCache.clear();
 
         for (var entry : queuedWaterVolumes.long2IntEntrySet()) {
+            System.out.println("1");
             BlockPos pos = BlockPos.fromLong(entry.getLongKey());
+            System.out.println("internal pos: " + pos);
             setWaterVolumeDirect(entry.getIntValue(), pos);
             setWaterLevelDirect(getLevelForVolume(entry.getIntValue()), pos);
 
@@ -428,6 +443,7 @@ public class CachedWater {
             updateNeighbor(pos.north(), block, pos);
             updateNeighbor(pos.south(), block, pos);
         }
+        System.out.println("5");
 
         ChunkHandlingMethods.subtractTickTickets(serverWorld);
 
@@ -439,7 +455,7 @@ public class CachedWater {
         }
 
         sections.forEach((sectionPos, section) -> section.unlock());
-
+        System.out.println("6");
         fluidsToUpdate.clear();
         queuedWaterLevels.clear();
         queuedWaterVolumes.clear();

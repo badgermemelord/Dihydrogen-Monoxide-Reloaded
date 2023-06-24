@@ -5,12 +5,15 @@ import io.github.SirWashington.features.NonCachedWater;
 import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import static io.github.SirWashington.properties.WaterFluidProperties.VOLUME;
 
 @Mixin(net.minecraft.item.BucketItem.class)
 public abstract class BucketMixin{
@@ -26,8 +29,10 @@ public abstract class BucketMixin{
         boolean returnValue = false;
         if (!world.isClient) {
             returnValue = NonCachedWater.addWater(8, pos, world);
-            CachedWater.setWaterVolume(CachedWater.volumePerBlock, pos);
+            //CachedWater.setWaterVolume(CachedWater.volumePerBlock, pos);
+            world.setBlockState(pos, Blocks.WATER.getDefaultState().with(VOLUME, 100));
             ChunkHandlingMethods.registerTickTickets(pos.asLong(), world);
+            System.out.println("bucket: " + world.getDimension().getMinimumY());
             ChunkHandlingMethods.scheduleFluidBlock(pos, world);
             return returnValue;
         }
