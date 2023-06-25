@@ -10,25 +10,19 @@ public class FlowFeatureHR {
     public static void execute(BlockPos center) {
         if (!Features.FLOW_FEATURE_ENABLED) return;
 
-        // What is this arraylist?
-
         for (Direction dir : Direction.Type.HORIZONTAL) {
             blocks[CachedWater.countMa()%4] = (center.offset(dir));
         }
 
         int[] waterVolumes = new int[4];
-        //Arrays.fill(waterVolumes, -1);
+
         int volume = CachedWater.getWaterVolume(center);
-        System.out.println("FF original volume: " + volume);
-        System.out.println("FF centre pos: " + center);
+
         for (int i = 0; i < 4; i++) {
             waterVolumes[i] = CachedWater.getWaterVolume(blocks[i]);
-            System.out.println("FF surrounding volumes: i: " + i + " volume: " + waterVolumes[i]);
         }
 
-        int count = 0;
-        int internalVolume;
-        int iterations = 12;
+        int iterations = CachedWater.volumePerBlock/10;
         int adjacentVolume;
 
         for (int e = 0; e <= iterations; e++) {
@@ -36,7 +30,6 @@ public class FlowFeatureHR {
                 adjacentVolume = waterVolumes[i];
                 if (adjacentVolume >= 0) {
                     if (volume > adjacentVolume + 1) {
-                        //System.out.println("FF moved a volume");
                         waterVolumes[i] += 1;
                         volume -=1;
                     }
@@ -44,31 +37,9 @@ public class FlowFeatureHR {
             }
         }
 
-
-
-
-/*        while (count < 4) {
-            for (int i = 0; i < 4; i++) {
-                internalVolume = waterVolumes[i];
-                if (internalVolume != -1) {
-                    if ((volume >= (internalVolume + 2))) {
-                        internalVolume += 1;
-                        waterVolumes[i] = internalVolume;
-                        volume -= 1;
-                        System.out.println("internal : " + volume + "iv: " + internalVolume);
-                    } else {
-                        count += 1;
-                    }
-                } else {
-                    count += 1;
-                }
-            }
-        }*/
         for (int i = 0; i < 4; i++) {
-            System.out.println("FF a " + waterVolumes[i]);
             CachedWater.setWaterVolume(waterVolumes[i], blocks[i]);
         }
-        System.out.println("FF b " + volume);
         CachedWater.setWaterVolume(volume, center);
     }
 

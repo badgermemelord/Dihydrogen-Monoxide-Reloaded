@@ -35,7 +35,7 @@ public class CachedWater {
     public static boolean useSections = true;
     public static boolean useCache = true;
     public static boolean useHighResFlow = true;
-    public static int volumePerBlock = 200;
+    public static int volumePerBlock = 1000;
     public static int divisionValue = (volumePerBlock/8);
     public static int cutOffValue = (volumePerBlock/8)*7;
     private static final Long2ByteMap levelCache = new Long2ByteOpenHashMap();
