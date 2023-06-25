@@ -28,19 +28,22 @@ public class FlowFeatureHR {
 
         int count = 0;
         int internalVolume;
-        int iterations = 10;
+        int iterations = 12;
         int adjacentVolume;
 
-        for (int i = 0; i < 4; i++) {
-            adjacentVolume = waterVolumes[i];
-            if (adjacentVolume >= 0) {
-                if (volume > adjacentVolume + 1) {
-                    System.out.println("FF moved a volume");
-                    waterVolumes[i] += 1;
-                    volume -=1;
+        for (int e = 0; e <= iterations; e++) {
+            for (int i = 0; i < 4; i++) {
+                adjacentVolume = waterVolumes[i];
+                if (adjacentVolume >= 0) {
+                    if (volume > adjacentVolume + 1) {
+                        //System.out.println("FF moved a volume");
+                        waterVolumes[i] += 1;
+                        volume -=1;
+                    }
                 }
             }
         }
+
 
 
 

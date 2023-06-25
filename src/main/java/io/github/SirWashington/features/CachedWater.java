@@ -35,7 +35,9 @@ public class CachedWater {
     public static boolean useSections = true;
     public static boolean useCache = true;
     public static boolean useHighResFlow = true;
-    public static int volumePerBlock = 100;
+    public static int volumePerBlock = 200;
+    public static int divisionValue = (volumePerBlock/8);
+    public static int cutOffValue = (volumePerBlock/8)*7;
     private static final Long2ByteMap levelCache = new Long2ByteOpenHashMap();
     private static final Long2IntMap volumeCache = new Long2IntOpenHashMap();
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
@@ -301,6 +303,7 @@ public class CachedWater {
             }
             else {
                 //setBlockStateNoNeighbors(pos, prev, prev.with(VOLUME, volume));
+                System.out.println("le level: " + getLevelForVolume(volume));
                 setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState().with(VOLUME, volume));
             }
         } else {
@@ -311,7 +314,7 @@ public class CachedWater {
             } else if (volume <= volumePerBlock) {
                 if (volume == volumePerBlock) {
                     if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState());
+                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState().with(VOLUME, volumePerBlock));
                     }
                 } else {
                     if (!(prev.getBlock() instanceof FluidDrainable)) {
@@ -321,7 +324,7 @@ public class CachedWater {
                             //TODO proper waterlogged flow
                         }
                     }
-                    setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState().with(VOLUME, volume));
+                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState().with(VOLUME, volume));
                 }
             } else {
                 System.out.println("HELP THY SOUL Trying to set water volume " + volume);
@@ -372,7 +375,9 @@ public class CachedWater {
             return 8;
         }
         else {
-            return ((volume/125)+1);
+            float divider = (float)volumePerBlock/8;
+            int result = (int)(((float) volume / divider) + 1);
+            return result;
         }
     }
 
