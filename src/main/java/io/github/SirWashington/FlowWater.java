@@ -33,8 +33,10 @@ public class FlowWater {
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
             CachedWater.printVolume(fluidPos);
 
-            if (CachedWater.isInfinite(fluidPos)) {
-                infiniteWaterFlow(world, fluidPos, state);
+            FlowFeatureHR.execute(fluidPos);
+
+/*            if (CachedWater.isInfinite(fluidPos)) {
+                //infiniteWaterFlow(world, fluidPos, state);
             }
             else {
                 if(CachedWater.isInfinite(fluidPos.down())) {
@@ -46,7 +48,7 @@ public class FlowWater {
                 } else {
                     FlowFeatureHR.execute(fluidPos);
                 }
-            }
+            }*/
 
 
 

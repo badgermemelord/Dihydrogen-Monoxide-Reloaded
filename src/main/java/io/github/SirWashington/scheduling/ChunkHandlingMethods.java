@@ -91,7 +91,6 @@ public class ChunkHandlingMethods {
     }
 
     public static void scheduleFluidBlock(BlockPos pos, World world) {
-        System.out.println("block scheduled for world: " + world.getDimension().getMinimumY());
 
         ChunkPos chunkPos = world.getChunk(pos).getPos();
         long chunkPosAsLong = chunkPos.toLong();
