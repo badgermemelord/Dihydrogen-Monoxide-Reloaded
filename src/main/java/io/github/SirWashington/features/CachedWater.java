@@ -367,17 +367,11 @@ public class CachedWater {
     }
 
     public static int getLevelForVolume(int volume) {
-        if (volume <0) {
-            System.out.println("tried to get level for negative");
-        }
-
-        if (volume == volumePerBlock){
+        if (volume >= cutOffValue){
             return 8;
         }
         else {
-            float divider = (float)volumePerBlock/8;
-            int result = (int)(((float) volume / divider) + 1);
-            return result;
+            return (volume/divisionValue)+1;
         }
     }
 

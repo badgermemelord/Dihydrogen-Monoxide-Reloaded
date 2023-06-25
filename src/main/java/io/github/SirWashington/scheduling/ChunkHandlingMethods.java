@@ -198,7 +198,7 @@ public class ChunkHandlingMethods {
     }
 
     public static void registerTickTickets(long fluidPos, World world) {
-        Short defaultStartingTickets = 6;
+        Short defaultStartingTickets = 12;
         //if(!((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet().contains(fluidPos))
             ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, defaultStartingTickets);
     }
