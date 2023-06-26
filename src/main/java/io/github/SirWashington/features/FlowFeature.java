@@ -18,7 +18,7 @@ public class FlowFeature {
 
 
         for (Direction dir : Direction.Type.HORIZONTAL) {
-            blocks[CachedWater.countMa()%4] = (center.offset(dir));
+            //blocks[CachedWater.countMa()%4] = (center.offset(dir));
         }
 
         int[] waterLevels = new int[4];

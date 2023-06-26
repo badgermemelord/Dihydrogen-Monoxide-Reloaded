@@ -44,6 +44,7 @@ public abstract class FlowingWaterloggedMixin {
 
             ServerLoadedChunkInterface.getActiveWorldChunks(this.toServerWorld());
 
+
             CachedWater.tickFluidsInWorld(this.toServerWorld());
 
             CachedWater.afterTick(this.toServerWorld());

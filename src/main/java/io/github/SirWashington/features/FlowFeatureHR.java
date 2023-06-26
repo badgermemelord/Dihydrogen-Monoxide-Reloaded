@@ -3,44 +3,49 @@ package io.github.SirWashington.features;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import static java.lang.Integer.signum;
+
 public class FlowFeatureHR {
 
     public static BlockPos[] blocks = new BlockPos[4];
 
     public static void execute(BlockPos center) {
         if (!Features.FLOW_FEATURE_ENABLED) return;
-
-        for (Direction dir : Direction.Type.HORIZONTAL) {
-            blocks[CachedWater.countMa()%4] = (center.offset(dir));
+        int centerVolume = CachedWater.getWaterVolume(center);
+        fallFeature(center, centerVolume);
+        spreadFeature(center);
+    }
+    public static void spreadFeature(BlockPos center) {
+        pairSubmitter(center);
+    }
+    public static void pairSubmitter(BlockPos center) {
+        BlockPos[] pair = new BlockPos[2];
+        pair[0] = center;
+        for (int a = 0; a < 4; a++) {
+            pair[1] = center.offset(CachedWater.getRandomDirection());
+            equalisePair(pair);
         }
-
-        int[] waterVolumes = new int[4];
-
-        int volume = CachedWater.getWaterVolume(center);
-
-        for (int i = 0; i < 4; i++) {
-            waterVolumes[i] = CachedWater.getWaterVolume(blocks[i]);
-        }
-
-        int iterations = CachedWater.volumePerBlock/10;
-        int adjacentVolume;
-
-        for (int e = 0; e <= iterations; e++) {
-            for (int i = 0; i < 4; i++) {
-                adjacentVolume = waterVolumes[i];
-                if (adjacentVolume >= 0) {
-                    if (volume > adjacentVolume + 1) {
-                        waterVolumes[i] += 1;
-                        volume -=1;
-                    }
-                }
+    }
+    public static void equalisePair(BlockPos[] pair) {
+        int volumeA = CachedWater.getWaterVolume(pair[0]);
+        int volumeB = CachedWater.getWaterVolume(pair[1]);
+        if (volumeA >= 0 && volumeB >= 0) {
+            int difference = volumeA - volumeB;
+            if (difference > 3) {
+                volumeA -= difference >> 2;
+                volumeB += difference >> 2;
+            } else if (difference > 1) {
+                volumeA -= signum(difference);
+                volumeB += signum(difference);
             }
+            CachedWater.setWaterVolume(volumeA, pair[0]);
+            CachedWater.setWaterVolume(volumeB, pair[1]);
         }
-
-        for (int i = 0; i < 4; i++) {
-            CachedWater.setWaterVolume(waterVolumes[i], blocks[i]);
+    }
+    public static void fallFeature(BlockPos center, int centerVolume) {
+        if(CachedWater.isNotFull(center.down())) {
+            CachedWater.addVolume(centerVolume, center.down());
         }
-        CachedWater.setWaterVolume(volume, center);
     }
 
 }

@@ -15,10 +15,12 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,21 +37,32 @@ public class CachedWater {
     public static boolean useSections = true;
     public static boolean useCache = true;
     public static boolean useHighResFlow = true;
-    public static int volumePerBlock = 1000;
+    public static int volumePerBlock = 100;
     public static int divisionValue = (volumePerBlock/8);
     public static int cutOffValue = (volumePerBlock/8)*7;
     private static final Long2ByteMap levelCache = new Long2ByteOpenHashMap();
     private static final Long2IntMap volumeCache = new Long2IntOpenHashMap();
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
+    public static ArrayList<Direction> directionList = new ArrayList<>(4);
     public static World cacheWorld;
 
     public static int a = 0;
-    public static int countMa() {
+    public static void addToCounter() {
         a += 1;
-        return a;
+    }
+
+    public static void setupDirections() {
+        for(Direction dir : Direction.Type.HORIZONTAL) {
+            directionList.add(dir);
+        }
+    }
+    public static Direction getRandomDirection() {
+        addToCounter();
+        return directionList.get((a%4));
     }
     public static void tickFluidsInWorld(World world) {
         cacheWorld = world;
+        setupDirections();
         //System.out.println("world set to " + world.getDimension().getMinimumY());
         //System.out.println("fluidtick with following non-empty chunk longs: ");
         for (long worldChunkLong : ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.keySet()) {
@@ -67,6 +80,7 @@ public class CachedWater {
         TickThisBlock(world, BP);
     }
     public static void TickThisBlock(World world, BlockPos pos) {
+        addToCounter();
         BlockState BS = getBlockState(pos);
         //System.out.println("ticked block");
         //TODO delete BlockState check once other systems are working reliably
@@ -97,12 +111,18 @@ public class CachedWater {
         System.out.println("Water volume: " + state.get(VOLUME));
     }
 
-    public static boolean isNotFull(int waterLevel) {
+/*    public static boolean isNotFull(int waterLevel) {
         return waterLevel < 8 && waterLevel >= 0;
+    }*/
+    public static boolean isNotFull(int waterVolume) {
+        return waterVolume < volumePerBlock && waterVolume >= 0;
     }
 
-    public static boolean isNotFull(BlockPos pos) {
+/*    public static boolean isNotFull(BlockPos pos) {
         return isNotFull(getWaterLevel(pos));
+    }*/
+    public static boolean isNotFull(BlockPos pos) {
+        return isNotFull(getWaterVolume(pos));
     }
 
     public static int getWaterLevelOfState(BlockState state) {
@@ -224,6 +244,21 @@ public class CachedWater {
             setWaterLevel(totalWater, pos);
         }
     }
+
+    public static void addVolume(int volume, BlockPos pos) {
+        int existingWater = getWaterVolume(pos);
+        if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
+
+        int totalWater = existingWater + volume;
+        if (totalWater > volumePerBlock) {
+            addVolume(totalWater - volumePerBlock, pos.up());
+            setWaterVolume(volumePerBlock, pos);
+        } else {
+            setWaterVolume(totalWater, pos);
+            setWaterVolume(0, pos.up());
+        }
+    }
+
 
     public static BlockState getBlockState(BlockPos pos) {
         if (useSections) {
