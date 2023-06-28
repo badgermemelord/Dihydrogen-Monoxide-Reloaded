@@ -37,7 +37,7 @@ public class CachedWater {
     public static boolean useSections = true;
     public static boolean useCache = true;
     public static boolean useHighResFlow = true;
-    public static int volumePerBlock = 100;
+    public static int volumePerBlock = ConfigVariables.volumePerBlock;
     public static int divisionValue = (volumePerBlock/8);
     public static int cutOffValue = (volumePerBlock/8)*7;
     private static final Long2ByteMap levelCache = new Long2ByteOpenHashMap();
@@ -45,8 +45,8 @@ public class CachedWater {
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
     public static ArrayList<Direction> directionList = new ArrayList<>(4);
     //Use n^2 for this setting
-    public static final int equalisingRate = 16;
-    public static final int minimumFlowDifference = 2;
+    //public static final int equalisingRate = ConfigVariables.equalisingRate;
+    //public static final int minimumFlowDifference = 2;
     public static World cacheWorld;
 
     public static int a = 0;

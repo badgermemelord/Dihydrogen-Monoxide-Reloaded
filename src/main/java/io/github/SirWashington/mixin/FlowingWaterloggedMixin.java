@@ -40,38 +40,10 @@ public abstract class FlowingWaterloggedMixin {
         ServerWorld.class.cast(this);
         if(TickSpeedHandler.shouldTick()) {
             ServerWorld.class.cast(this);
-            //System.out.println("deem: " + this.toServerWorld().getDimension());
-
             ServerLoadedChunkInterface.getActiveWorldChunks(this.toServerWorld());
-
-
             CachedWater.tickFluidsInWorld(this.toServerWorld());
-
             CachedWater.afterTick(this.toServerWorld());
         }
-/*        ServerChunkManager chunkSource = this.toServerWorld().getChunkManager();
-        ((ChunkMapAccessor) chunkSource.threadedAnvilChunkStorage).callGetChunkHolder();
-        final List<ChunkHolder> loadedChunksList = Lists.newArrayList(
-                ((ChunkMapAccessor) chunkSource.threadedAnvilChunkStorage).callGetChunkHolder().iterator());
-
-        for (final ChunkHolder chunkHolder : loadedChunksList) {
-            final Optional<WorldChunk> worldChunkOptional =
-                    chunkHolder.getTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();
-            if (worldChunkOptional.isPresent()) {
-                final WorldChunk worldChunk = worldChunkOptional.get();
-            }
-        }*/
-/*    @Inject(at = @At("HEAD"), method = "tickFluid", cancellable = true)
-    private void tickFluid(BlockPos pos, Fluid fluid, CallbackInfo ci) {
-    }
-    @Redirect(at = @At("HEAD"), method = "tickFluid", target = "FluidState.isOf(fluid)")
-    private void tickFluid(BlockPos pos, Fluid fluid) {
-    }
-    @Redirect(method = "tickFluid",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;isOf(Lnet/minecraft/fluid/Fluid;)Z"))
-    private void tickFluid(FluidState instance, Fluid fluid) {
-
-    }*/
     }
 
         /**

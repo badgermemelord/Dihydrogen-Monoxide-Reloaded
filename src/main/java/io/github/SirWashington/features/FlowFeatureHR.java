@@ -16,9 +16,6 @@ public class FlowFeatureHR {
         spreadFeature(center);
     }
     public static void spreadFeature(BlockPos center) {
-        pairSubmitter(center);
-    }
-    public static void pairSubmitter(BlockPos center) {
         BlockPos[] pair = new BlockPos[2];
         pair[0] = center;
         for (int a = 0; a < 4; a++) {
@@ -31,10 +28,10 @@ public class FlowFeatureHR {
         int volumeB = CachedWater.getWaterVolume(pair[1]);
         if (volumeA >= 0 && volumeB >= 0) {
             int difference = volumeA - volumeB;
-            if (difference >= CachedWater.equalisingRate) {
-                volumeA -= difference >> 3;
-                volumeB += difference >> 3;
-            } else if (difference >= CachedWater.minimumFlowDifference) {
+            if (difference >= ConfigVariables.equalisingRate) {
+                volumeA -= difference >> ConfigVariables.equalisingDivider;
+                volumeB += difference >> ConfigVariables.equalisingDivider;
+            } else if (difference >= ConfigVariables.minimumFlowDifference) {
                 volumeA -= signum(difference);
                 volumeB += signum(difference);
             }
