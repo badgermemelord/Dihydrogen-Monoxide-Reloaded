@@ -1,6 +1,7 @@
 package io.github.SirWashington.mixin;
 
 import io.github.SirWashington.features.CachedWater;
+import io.github.SirWashington.features.ConfigVariables;
 import io.github.SirWashington.features.NonCachedWater;
 import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import net.minecraft.block.BlockState;
@@ -28,7 +29,7 @@ public abstract class BucketMixin{
     private boolean bucketPlace(World world, BlockPos pos, BlockState state, int flags) {
         boolean returnValue = false;
         if (!world.isClient) {
-            returnValue = NonCachedWater.addVolume(100, pos, world);
+            returnValue = NonCachedWater.addVolume(ConfigVariables.volumePerBlock, pos, world);
             //CachedWater.setWaterVolume(CachedWater.volumePerBlock, pos);
             //world.setBlockState(pos, Blocks.WATER.getDefaultState().with(VOLUME, CachedWater.volumePerBlock));
             ChunkHandlingMethods.registerTickTickets(pos.asLong(), world);

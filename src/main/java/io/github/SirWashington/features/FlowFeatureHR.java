@@ -44,8 +44,8 @@ public class FlowFeatureHR {
     }
     public static void fallFeature(BlockPos center, int centerVolume) {
         if(CachedWater.isNotFull(center.down())) {
+            CachedWater.setWaterVolume(0, center);
             CachedWater.addVolume(centerVolume, center.down());
         }
     }
-
 }
