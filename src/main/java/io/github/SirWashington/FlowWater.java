@@ -25,12 +25,10 @@ public class FlowWater {
         //Tick Counter
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE
-            CachedWater.setWaterLevel(0, fluidPos);
+            CachedWater.setWaterVolume(0, fluidPos);
         } else {
             FlowWater.world = (ServerWorld) world;
             CachedWater.setup(FlowWater.world, fluidPos);
-            BlockState current = CachedWater.getBlockState(fluidPos);
-            int centerLevel = CachedWater.getWaterLevel(fluidPos);
             CachedWater.printVolume(fluidPos);
 
             FlowFeatureHR.execute(fluidPos);

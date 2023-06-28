@@ -31,10 +31,10 @@ public class FlowFeatureHR {
         int volumeB = CachedWater.getWaterVolume(pair[1]);
         if (volumeA >= 0 && volumeB >= 0) {
             int difference = volumeA - volumeB;
-            if (difference > 3) {
-                volumeA -= difference >> 2;
-                volumeB += difference >> 2;
-            } else if (difference > 1) {
+            if (difference >= CachedWater.equalisingRate) {
+                volumeA -= difference >> 3;
+                volumeB += difference >> 3;
+            } else if (difference >= CachedWater.minimumFlowDifference) {
                 volumeA -= signum(difference);
                 volumeB += signum(difference);
             }

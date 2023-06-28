@@ -18,6 +18,18 @@ public class NonCachedWater {
         }
     }
 
+    public static boolean addVolume(int volume, BlockPos pos, World world) {
+        setup(world);
+        try {
+            CachedWater.addVolume(volume, pos);
+            return true;
+        } catch (IllegalStateException e) {
+            return false;
+        } finally {
+            unSetup();
+        }
+    }
+
 
 
     public static int getLevel(BlockPos pos, World world) {

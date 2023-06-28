@@ -44,6 +44,9 @@ public class CachedWater {
     private static final Long2IntMap volumeCache = new Long2IntOpenHashMap();
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
     public static ArrayList<Direction> directionList = new ArrayList<>(4);
+    //Use n^2 for this setting
+    public static final int equalisingRate = 16;
+    public static final int minimumFlowDifference = 2;
     public static World cacheWorld;
 
     public static int a = 0;
@@ -312,7 +315,6 @@ public class CachedWater {
     // VOLUME RELATED CODE
 
     public static void setWaterVolume(int volume, BlockPos pos) {
-        System.out.println("volume to set: " + volume);
         if (useCache) {
             volumeCache.put(pos.asLong(), volume);
             queuedWaterVolumes.put(pos.asLong(), volume);
@@ -331,14 +333,11 @@ public class CachedWater {
                 volume < 0;
 
         if (prev.contains(VOLUME)) {
-            System.out.println("le volume: " + volume);
-            System.out.println("le blocke: " + prev.getBlock().toString());
             if(volume == 0) {
                 setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
             }
             else {
                 //setBlockStateNoNeighbors(pos, prev, prev.with(VOLUME, volume));
-                System.out.println("le level: " + getLevelForVolume(volume));
                 setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState().with(VOLUME, volume));
             }
         } else {

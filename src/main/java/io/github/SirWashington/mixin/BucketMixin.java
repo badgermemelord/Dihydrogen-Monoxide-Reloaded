@@ -28,9 +28,9 @@ public abstract class BucketMixin{
     private boolean bucketPlace(World world, BlockPos pos, BlockState state, int flags) {
         boolean returnValue = false;
         if (!world.isClient) {
-            returnValue = NonCachedWater.addWater(8, pos, world);
+            returnValue = NonCachedWater.addVolume(100, pos, world);
             //CachedWater.setWaterVolume(CachedWater.volumePerBlock, pos);
-            world.setBlockState(pos, Blocks.WATER.getDefaultState().with(VOLUME, CachedWater.volumePerBlock));
+            //world.setBlockState(pos, Blocks.WATER.getDefaultState().with(VOLUME, CachedWater.volumePerBlock));
             ChunkHandlingMethods.registerTickTickets(pos.asLong(), world);
             ChunkHandlingMethods.scheduleFluidBlock(pos, world);
             return returnValue;
