@@ -24,7 +24,12 @@ public class FlowWater {
         } else {
             FlowWater.world = (ServerWorld) world;
             CachedWater.setup(FlowWater.world, fluidPos);
-            FlowFeatureHR.execute(fluidPos);
+            if (CachedWater.getWaterVolume(fluidPos) == ConfigVariables.puddleThreshold && !CachedWater.isNotFull(fluidPos.down())) {
+                PuddleFeatureHR.execute(fluidPos);
+            }
+            else {
+                FlowFeatureHR.execute(fluidPos);
+            }
         }
     }
 }
