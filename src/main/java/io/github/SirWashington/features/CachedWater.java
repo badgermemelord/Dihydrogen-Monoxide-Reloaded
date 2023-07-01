@@ -27,12 +27,10 @@ import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.LongToIntFunction;
 
 import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
 import static io.github.SirWashington.properties.WaterFluidProperties.*;
-import static io.github.SirWashington.properties.WaterFluidProperties.VOLUME;
 
 public class CachedWater {
 
@@ -109,10 +107,6 @@ public class CachedWater {
         BlockState state = getBlockState(pos);
         return (state.contains(ISFINITE) && !state.get(ISFINITE));
     }
-    public static void printVolume(BlockPos pos) {
-        BlockState state = getBlockState(pos);
-        System.out.println("Water volume: " + state.get(VOLUME));
-    }
 
 /*    public static boolean isNotFull(int waterLevel) {
         return waterLevel < 8 && waterLevel >= 0;
@@ -131,9 +125,11 @@ public class CachedWater {
     public static int getWaterLevelOfState(BlockState state) {
         if (state.isAir())
             return (byte) 0;
+
         if (state.contains(ISFINITE) && !state.get(ISFINITE)) {
             return (byte) -2;
         }
+
         if (state.contains(WATER_LEVEL))
             return state.get(WATER_LEVEL);
 
@@ -147,6 +143,7 @@ public class CachedWater {
         } else {
             waterLevel = fluidstate.getLevel();
         }
+
         return waterLevel;
     }
 
@@ -198,42 +195,7 @@ public class CachedWater {
     }
 
     private static void setWaterLevelDirect(int level, BlockPos pos) {
-        BlockState prev = getBlockState(pos);
-
-
-
-        assert  prev.isAir() ||
-            prev.contains(WATER_LEVEL) ||
-            !prev.getFluidState().isEmpty() ||
-            level < 0;
-
-        if (prev.contains(WATER_LEVEL)) {
-            setBlockStateNoNeighbors(pos, prev, prev.with(WATER_LEVEL, level));
-        } else {
-            if (level == 0) {
-                setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
-            } else if (level < 0) {
-                // System.out.println("Trying to set waterlevel " + level);
-            } else if (level <= 8) {
-                if (level == 8) {
-                    if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState());
-                    }
-                } else {
-                    if (!(prev.getBlock() instanceof FluidDrainable)) {
-                        cacheWorld.breakBlock(pos, true);
-                    } else {
-                        if (prev.getBlock() instanceof Waterloggable) {
-                            //TODO proper waterlogged flow
-                        }
-                    }
-
-                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(level, false).getBlockState());
-                }
-            } else {
-                System.out.println("HELP THY SOUL Trying to set waterlevel " + level);
-            }
-        }
+        setWaterVolume(level * WaterVolume.volumePerLevel, pos);
     }
 
 
@@ -343,16 +305,14 @@ public class CachedWater {
         water.setWaterVolume(pos, (short) volume);
 
         assert  prev.isAir() ||
-                prev.contains(VOLUME) ||
                 !prev.getFluidState().isEmpty() ||
                 volume < 0;
 
-        if (prev.contains(VOLUME)) {
+        if (isWater(prev)) {
             if(volume == 0) {
                 setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
             } else {
-                //setBlockStateNoNeighbors(pos, prev, prev.with(VOLUME, volume));
-                setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState().with(VOLUME, volume));
+                setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState());
             }
         } else {
             if (volume == 0) {
@@ -362,7 +322,7 @@ public class CachedWater {
             } else if (volume <= WaterVolume.volumePerBlock) {
                 if (volume == WaterVolume.volumePerBlock) {
                     if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState().with(VOLUME, (int) WaterVolume.volumePerBlock));
+                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState());
                     }
                 } else {
                     if (!(prev.getBlock() instanceof FluidDrainable)) {
@@ -372,7 +332,8 @@ public class CachedWater {
                             //TODO proper waterlogged flow
                         }
                     }
-                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState().with(VOLUME, volume));
+
+                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState());
                 }
             } else {
                 System.out.println("HELP THY SOUL Trying to set water volume " + volume);
@@ -388,14 +349,18 @@ public class CachedWater {
                     getChunkSection(ChunkSectionPos.from(ipos))
             ).getSectionStorage(WaterSection.ID);
 
-            if (water == null) return 0;
+            if (water == null) {
+                BlockState state = getBlockState(BlockPos.fromLong(pos));
+                return WaterVolume.getWaterVolumeOfState(state);
+            }
+
             short volume = water.getWaterVolume(ipos);
             if (volume == Short.MIN_VALUE) {
                 BlockState state = getBlockState(BlockPos.fromLong(pos));
                 volume = WaterVolume.getWaterVolumeOfState(state);
                 water.setWaterVolume(ipos, volume);
             }
-            System.out.println(volume);
+
             return volume;
         };
 
@@ -408,7 +373,7 @@ public class CachedWater {
         if (volume >= WaterVolume.cutOffValue){
             return 8;
         } else {
-            return (volume/WaterVolume.divisionValue)+1;
+            return (volume/WaterVolume.volumePerLevel)+1;
         }
     }
 
