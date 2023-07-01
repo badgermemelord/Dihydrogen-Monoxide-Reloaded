@@ -2,7 +2,7 @@ package io.github.SirWashington.features;
 
 public class ConfigVariables {
     //How many internal water levels there are in a full block of water.
-    public static final int volumePerBlock = 100;
+    public static final int volumePerBlock = 1000;
     //Only use powers of 2 for this setting, controls the rate at which a pair of blocks equalises.
     public static final int equalisingRate = 4;
     //Log2 of equalisingRate, used for internal bit shift division.

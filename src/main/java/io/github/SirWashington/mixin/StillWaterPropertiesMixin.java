@@ -16,7 +16,6 @@ public abstract class StillWaterPropertiesMixin {
     @Inject(at = @At("TAIL"), method = "appendProperties", cancellable = true)
     protected void appendProperties(StateManager.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {
         builder.add(WaterFluidProperties.ISFINITE);
-        builder.add(WaterFluidProperties.VOLUME);
     }
 /*    @Inject(at = @At("HEAD"), method = "appendProperties", cancellable = true)
     protected void appendProperties(StateManager.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {

@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import static io.github.SirWashington.properties.WaterFluidProperties.VOLUME;
 
 @Mixin(net.minecraft.item.BucketItem.class)
 public abstract class BucketMixin{
@@ -38,6 +37,4 @@ public abstract class BucketMixin{
             return returnValue;
         }
     }
-
-
 }
