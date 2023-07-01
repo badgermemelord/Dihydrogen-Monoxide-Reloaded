@@ -2,6 +2,7 @@ package io.github.SirWashington.features;
 
 import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.WaterSection;
+import io.github.SirWashington.WaterVolume;
 import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import io.github.SirWashington.scheduling.MixinInterfaces;
 import it.unimi.dsi.fastutil.longs.*;
@@ -39,9 +40,6 @@ public class CachedWater {
 
     public static boolean useSections = true;
     public static boolean useCache = true;
-    public static int volumePerBlock = ConfigVariables.volumePerBlock;
-    public static int divisionValue = (volumePerBlock/8);
-    public static int cutOffValue = (volumePerBlock/8)*7;
     private static final Long2ByteMap levelCache = new Long2ByteOpenHashMap();
     private static final Long2IntMap volumeCache = new Long2IntOpenHashMap();
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
@@ -120,7 +118,7 @@ public class CachedWater {
         return waterLevel < 8 && waterLevel >= 0;
     }*/
     public static boolean isNotFull(int waterVolume) {
-        return waterVolume < volumePerBlock && waterVolume >= 0;
+        return waterVolume < WaterVolume.volumePerBlock && waterVolume >= 0;
     }
 
 /*    public static boolean isNotFull(BlockPos pos) {
@@ -309,9 +307,9 @@ public class CachedWater {
         if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
 
         int totalWater = existingWater + volume;
-        if (totalWater > volumePerBlock) {
-            addVolume(totalWater - volumePerBlock, pos.up());
-            setWaterVolume(volumePerBlock, pos);
+        if (totalWater > WaterVolume.volumePerBlock) {
+            addVolume(totalWater - WaterVolume.volumePerBlock, pos.up());
+            setWaterVolume(WaterVolume.volumePerBlock, pos);
         } else {
             setWaterVolume(totalWater, pos);
             setWaterVolume(0, pos.up());
@@ -361,10 +359,10 @@ public class CachedWater {
                 setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
             } else if (volume < 0) {
 
-            } else if (volume <= volumePerBlock) {
-                if (volume == volumePerBlock) {
+            } else if (volume <= WaterVolume.volumePerBlock) {
+                if (volume == WaterVolume.volumePerBlock) {
                     if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState().with(VOLUME, volumePerBlock));
+                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState().with(VOLUME, (int) WaterVolume.volumePerBlock));
                     }
                 } else {
                     if (!(prev.getBlock() instanceof FluidDrainable)) {
@@ -382,28 +380,6 @@ public class CachedWater {
         }
     }
 
-    public static int getWaterVolumeOfState(BlockState state) {
-        if (state.isAir())
-            return 0;
-/*        if (state.getBlock() != Blocks.WATER)
-            return 0;*/
-        if (state.contains(VOLUME))
-            return state.get(VOLUME);
-
-        FluidState fluidstate = state.getFluidState();
-        if (fluidstate == Fluids.EMPTY.getDefaultState())
-            return -1;
-
-        int waterVolume;
-        if (fluidstate.isStill()) {
-            waterVolume = volumePerBlock;
-        } else {
-            waterVolume = fluidstate.get(VOLUME);
-            //System.out.println("e");
-        }
-        return waterVolume;
-    }
-
     public static int getWaterVolume(BlockPos ipos) {
         LongToIntFunction func = pos -> {
 
@@ -416,7 +392,7 @@ public class CachedWater {
             short volume = water.getWaterVolume(ipos);
             if (volume == Short.MIN_VALUE) {
                 BlockState state = getBlockState(BlockPos.fromLong(pos));
-                volume = (short) getWaterVolumeOfState(state);
+                volume = WaterVolume.getWaterVolumeOfState(state);
                 water.setWaterVolume(ipos, volume);
             }
             System.out.println(volume);
@@ -429,10 +405,10 @@ public class CachedWater {
     }
 
     public static int getLevelForVolume(int volume) {
-        if (volume >= cutOffValue){
+        if (volume >= WaterVolume.cutOffValue){
             return 8;
         } else {
-            return (volume/divisionValue)+1;
+            return (volume/WaterVolume.divisionValue)+1;
         }
     }
 
