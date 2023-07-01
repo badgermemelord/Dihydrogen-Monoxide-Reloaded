@@ -1,6 +1,7 @@
 package io.github.SirWashington.features;
 
 import io.github.SirWashington.FlowWater;
+import io.github.SirWashington.WaterSection;
 import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import io.github.SirWashington.scheduling.MixinInterfaces;
 import it.unimi.dsi.fastutil.longs.*;
@@ -19,6 +20,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
+import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
+import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -199,6 +202,8 @@ public class CachedWater {
     private static void setWaterLevelDirect(int level, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
+
+
         assert  prev.isAir() ||
             prev.contains(WATER_LEVEL) ||
             !prev.getFluidState().isEmpty() ||
@@ -244,20 +249,6 @@ public class CachedWater {
             setWaterLevel(8, pos);
         } else {
             setWaterLevel(totalWater, pos);
-        }
-    }
-
-    public static void addVolume(int volume, BlockPos pos) {
-        int existingWater = getWaterVolume(pos);
-        if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
-
-        int totalWater = existingWater + volume;
-        if (totalWater > volumePerBlock) {
-            addVolume(totalWater - volumePerBlock, pos.up());
-            setWaterVolume(volumePerBlock, pos);
-        } else {
-            setWaterVolume(totalWater, pos);
-            setWaterVolume(0, pos.up());
         }
     }
 
@@ -313,6 +304,20 @@ public class CachedWater {
 
     // VOLUME RELATED CODE
 
+    public static void addVolume(int volume, BlockPos pos) {
+        int existingWater = getWaterVolume(pos);
+        if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
+
+        int totalWater = existingWater + volume;
+        if (totalWater > volumePerBlock) {
+            addVolume(totalWater - volumePerBlock, pos.up());
+            setWaterVolume(volumePerBlock, pos);
+        } else {
+            setWaterVolume(totalWater, pos);
+            setWaterVolume(0, pos.up());
+        }
+    }
+
     public static void setWaterVolume(int volume, BlockPos pos) {
         if (useCache) {
             volumeCache.put(pos.asLong(), volume);
@@ -326,6 +331,19 @@ public class CachedWater {
     private static void setWaterVolumeDirect(int volume, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
+        WaterSection water = (WaterSection) ((ExtraStorageSectionContainer)
+                getChunkSection(ChunkSectionPos.from(pos))
+        ).getSectionStorage(WaterSection.ID);
+
+        if (water == null) {
+            water = new WaterSection();
+            ((ExtraStorageSectionContainer)
+                    getChunkSection(ChunkSectionPos.from(pos))
+            ).setSectionStorage(WaterSection.ID, water);
+        }
+
+        water.setWaterVolume(pos, (short) volume);
+
         assert  prev.isAir() ||
                 prev.contains(VOLUME) ||
                 !prev.getFluidState().isEmpty() ||
@@ -334,8 +352,7 @@ public class CachedWater {
         if (prev.contains(VOLUME)) {
             if(volume == 0) {
                 setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
-            }
-            else {
+            } else {
                 //setBlockStateNoNeighbors(pos, prev, prev.with(VOLUME, volume));
                 setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState().with(VOLUME, volume));
             }
@@ -389,9 +406,21 @@ public class CachedWater {
 
     public static int getWaterVolume(BlockPos ipos) {
         LongToIntFunction func = pos -> {
-            BlockState state = getBlockState(BlockPos.fromLong(pos));
+
             //return getWaterLevelOfState(state);
-            return getWaterVolumeOfState(state);
+            WaterSection water = (WaterSection) ((ExtraStorageSectionContainer)
+                    getChunkSection(ChunkSectionPos.from(ipos))
+            ).getSectionStorage(WaterSection.ID);
+
+            if (water == null) return 0;
+            short volume = water.getWaterVolume(ipos);
+            if (volume == Short.MIN_VALUE) {
+                BlockState state = getBlockState(BlockPos.fromLong(pos));
+                volume = (short) getWaterVolumeOfState(state);
+                water.setWaterVolume(ipos, volume);
+            }
+            System.out.println(volume);
+            return volume;
         };
 
         if (useCache) {
@@ -402,8 +431,7 @@ public class CachedWater {
     public static int getLevelForVolume(int volume) {
         if (volume >= cutOffValue){
             return 8;
-        }
-        else {
+        } else {
             return (volume/divisionValue)+1;
         }
     }

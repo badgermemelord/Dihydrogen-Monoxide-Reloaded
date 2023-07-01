@@ -7,9 +7,11 @@ import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
 
 public class WaterPhysics implements ModInitializer {
-
+    public static final String ID = "immersivefluids";
     public static final IntProperty WATER_LEVEL = IntProperty.of("water_level", 0, 8);
 
 
@@ -37,6 +39,13 @@ public class WaterPhysics implements ModInitializer {
                                 }
                             })));
         });
+
+        ExtraSectionStorage.Companion.register(WaterSection.ID, WaterSection::read);
+
         PerfTests.init();
+    }
+
+    public static Identifier resource(String s) {
+        return new Identifier(ID, s);
     }
 }
