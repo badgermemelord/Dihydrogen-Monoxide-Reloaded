@@ -302,8 +302,6 @@ public class CachedWater {
             ).setSectionStorage(WaterSection.ID, water);
         }
 
-        water.setWaterVolume(pos, (short) volume);
-
         assert  prev.isAir() ||
                 !prev.getFluidState().isEmpty() ||
                 volume < 0;
@@ -332,13 +330,15 @@ public class CachedWater {
                             //TODO proper waterlogged flow
                         }
                     }
-
+                    //Setting level equivalent of volume for visual
                     setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState());
                 }
             } else {
                 System.out.println("HELP THY SOUL Trying to set water volume " + volume);
             }
         }
+
+        water.setWaterVolume(pos, (short) volume);
     }
 
     public static int getWaterVolume(BlockPos ipos) {

@@ -15,7 +15,7 @@ public class WaterVolume {
             return 0;
 
         FluidState fluidstate = state.getFluidState();
-        if (fluidstate == Fluids.EMPTY.getDefaultState())
+        if (fluidstate.isEmpty())
             return -1;
 
         return (short) (fluidstate.getLevel() * volumePerLevel);
