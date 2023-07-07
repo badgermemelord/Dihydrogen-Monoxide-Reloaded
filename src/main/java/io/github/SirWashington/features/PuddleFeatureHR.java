@@ -98,7 +98,7 @@ public class PuddleFeatureHR {
         CachedWater.addVolume(level, pos.offset(direction));
     }
 
-    // its actual test rect but ssssh...
+    // its actually test rect but ssssh...
     private static void testLine(int x, int z, int toX, int toZ) {
         BlockPos testPos;
 
@@ -108,8 +108,7 @@ public class PuddleFeatureHR {
                 int relZ = iZ-zZ;
                 testPos = new BlockPos(iX, pos.getY() - 1, iZ);
                 int uLevel = CachedWater.getWaterVolume(new BlockPos(iX, pos.getY(), iZ));
-                //changed isnotfull ver
-                if (CachedWater.isNotFull(testPos) && (uLevel == 0 || (uLevel <= ConfigVariables.puddleThreshold) && uLevel > 0)) {
+                if (CachedWater.isNotFull(testPos) && (uLevel <= ConfigVariables.puddleThreshold && uLevel >= 0)) {
                     holes.add(new PathfinderBFS.Node(relX, relZ, 0));
                 }
             }
