@@ -20,6 +20,7 @@ public class PuddleFeatureHR {
     public static void execute(BlockPos center) {
         if (!Features.PUDDLE_FEATURE_ENABLED) return;
         pos = center;
+        int level = CachedWater.getWaterVolume(pos);
 
             int x = pos.getX();
             int y = pos.getY();
@@ -57,12 +58,12 @@ public class PuddleFeatureHR {
 
                 bfsMatrix[4][4] = -3;
 
-                if (holeFound(holes))
+                if (holeFound(holes, level))
                     break;
             }
     }
 
-    private static boolean holeFound(List<PathfinderBFS.Node> holes) {
+    private static boolean holeFound(List<PathfinderBFS.Node> holes, int level) {
         int[][] result = PathfinderBFS.distanceMapperBFS(bfsMatrix, holes);
 
         int minDistance = 255;
@@ -86,15 +87,15 @@ public class PuddleFeatureHR {
         }
 
         if (minDistance <= 4 && direction != null) {
-            move(direction);
+            move(direction, level);
             return true;
         }
         return false;
     }
 
-    private static void move(Direction direction) {
+    private static void move(Direction direction, int level) {
         CachedWater.setWaterVolume(0, pos);
-        CachedWater.addVolume(ConfigVariables.puddleThreshold, pos.offset(direction));
+        CachedWater.addVolume(level, pos.offset(direction));
     }
 
     // its actual test rect but ssssh...
@@ -108,7 +109,7 @@ public class PuddleFeatureHR {
                 testPos = new BlockPos(iX, pos.getY() - 1, iZ);
                 int uLevel = CachedWater.getWaterVolume(new BlockPos(iX, pos.getY(), iZ));
                 //changed isnotfull ver
-                if (CachedWater.isNotFull(testPos) && (uLevel == 0 || uLevel == ConfigVariables.puddleThreshold)) {
+                if (CachedWater.isNotFull(testPos) && (uLevel == 0 || (uLevel <= ConfigVariables.puddleThreshold) && uLevel > 0)) {
                     holes.add(new PathfinderBFS.Node(relX, relZ, 0));
                 }
             }

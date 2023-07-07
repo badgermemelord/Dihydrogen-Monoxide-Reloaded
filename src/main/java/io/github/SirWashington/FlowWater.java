@@ -1,14 +1,10 @@
 package io.github.SirWashington;
 
 import io.github.SirWashington.features.*;
-import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
-
-import static io.github.SirWashington.properties.WaterFluidProperties.ISFINITE;
 
 
 public class FlowWater {
@@ -24,7 +20,7 @@ public class FlowWater {
         } else {
             FlowWater.world = (ServerWorld) world;
             CachedWater.setup(FlowWater.world, fluidPos);
-            if (CachedWater.getWaterVolume(fluidPos) == ConfigVariables.puddleThreshold && !CachedWater.isNotFull(fluidPos.down())) {
+            if (CachedWater.getWaterVolume(fluidPos) <= ConfigVariables.puddleThreshold && !CachedWater.isNotFull(fluidPos.down())) {
                 PuddleFeatureHR.execute(fluidPos);
             }
             else {

@@ -9,8 +9,10 @@ public class ConfigVariables {
     public static final int equalisingDivider = 2;
     //Minimum water volume difference for flowing between a pair to happen.
     public static final int minimumFlowDifference = 2;
+    //Smallest water blocks that can be created, acts like surface tension.
+    public static final int surfaceTension = 20;
     //Threshold below which a water block will be considered a puddle.
-    public static final int puddleThreshold = 20;
+    public static final int puddleThreshold = surfaceTension*equalisingRate;
     //Divider, dictates the tick rate of water. 2 = 1 in every 2 game ticks.
     public static int tickRate = 2;
 
