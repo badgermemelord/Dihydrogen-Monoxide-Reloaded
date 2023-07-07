@@ -10,7 +10,7 @@ public class ConfigVariables {
     //Minimum water volume difference for flowing between a pair to happen.
     public static final int minimumFlowDifference = 2;
     //Threshold below which a water block will be considered a puddle.
-    public static final int puddleThreshold = 1;
+    public static final int puddleThreshold = 20;
     //Divider, dictates the tick rate of water. 2 = 1 in every 2 game ticks.
     public static int tickRate = 2;
 
