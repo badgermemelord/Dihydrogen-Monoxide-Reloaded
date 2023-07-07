@@ -34,9 +34,7 @@ public abstract class ServerWorldMixin implements MixinInterfaces.DuckInterface 
 
     @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
     public void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        ServerWorld.class.cast(this);
         if (TickSpeedHandler.shouldTick()) {
-            ServerWorld.class.cast(this);
             ServerLoadedChunkInterface.getActiveWorldChunks((ServerWorld) (Object) this);
             CachedWater.tickFluidsInWorld((ServerWorld) (Object) this);
             CachedWater.afterTick((ServerWorld) (Object) this);
