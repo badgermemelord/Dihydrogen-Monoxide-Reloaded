@@ -10,7 +10,6 @@
     "DensityFunctionInvoker",
     "FlowingLavaMixin",
     "FlowingMixin",
-    "FlowingWaterLoggedMixin",
     "GenerationShapeConfigInvoker",
     "LavaFluidMixin",
     "PaneBlockMixin",

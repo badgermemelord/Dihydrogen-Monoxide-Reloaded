@@ -291,15 +291,12 @@ public class CachedWater {
     private static void setWaterVolumeDirect(int volume, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
-        WaterSection water = (WaterSection) ((ExtraStorageSectionContainer)
-                getChunkSection(ChunkSectionPos.from(pos))
-        ).getSectionStorage(WaterSection.ID);
+        ChunkSection section = getChunkSection(ChunkSectionPos.from(pos));
+        WaterSection water = (WaterSection) ((ExtraStorageSectionContainer) section).getSectionStorage(WaterSection.ID);
 
         if (water == null) {
-            water = new WaterSection();
-            ((ExtraStorageSectionContainer)
-                    getChunkSection(ChunkSectionPos.from(pos))
-            ).setSectionStorage(WaterSection.ID, water);
+            water = new WaterSection(section);
+            ((ExtraStorageSectionContainer) section).setSectionStorage(WaterSection.ID, water);
         }
 
         assert  prev.isAir() ||
@@ -425,6 +422,9 @@ public class CachedWater {
     }
 
     public static void afterTick(ServerWorld serverWorld) {
+        if(serverWorld.getDimension().getMinimumY() != 64) {
+            return;
+        }
         // TODO cache per dimension
         levelCache.clear();
         volumeCache.clear();

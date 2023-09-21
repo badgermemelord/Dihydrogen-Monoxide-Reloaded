@@ -40,7 +40,7 @@ public class WaterPhysics implements ModInitializer {
                             })));
         });
 
-        ExtraSectionStorage.Companion.register(WaterSection.ID, WaterSection::read);
+        ExtraSectionStorage.Companion.register(WaterSection.ID, WaterSection::read, true, WaterSection::readPacket);
 
         PerfTests.init();
     }

@@ -3,30 +3,68 @@ package io.github.SirWashington;
 import io.github.SirWashington.features.CachedWater;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.chunk.ChunkSection;
 import org.jetbrains.annotations.NotNull;
 import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 public class WaterSection implements ExtraSectionStorage {
     public static final Identifier ID = WaterPhysics.resource("water");
     private final short[] water = new short[16*16*16];
 
-    public WaterSection() {
+    public WaterSection(ChunkSection section) {
         Arrays.fill(water, Short.MIN_VALUE);
+        if (section.hasAny((bs) -> !bs.getFluidState().isEmpty())) {
+            for (int x = 0; x < 16; x++) {
+                for (int y = 0; y < 16; y++) {
+                    for (int z = 0; z < 16; z++) {
+                        if (!section.getFluidState(x, y, z).isEmpty()) {
+                            setWaterVolume(x, y, z, WaterVolume.volumePerBlock);
+                        } else {
+                            setWaterVolume(x, y, z, (short) (section.getBlockState(x, y, z).isAir() ? 0 : -1));
+                        }
+                    }
+                }
+            }
+        }
     }
 
+    private WaterSection(ShortBuffer shorts, ChunkSection section) {
+        shorts.get(water);
+    }
 
     @NotNull
     @Override
-    public NbtCompound writeNBT(@NotNull NbtCompound nbtCompound) {
+    public NbtCompound writeNBT(@NotNull NbtCompound nbtCompound, @NotNull ChunkSection section) {
+        byte[] buffer = new byte[water.length * 2];
+        for (int i = 0; i < water.length; i++) {
+            buffer[i * 2] = (byte) (water[i] & 0xFF);
+            buffer[i * 2 + 1] = (byte) ((water[i] >> 8) & 0xFF);
+        }
+
+        nbtCompound.putByteArray("water", buffer);
         return nbtCompound;
     }
 
-    public static WaterSection read(NbtCompound nbt) {
-        return new WaterSection();
+    @Override
+    public PacketByteBuf writePacket(@NotNull PacketByteBuf packetByteBuf, @NotNull ChunkSection chunkSection) {
+        return packetByteBuf;
+    }
+
+    public static WaterSection read(NbtCompound nbt, ChunkSection section) {
+        var bytes = nbt.getByteArray("water");
+        return new WaterSection(ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer(), section);
+    }
+
+    public static WaterSection readPacket(PacketByteBuf nbt, ChunkSection section) {
+        return new WaterSection(section); // TODO
     }
 
     public short getWaterVolume(BlockPos pos) {
