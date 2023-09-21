@@ -43,7 +43,7 @@ public abstract class ServerWorldMixin implements MixinInterfaces.DuckInterface 
 
     /**
      * @author SirWashington
-     * @reason I am de captain now
+     * @reason Vanilla fluid ticking is relieved of its duty
      */
     @Overwrite
     private void tickFluid(BlockPos pos, Fluid fluid) {

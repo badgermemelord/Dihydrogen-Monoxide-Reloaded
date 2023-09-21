@@ -38,7 +38,6 @@ public class CachedWater {
 
     public static boolean useSections = true;
     public static boolean useCache = true;
-    private static final Long2ByteMap levelCache = new Long2ByteOpenHashMap();
     private static final Long2IntMap volumeCache = new Long2IntOpenHashMap();
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
     public static ArrayList<Direction> directionList = new ArrayList<>(4);
@@ -83,24 +82,11 @@ public class CachedWater {
     public static void TickThisBlock(World world, BlockPos pos) {
         addToCounter();
         BlockState BS = getBlockState(pos);
-        //System.out.println("ticked block");
+        System.out.println("ticked block: " + pos);
         //TODO delete BlockState check once other systems are working reliably
-        if (BS.getBlock() == Blocks.WATER) {
+        if (getWaterVolume(pos) > 0) {
             FlowWater.flowWater(world, pos, BS.getFluidState());
         }
-    }
-    
-    
-
-    public static int getWaterLevel(BlockPos ipos) {
-        LongToIntFunction func = pos -> {
-            BlockState state = getBlockState(BlockPos.fromLong(pos));
-            return (byte) getWaterLevelOfState(state);
-        };
-
-        if (useCache) {
-            return levelCache.computeIfAbsent(ipos.asLong(), func);
-        } else return func.applyAsInt(ipos.asLong());
     }
 
     public static boolean isInfinite(BlockPos pos) {
@@ -108,109 +94,26 @@ public class CachedWater {
         return (state.contains(ISFINITE) && !state.get(ISFINITE));
     }
 
-/*    public static boolean isNotFull(int waterLevel) {
-        return waterLevel < 8 && waterLevel >= 0;
-    }*/
     public static boolean isNotFull(int waterVolume) {
         return waterVolume < WaterVolume.volumePerBlock && waterVolume >= 0;
     }
 
-/*    public static boolean isNotFull(BlockPos pos) {
-        return isNotFull(getWaterLevel(pos));
-    }*/
     public static boolean isNotFull(BlockPos pos) {
         return isNotFull(getWaterVolume(pos));
     }
 
-    public static int getWaterLevelOfState(BlockState state) {
-        if (state.isAir())
-            return (byte) 0;
-
-        if (state.contains(ISFINITE) && !state.get(ISFINITE)) {
-            return (byte) -2;
-        }
-
-        if (state.contains(WATER_LEVEL))
-            return state.get(WATER_LEVEL);
-
-        FluidState fluidstate = state.getFluidState();
-        if (fluidstate == Fluids.EMPTY.getDefaultState())
-            return (byte) -1;
-
-        int waterLevel;
-        if (fluidstate.isStill()) {
-            waterLevel = 8;
-        } else {
-            waterLevel = fluidstate.getLevel();
-        }
-
-        return waterLevel;
+    public static boolean isFlowable(BlockPos pos) {
+        return getWaterVolume(pos) >= 0;
     }
-
-    public static int getWaterLevelForPF(BlockPos pos) {
-        BlockState state = getBlockState(pos);
-        if (state.isAir())
-            return (byte) 0;
-        if (state.contains(ISFINITE) && !state.get(ISFINITE)) {
-            return (byte) 1;
-        }
-        if (state.contains(WATER_LEVEL))
-            return state.get(WATER_LEVEL);
-
-        FluidState fluidstate = state.getFluidState();
-        if (fluidstate == Fluids.EMPTY.getDefaultState())
-            return (byte) -1;
-
-        int waterLevel;
-        if (fluidstate.isStill()) {
-            waterLevel = 8;
-        } else {
-            waterLevel = fluidstate.getLevel();
-        }
-        return waterLevel;
-    }
-
 
     public static boolean isWater(BlockState state) {
         return !state.isAir() && (state.getFluidState() != Fluids.EMPTY.getDefaultState()) && !state.contains(Properties.WATERLOGGED);
     }
 
-    private static final Long2ByteMap queuedWaterLevels = new Long2ByteOpenHashMap();
     private static final Long2IntMap queuedWaterVolumes = new Long2IntOpenHashMap();
 
-    //private static final ConcurrentHashMap<Long, > queuedWaterLevels = new ConcurrentHashMap();
-
-    static {
-        queuedWaterLevels.defaultReturnValue((byte) -1);
-    }
-
-    public static void setWaterLevel(int level, BlockPos pos) {
-        if (useCache) {
-            levelCache.put(pos.asLong(), (byte) level);
-            queuedWaterLevels.put(pos.asLong(), (byte) level);
-        } else {
-            setWaterLevelDirect(level, pos);
-            levelCache.remove(pos.asLong());
-        }
-    }
-
-    private static void setWaterLevelDirect(int level, BlockPos pos) {
-        setWaterVolume(level * WaterVolume.volumePerLevel, pos);
-    }
 
 
-    public static void addWater(int level, BlockPos pos) {
-        int existingWater = getWaterLevel(pos);
-        if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
-
-        int totalWater = existingWater + level;
-        if (totalWater > 8) {
-            addWater(totalWater - 8, pos.up());
-            setWaterLevel(8, pos);
-        } else {
-            setWaterLevel(totalWater, pos);
-        }
-    }
 
 
     public static BlockState getBlockState(BlockPos pos) {
@@ -279,7 +182,9 @@ public class CachedWater {
     }
 
     public static void setWaterVolume(int volume, BlockPos pos) {
+        System.out.println("ebebe");
         if (useCache) {
+            System.out.println("ababa");
             volumeCache.put(pos.asLong(), volume);
             queuedWaterVolumes.put(pos.asLong(), volume);
         } else {
@@ -303,45 +208,12 @@ public class CachedWater {
                 !prev.getFluidState().isEmpty() ||
                 volume < 0;
 
-        if (isWater(prev)) {
-            if(volume == 0) {
-                setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
-            } else {
-                setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState());
-            }
-        } else {
-            if (volume == 0) {
-                setBlockStateNoNeighbors(pos, prev, Blocks.AIR.getDefaultState());
-            } else if (volume < 0) {
-
-            } else if (volume <= WaterVolume.volumePerBlock) {
-                if (volume == WaterVolume.volumePerBlock) {
-                    if (!(prev.getBlock() instanceof FluidFillable)) { // Don't fill kelp etc
-                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.getDefaultState());
-                    }
-                } else {
-                    if (!(prev.getBlock() instanceof FluidDrainable)) {
-                        cacheWorld.breakBlock(pos, true);
-                    } else {
-                        if (prev.getBlock() instanceof Waterloggable) {
-                            //TODO proper waterlogged flow
-                        }
-                    }
-                    //Setting level equivalent of volume for visual
-                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(getLevelForVolume(volume), false).getBlockState());
-                }
-            } else {
-                System.out.println("HELP THY SOUL Trying to set water volume " + volume);
-            }
-        }
-
         water.setWaterVolume(pos, (short) volume);
     }
 
     public static int getWaterVolume(BlockPos ipos) {
         LongToIntFunction func = pos -> {
 
-            //return getWaterLevelOfState(state);
             WaterSection water = (WaterSection) ((ExtraStorageSectionContainer)
                     getChunkSection(ChunkSectionPos.from(ipos))
             ).getSectionStorage(WaterSection.ID);
@@ -366,17 +238,7 @@ public class CachedWater {
         } else return func.applyAsInt(ipos.asLong());
     }
 
-    public static int getLevelForVolume(int volume) {
-        if (volume >= WaterVolume.cutOffValue){
-            return 8;
-        } else {
-            return (volume/WaterVolume.volumePerLevel)+1;
-        }
-    }
-
-
     //VOLUME CODE END
-
 
     public static void setup(ServerWorld world, BlockPos fluidPos) {
         CachedWater.cacheWorld = world;
@@ -398,8 +260,10 @@ public class CachedWater {
      * (rather than each setBlock potentially running up to 6 neighbor updates)
      */
     private static void updateNeighbor(BlockPos pos, Block sourceBlock, BlockPos neighborPos) {
+        System.out.println("neigh code");
         BlockState neighborState = getBlockState(pos);
-        if (!neighborState.getFluidState().isEmpty()) {
+        if (isFlowable(neighborPos)) {
+            System.out.println("queued: " + neighborPos);
             fluidsToUpdate.put(pos, neighborState);
         } else {
             // Vanilla behaviour
@@ -422,25 +286,34 @@ public class CachedWater {
     }
 
     public static void afterTick(ServerWorld serverWorld) {
+        System.out.println("after tick");
+
         if(serverWorld.getDimension().getMinimumY() != 64) {
             return;
         }
         // TODO cache per dimension
-        levelCache.clear();
         volumeCache.clear();
 
         for (var entry : queuedWaterVolumes.long2IntEntrySet()) {
+            System.out.println("entry: " + entry.getIntValue());
             BlockPos pos = BlockPos.fromLong(entry.getLongKey());
             setWaterVolumeDirect(entry.getIntValue(), pos);
-            //setWaterLevelDirect(getLevelForVolume(entry.getIntValue()), pos);
 
-            Block block = getBlockState(pos).getBlock();
+            //Old update logic
+/*            Block block = getBlockState(pos).getBlock();
             updateNeighbor(pos.west(), block, pos);
             updateNeighbor(pos.east(), block, pos);
             updateNeighbor(pos.down(), block, pos);
             updateNeighbor(pos.up(), block, pos);
             updateNeighbor(pos.north(), block, pos);
-            updateNeighbor(pos.south(), block, pos);
+            updateNeighbor(pos.south(), block, pos);*/
+
+            ChunkHandlingMethods.registerTickTickets(pos.west().asLong(), cacheWorld);
+            ChunkHandlingMethods.registerTickTickets(pos.east().asLong(), cacheWorld);
+            ChunkHandlingMethods.registerTickTickets(pos.down().asLong(), cacheWorld);
+            ChunkHandlingMethods.registerTickTickets(pos.up().asLong(), cacheWorld);
+            ChunkHandlingMethods.registerTickTickets(pos.north().asLong(), cacheWorld);
+            ChunkHandlingMethods.registerTickTickets(pos.south().asLong(), cacheWorld);
         }
 
         ChunkHandlingMethods.subtractTickTickets(serverWorld);
@@ -454,7 +327,6 @@ public class CachedWater {
 
         sections.forEach((sectionPos, section) -> section.unlock());
         fluidsToUpdate.clear();
-        queuedWaterLevels.clear();
         queuedWaterVolumes.clear();
         sections.clear();
     }

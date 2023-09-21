@@ -11,6 +11,7 @@ public class FlowFeatureHR {
     public static void execute(BlockPos center) {
         if (!Features.FLOW_FEATURE_ENABLED) return;
         int centerVolume = CachedWater.getWaterVolume(center);
+        System.out.println("centerVolume: " + centerVolume);
         fallFeature(center, centerVolume);
         spreadFeature(center);
     }

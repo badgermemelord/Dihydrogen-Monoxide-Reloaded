@@ -6,18 +6,6 @@ import net.minecraft.world.World;
 
 public class NonCachedWater {
 
-    public static boolean addWater(int level, BlockPos pos, World world) {
-        setup(world);
-        try {
-            CachedWater.addWater(level, pos);
-            return true;
-        } catch (IllegalStateException e) {
-            return false;
-        } finally {
-            unSetup();
-        }
-    }
-
     public static boolean addVolume(int volume, BlockPos pos, World world) {
         setup(world);
         try {
@@ -25,17 +13,6 @@ public class NonCachedWater {
             return true;
         } catch (IllegalStateException e) {
             return false;
-        } finally {
-            unSetup();
-        }
-    }
-
-
-
-    public static int getLevel(BlockPos pos, World world) {
-        setup(world);
-        try {
-            return CachedWater.getWaterLevel(pos);
         } finally {
             unSetup();
         }

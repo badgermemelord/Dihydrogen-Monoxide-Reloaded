@@ -24,7 +24,9 @@ public class WaterPhysics implements ModInitializer {
 
         System.out.println("Dihydrogen Monoxide Reloaded has loaded!");
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+        //no idea what this does, commenting it out
+
+/*        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(CommandManager.literal("waterlevel")
                     .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                             .executes(context -> {
@@ -38,9 +40,9 @@ public class WaterPhysics implements ModInitializer {
                                     return -9999;
                                 }
                             })));
-        });
+        });*/
 
-        ExtraSectionStorage.Companion.register(WaterSection.ID, WaterSection::read, true, WaterSection::readPacket);
+        ExtraSectionStorage.Companion.register(WaterSection.ID, WaterSection::read, true, WaterSection.class, WaterSection::readPacket);
 
         PerfTests.init();
     }

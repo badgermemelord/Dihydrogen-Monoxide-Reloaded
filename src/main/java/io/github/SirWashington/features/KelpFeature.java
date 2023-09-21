@@ -11,6 +11,7 @@ import static io.github.SirWashington.FlowWater.world;
 
 public class KelpFeature {
 
+/*
     public static void Execute(BlockPos kelpPos, BlockState kpBS) {
 
         System.out.println("called");
@@ -42,4 +43,5 @@ public class KelpFeature {
             }
         }
     }
+*/
 }
