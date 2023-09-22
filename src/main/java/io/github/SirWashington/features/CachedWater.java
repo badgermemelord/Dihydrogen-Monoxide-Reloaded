@@ -26,6 +26,7 @@ import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.LongToIntFunction;
 
@@ -45,6 +46,7 @@ public class CachedWater {
     //public static final int equalisingRate = ConfigVariables.equalisingRate;
     //public static final int minimumFlowDifference = 2;
     public static World cacheWorld;
+    public static List<BlockPos> updateList = new ArrayList<>();
 
     public static int a = 0;
     public static void addToCounter() {
@@ -184,13 +186,15 @@ public class CachedWater {
     public static void setWaterVolume(int volume, BlockPos pos) {
         System.out.println("ebebe");
         if (useCache) {
-            System.out.println("ababa");
+            System.out.println("ababa: " + pos);
             volumeCache.put(pos.asLong(), volume);
+            updateList.add(pos);
             queuedWaterVolumes.put(pos.asLong(), volume);
         } else {
             setWaterVolumeDirect(volume, pos);
             volumeCache.remove(pos.asLong());
         }
+        System.out.println(updateList);
     }
 
     private static void setWaterVolumeDirect(int volume, BlockPos pos) {
@@ -286,13 +290,11 @@ public class CachedWater {
     }
 
     public static void afterTick(ServerWorld serverWorld) {
-        System.out.println("after tick");
-
-        if(serverWorld.getDimension().getMinimumY() != 64) {
+/*        if(serverWorld.getDimension().getMinimumY() != 64) {
             return;
-        }
+        }*/
         // TODO cache per dimension
-        volumeCache.clear();
+        //volumeCache.clear();
 
         for (var entry : queuedWaterVolumes.long2IntEntrySet()) {
             System.out.println("entry: " + entry.getIntValue());
@@ -307,23 +309,16 @@ public class CachedWater {
             updateNeighbor(pos.up(), block, pos);
             updateNeighbor(pos.north(), block, pos);
             updateNeighbor(pos.south(), block, pos);*/
+            ChunkHandlingMethods.scheduleFluidBlock(pos.west(), serverWorld);
+            ChunkHandlingMethods.scheduleFluidBlock(pos.east(), serverWorld);
+            ChunkHandlingMethods.scheduleFluidBlock(pos.down(), serverWorld);
+            ChunkHandlingMethods.scheduleFluidBlock(pos.up(), serverWorld);
+            ChunkHandlingMethods.scheduleFluidBlock(pos.north(), serverWorld);
+            ChunkHandlingMethods.scheduleFluidBlock(pos.south(), serverWorld);
 
-            ChunkHandlingMethods.registerTickTickets(pos.west().asLong(), cacheWorld);
-            ChunkHandlingMethods.registerTickTickets(pos.east().asLong(), cacheWorld);
-            ChunkHandlingMethods.registerTickTickets(pos.down().asLong(), cacheWorld);
-            ChunkHandlingMethods.registerTickTickets(pos.up().asLong(), cacheWorld);
-            ChunkHandlingMethods.registerTickTickets(pos.north().asLong(), cacheWorld);
-            ChunkHandlingMethods.registerTickTickets(pos.south().asLong(), cacheWorld);
         }
 
         ChunkHandlingMethods.subtractTickTickets(serverWorld);
-
-        for (var entry : fluidsToUpdate.entrySet()) {
-            var state = entry.getValue();
-            var pos = entry.getKey();
-            ChunkHandlingMethods.scheduleFluidBlock(pos, serverWorld);
-            //cacheWorld.createAndScheduleFluidTick(pos, state.getFluidState().getFluid(), state.getFluidState().getFluid().getTickRate(cacheWorld));
-        }
 
         sections.forEach((sectionPos, section) -> section.unlock());
         fluidsToUpdate.clear();
