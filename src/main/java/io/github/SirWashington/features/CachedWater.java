@@ -84,7 +84,7 @@ public class CachedWater {
     public static void TickThisBlock(World world, BlockPos pos) {
         addToCounter();
         BlockState BS = getBlockState(pos);
-        System.out.println("ticked block: " + pos);
+        //System.out.println("ticked block: " + pos);
         //TODO delete BlockState check once other systems are working reliably
         if (getWaterVolume(pos) > 0) {
             FlowWater.flowWater(world, pos, BS.getFluidState());
@@ -184,9 +184,9 @@ public class CachedWater {
     }
 
     public static void setWaterVolume(int volume, BlockPos pos) {
-        System.out.println("ebebe");
+        //System.out.println("ebebe");
         if (useCache) {
-            System.out.println("ababa: " + pos);
+            //System.out.println("ababa: " + pos);
             volumeCache.put(pos.asLong(), volume);
             updateList.add(pos);
             queuedWaterVolumes.put(pos.asLong(), volume);
@@ -194,7 +194,7 @@ public class CachedWater {
             setWaterVolumeDirect(volume, pos);
             volumeCache.remove(pos.asLong());
         }
-        System.out.println(updateList);
+        //System.out.println(updateList);
     }
 
     private static void setWaterVolumeDirect(int volume, BlockPos pos) {
@@ -297,7 +297,7 @@ public class CachedWater {
         //volumeCache.clear();
 
         for (var entry : queuedWaterVolumes.long2IntEntrySet()) {
-            System.out.println("entry: " + entry.getIntValue());
+            //System.out.println("entry: " + entry.getIntValue());
             BlockPos pos = BlockPos.fromLong(entry.getLongKey());
             setWaterVolumeDirect(entry.getIntValue(), pos);
 

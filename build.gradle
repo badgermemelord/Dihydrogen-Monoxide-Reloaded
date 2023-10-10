@@ -20,6 +20,7 @@ repositories {
 	maven {
 		url 'https://masa.dy.fi/maven'
 	}
+	maven { url = 'https://maven.valkyrienskies.org' }
 	mavenLocal()
 }
 
@@ -29,6 +30,8 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "org.mashed:lasagna-fabric:${project.lasagna_version}"
+
+	modImplementation("curse.maven:sodium-394468:3669187")
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"

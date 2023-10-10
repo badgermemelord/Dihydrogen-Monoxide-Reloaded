@@ -21,6 +21,10 @@
     "WorldAccessMixin",
     "perf_test.MixinPlayerManager"
   ],
+  "client": [
+    "WorldSliceAccessor",
+    "ChunkRenderRebuildTaskMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

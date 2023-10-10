@@ -40,21 +40,26 @@ public class WaterSection implements ExtraSectionStorage {
         shorts.get(water);
     }
 
-    @NotNull
-    @Override
-    public NbtCompound writeNBT(@NotNull NbtCompound nbtCompound, @NotNull ChunkSection section) {
+    private byte[] makeBuffer() {
         byte[] buffer = new byte[water.length * 2];
         for (int i = 0; i < water.length; i++) {
             buffer[i * 2] = (byte) (water[i] & 0xFF);
             buffer[i * 2 + 1] = (byte) ((water[i] >> 8) & 0xFF);
         }
 
-        nbtCompound.putByteArray("water", buffer);
+        return buffer;
+    }
+
+    @NotNull
+    @Override
+    public NbtCompound writeNBT(@NotNull NbtCompound nbtCompound, @NotNull ChunkSection section) {
+        nbtCompound.putByteArray("water", makeBuffer());
         return nbtCompound;
     }
 
     @Override
     public PacketByteBuf writePacket(@NotNull PacketByteBuf packetByteBuf, @NotNull ChunkSection chunkSection) {
+        packetByteBuf.writeByteArray(makeBuffer());
         return packetByteBuf;
     }
 
@@ -63,8 +68,8 @@ public class WaterSection implements ExtraSectionStorage {
         return new WaterSection(ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer(), section);
     }
 
-    public static WaterSection readPacket(PacketByteBuf nbt, ChunkSection section) {
-        return new WaterSection(section); // TODO
+    public static WaterSection readPacket(PacketByteBuf buf, ChunkSection section) {
+        return new WaterSection(ByteBuffer.wrap(buf.readByteArray()).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer(), section);
     }
 
     public short getWaterVolume(BlockPos pos) {
@@ -72,6 +77,10 @@ public class WaterSection implements ExtraSectionStorage {
         int y = pos.getY() & 15;
         int z = pos.getZ() & 15;
 
+        return getWaterVolume(x, y, z);
+    }
+
+    public short getWaterVolume(int x, int y, int z) {
         return water[(x*16*16) + (y * 16) + z];
     }
 
