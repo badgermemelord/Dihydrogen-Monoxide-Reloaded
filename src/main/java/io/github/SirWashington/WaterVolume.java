@@ -25,6 +25,8 @@ public class WaterVolume {
     public static FluidState getWaterState(short value) {
         //TODO if -1 we want to check state?
         if (value == 0 || value == Short.MIN_VALUE || value == -1) return Fluids.EMPTY.getDefaultState();
-        return Fluids.WATER.getFlowing(value / volumePerLevel + 1, false);
+        //return Fluids.WATER.getFlowing(value / volumePerLevel + 1, false);
+        //System.out.println("amogus returned water");
+        return Fluids.WATER.getFlowing(8, false);
     }
 }

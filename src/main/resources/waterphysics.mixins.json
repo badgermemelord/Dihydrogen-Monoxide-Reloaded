@@ -10,6 +10,7 @@
     "DensityFunctionInvoker",
     "FlowingLavaMixin",
     "FlowingMixin",
+    "FluidRendererAccessor",
     "GenerationShapeConfigInvoker",
     "LavaFluidMixin",
     "PaneBlockMixin",
@@ -22,8 +23,8 @@
     "perf_test.MixinPlayerManager"
   ],
   "client": [
-    "WorldSliceAccessor",
-    "ChunkRenderRebuildTaskMixin"
+    "ChunkRenderRebuildTaskMixin",
+    "WorldSliceAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
