@@ -200,11 +200,12 @@ public class CachedWater {
     private static void setWaterVolumeDirect(int volume, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
-        ChunkSection section = getChunkSection(ChunkSectionPos.from(pos));
+        ChunkSectionPos sectionPos = ChunkSectionPos.from(pos);
+        ChunkSection section = getChunkSection(sectionPos);
         WaterSection water = (WaterSection) ((ExtraStorageSectionContainer) section).getSectionStorage(WaterSection.ID);
 
         if (water == null) {
-            water = new WaterSection(section);
+            water = new WaterSection(cacheWorld.getWorldChunk(pos), cacheWorld.sectionCoordToIndex(sectionPos.getY()));
             ((ExtraStorageSectionContainer) section).setSectionStorage(WaterSection.ID, water);
         }
 

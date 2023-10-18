@@ -1,5 +1,6 @@
 package io.github.SirWashington.mixin;
 
+import io.github.SirWashington.WaterSection;
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.scheduling.*;
 import net.minecraft.fluid.Fluid;
@@ -39,6 +40,8 @@ public abstract class ServerWorldMixin implements MixinInterfaces.DuckInterface 
             ServerLoadedChunkInterface.getActiveWorldChunks((ServerWorld) (Object) this);
             CachedWater.tickFluidsInWorld((ServerWorld) (Object) this);
             CachedWater.afterTick((ServerWorld) (Object) this);
+
+            WaterSection.sendUpdates();
         }
     }
 

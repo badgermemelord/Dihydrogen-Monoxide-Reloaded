@@ -23,7 +23,9 @@
     "perf_test.MixinPlayerManager"
   ],
   "client": [
+    "BuiltChunkStorageAccessor",
     "ChunkRenderRebuildTaskMixin",
+    "WorldRendererAccessor",
     "WorldSliceAccessor"
   ],
   "injectors": {
