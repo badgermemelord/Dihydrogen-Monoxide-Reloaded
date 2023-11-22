@@ -224,6 +224,7 @@ public class CachedWater {
             ).getSectionStorage(WaterSection.ID);
 
             if (water == null) {
+                System.out.println("water null");
                 BlockState state = getBlockState(BlockPos.fromLong(pos));
                 return WaterVolume.getWaterVolumeOfState(state);
             }
