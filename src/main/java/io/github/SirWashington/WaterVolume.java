@@ -27,6 +27,7 @@ public class WaterVolume {
         if (value == 0 || value == Short.MIN_VALUE || value == -1) return Fluids.EMPTY.getDefaultState();
         //return Fluids.WATER.getFlowing(value / volumePerLevel + 1, false);
         //System.out.println("amogus returned water");
-        return Fluids.WATER.getFlowing(8, false);
+        //return Fluids.WATER.getFlowing(8, false);
+        return Fluids.WATER.getDefaultState();
     }
 }

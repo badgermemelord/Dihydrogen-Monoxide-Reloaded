@@ -20,7 +20,9 @@ repositories {
 	maven {
 		url 'https://masa.dy.fi/maven'
 	}
-	maven { url = 'https://maven.valkyrienskies.org' }
+	maven {
+		url = 'https://maven.valkyrienskies.org'
+	}
 	mavenLocal()
 }
 
@@ -29,7 +31,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "org.mashed:lasagna-fabric:${project.lasagna_version}"
+	modImplementation "com.ewoudje:lasagna-fabric:${project.lasagna_version}"
 
 	modImplementation("curse.maven:sodium-394468:3669187")
 

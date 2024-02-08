@@ -28,6 +28,7 @@ public abstract class BucketMixin{
     private boolean bucketPlace(World world, BlockPos pos, BlockState state, int flags) {
         boolean returnValue = false;
         if (!world.isClient) {
+            //System.out.println("BucketTool at pos: " + pos + " with volume: " + CachedWater.getWaterVolume(pos));
             returnValue = NonCachedWater.addVolume(ConfigVariables.volumePerBlock, pos, world);
             ChunkHandlingMethods.registerTickTickets(pos.asLong(), world);
             ChunkHandlingMethods.scheduleFluidBlock(pos, world);

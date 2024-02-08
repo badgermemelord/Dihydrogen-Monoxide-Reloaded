@@ -8,7 +8,6 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
 
 public class WaterPhysics implements ModInitializer {
     public static final String ID = "immersivefluids";

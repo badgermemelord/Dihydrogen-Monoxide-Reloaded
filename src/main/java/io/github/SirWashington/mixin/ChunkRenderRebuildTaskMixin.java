@@ -1,5 +1,6 @@
 package io.github.SirWashington.mixin;
 
+import com.ewoudje.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import io.github.SirWashington.WaterSection;
 import io.github.SirWashington.WaterVolume;
 import io.github.SirWashington.renderer.WaterRenderer;
@@ -16,7 +17,6 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.World;
-import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -48,8 +48,10 @@ public class ChunkRenderRebuildTaskMixin {
 
         if (water != null) {
             fluidVolume = water.getWaterVolume(x & 15, y & 15, z & 15);
+            //System.out.println("getblockstate water not null: " + (state.isAir() ? WaterVolume.getWaterState(fluidVolume).getBlockState() : state));
             return state.isAir() ? WaterVolume.getWaterState(fluidVolume).getBlockState() : state;
         } else {
+            System.out.println("empty");
             fluidVolume = 0;
         }
 

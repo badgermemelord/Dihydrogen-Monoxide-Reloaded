@@ -1,5 +1,9 @@
 package io.github.SirWashington;
 
+import com.ewoudje.lasagna.chunkstorage.ExtraSectionStorage;
+import com.ewoudje.lasagna.chunkstorage.ExtraStorageSectionContainer;
+import com.ewoudje.lasagna.networking.LasagnaNetworking;
+import com.ewoudje.lasagna.networking.TrackingChunkPacketTarget;
 import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.mixin.BuiltChunkStorageAccessor;
 import io.github.SirWashington.mixin.WorldRendererAccessor;
@@ -15,11 +19,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.NotNull;
-import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
-import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
-import org.mashed.lasagna.networking.LasagnaNetworking;
-import org.mashed.lasagna.networking.PacketTarget;
-import org.mashed.lasagna.networking.TrackingChunkPacketTarget;
+
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -222,5 +222,15 @@ public class WaterSection implements ExtraSectionStorage {
             );
             return Unit.INSTANCE;
         });
+    }
+
+    @Override
+    public boolean isDirty() {
+        return true;
+    }
+
+    @Override
+    public void saved() {
+
     }
 }

@@ -1,5 +1,6 @@
 package io.github.SirWashington.features;
 
+import com.ewoudje.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import io.github.SirWashington.FlowWater;
 import io.github.SirWashington.WaterSection;
 import io.github.SirWashington.WaterVolume;
@@ -21,8 +22,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
-import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
-import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class CachedWater {
     // THIS IS THE REAL REPO
 
     public static boolean useSections = true;
-    public static boolean useCache = true;
+    public static boolean useCache = false;
     private static final Long2IntMap volumeCache = new Long2IntOpenHashMap();
     private static final Map<ChunkSectionPos, ChunkSection> sections = new HashMap<>();
     public static ArrayList<Direction> directionList = new ArrayList<>(4);
@@ -231,6 +231,7 @@ public class CachedWater {
 
             short volume = water.getWaterVolume(ipos);
             if (volume == Short.MIN_VALUE) {
+                System.out.println("minvalued");
                 BlockState state = getBlockState(BlockPos.fromLong(pos));
                 volume = WaterVolume.getWaterVolumeOfState(state);
                 water.setWaterVolume(ipos, volume);
