@@ -3,8 +3,6 @@ package io.github.SirWashington.mixin;
 import com.ewoudje.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import io.github.SirWashington.WaterSection;
 import io.github.SirWashington.WaterVolume;
-import io.github.SirWashington.renderer.WaterRenderer;
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import me.jellysquid.mods.sodium.client.render.chunk.tasks.ChunkRenderRebuildTask;
 import me.jellysquid.mods.sodium.client.render.pipeline.FluidRenderer;
@@ -63,13 +61,7 @@ public class ChunkRenderRebuildTaskMixin {
             at = @At(value = "INVOKE", target = "Lme/jellysquid/mods/sodium/client/render/pipeline/FluidRenderer;render(Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/fluid/FluidState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lme/jellysquid/mods/sodium/client/render/chunk/compile/buffers/ChunkModelBuilder;)Z")
     )
     boolean getFluidState(FluidRenderer instance, BlockRenderView world, FluidState state, BlockPos pos, BlockPos rel, ChunkModelBuilder builder) {
-        return WaterRenderer.renderWater(world,
-                fluidVolume, Fluids.WATER,
-                pos, rel,
-                builder,
-                ((FluidRendererAccessor) instance).getLighters(),
-                ((FluidRendererAccessor) instance).getColorBlender()
-        );
+        return io.github.SirWashington.renderer.FluidRenderer.getInstance(instance).render(world, pos, rel, builder);
     }
 
 }
