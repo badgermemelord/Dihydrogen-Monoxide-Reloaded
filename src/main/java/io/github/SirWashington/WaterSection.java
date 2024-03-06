@@ -132,7 +132,7 @@ public class WaterSection implements ExtraSectionStorage {
         water[(x*16*16) + (y * 16) + z] = value;
 
         if (dirty != null) {
-            dirty[x * 8 + y / 2] |= 1 << (z + (y % 4));
+            dirty[x * 8 + y / 2] |= 1 << (z + ((y % 4) * 16));
             dirtyCount++;
             if (!anyDirt) {
                 anyDirt = true;
