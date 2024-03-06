@@ -443,6 +443,7 @@ public class FluidRenderer {
     }
 
     private float getCornerHeight(BlockRenderView world, int x, int y, int z, Fluid fluid) {
+        /*
         int samples = 0;
         float totalHeight = 0.0F;
 
@@ -475,6 +476,8 @@ public class FluidRenderer {
         }
 
         return totalHeight / (float) samples;
+        */
+        return 0.9f;
     }
 
     private static class FabricFluidColorizerAdapter implements ColorSampler<FluidState> {
