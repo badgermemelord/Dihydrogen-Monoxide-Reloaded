@@ -37,7 +37,7 @@ public class ChunkRenderRebuildTaskMixin {
             at = @At(value = "INVOKE", target = "Lme/jellysquid/mods/sodium/client/render/pipeline/FluidRenderer;render(Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/fluid/FluidState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lme/jellysquid/mods/sodium/client/render/chunk/compile/buffers/ChunkModelBuilder;)Z")
     )
     boolean getFluidState(FluidRenderer instance, BlockRenderView world, FluidState state, BlockPos pos, BlockPos rel, ChunkModelBuilder builder) {
-        return io.github.SirWashington.renderer.FluidRenderer.getInstance(instance).render((World) world, pos, rel, builder, fluidVolume);
+        return io.github.SirWashington.renderer.FluidRenderer.getInstance(instance).render(((WorldSliceAccessor) world).getWorld(), pos, rel, builder, fluidVolume);
     }
 
 }

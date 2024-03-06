@@ -82,7 +82,7 @@ public class FluidRenderer {
         this.colorBlender = colorBlender;
     }
 
-    private boolean isFluidOccluded(World world, int x, int y, int z, Direction dir, Fluid fluid) {
+    private boolean isFluidOccluded(BlockRenderView world, int x, int y, int z, Direction dir, Fluid fluid) {
         return false;
         /*
 
