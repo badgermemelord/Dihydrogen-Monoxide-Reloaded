@@ -1,5 +1,6 @@
 package io.github.SirWashington.renderer;
 
+import io.github.SirWashington.WaterVolume;
 import io.github.SirWashington.mixin.FluidRendererAccessor;
 import me.jellysquid.mods.sodium.client.model.light.LightMode;
 import me.jellysquid.mods.sodium.client.model.light.LightPipeline;
@@ -36,6 +37,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class FluidRenderer {
@@ -80,7 +82,7 @@ public class FluidRenderer {
         this.colorBlender = colorBlender;
     }
 
-    private boolean isFluidOccluded(BlockRenderView world, int x, int y, int z, Direction dir, Fluid fluid) {
+    private boolean isFluidOccluded(World world, int x, int y, int z, Direction dir, Fluid fluid) {
         return false;
         /*
 
@@ -119,7 +121,7 @@ public class FluidRenderer {
         return true;
     }
 
-    public boolean render(BlockRenderView world, BlockPos pos, BlockPos offset, ChunkModelBuilder buffers) {
+    public boolean render(World world, BlockPos pos, BlockPos offset, ChunkModelBuilder buffers, short volume) {
         int posX = pos.getX();
         int posY = pos.getY();
         int posZ = pos.getZ();
@@ -148,10 +150,12 @@ public class FluidRenderer {
 
         boolean rendered = false;
 
-        float h1 = this.getCornerHeight(world, posX, posY, posZ, fluidState.getFluid());
-        float h2 = this.getCornerHeight(world, posX, posY, posZ + 1, fluidState.getFluid());
-        float h3 = this.getCornerHeight(world, posX + 1, posY, posZ + 1, fluidState.getFluid());
-        float h4 = this.getCornerHeight(world, posX + 1, posY, posZ, fluidState.getFluid());
+        float height = WaterVolume.getWaterHeight(volume);
+
+        float h1 = height;
+        float h2 = height;
+        float h3 = height;
+        float h4 = height;
 
         float yOffset = sfDown ? 0.0F : EPSILON;
 

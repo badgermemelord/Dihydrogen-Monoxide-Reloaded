@@ -1,12 +1,10 @@
 package io.github.SirWashington;
 
-import com.ewoudje.lasagna.chunkstorage.ExtraSectionStorage;
 import com.ewoudje.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import io.github.SirWashington.features.ConfigVariables;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.WaterFluid;
 import net.minecraft.world.World;
 
 public class WaterVolume {
@@ -34,11 +32,16 @@ public class WaterVolume {
         return Fluids.WATER.getDefaultState();
     }
 
-    public static short getWaterLevel(World world, int x, int y, int z) {
+    public static short getWaterVolume(World world, int x, int y, int z) {
         WaterSection section = (WaterSection) ((ExtraStorageSectionContainer) world.getChunk(x >> 4, z >> 4)
                 .getSectionArray()[world.getSectionIndex(y)]).getSectionStorage(WaterSection.ID);
 
         if (section == null) return -1;
         return section.getWaterVolume(x & 15, y & 15, z & 15);
+    }
+
+    public static float getWaterHeight(short volume) {
+        if (volume == -1) return 0;
+        return (float) volume / volumePerBlock;
     }
 }
