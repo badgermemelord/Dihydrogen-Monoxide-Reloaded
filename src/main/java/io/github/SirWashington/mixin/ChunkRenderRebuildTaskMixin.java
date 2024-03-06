@@ -25,8 +25,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(ChunkRenderRebuildTask.class)
 public class ChunkRenderRebuildTaskMixin {
 
-    @Unique
-    private ExtraStorageSectionContainer container;
 
     @Unique
     private short fluidVolume = 0;
@@ -36,24 +34,9 @@ public class ChunkRenderRebuildTaskMixin {
             at = @At(value = "INVOKE", target = "Lme/jellysquid/mods/sodium/client/world/WorldSlice;getBlockState(III)Lnet/minecraft/block/BlockState;")
     )
     BlockState getBlockState(WorldSlice slice, int x, int y, int z) {
-        if (container == null) {
-            World world = ((WorldSliceAccessor) slice).getWorld();
-            container = (ExtraStorageSectionContainer) (world.getChunk(x >> 4, z >> 4).getSection(world.getSectionIndex(y)));
-        }
-
-        WaterSection water = (WaterSection) container.getSectionStorage(WaterSection.ID);
         BlockState state = slice.getBlockState(x,y,z);
-
-        if (water != null) {
-            fluidVolume = water.getWaterVolume(x & 15, y & 15, z & 15);
-            //System.out.println("getblockstate water not null: " + (state.isAir() ? WaterVolume.getWaterState(fluidVolume).getBlockState() : state));
-            return state.isAir() ? WaterVolume.getWaterState(fluidVolume).getBlockState() : state;
-        } else {
-            //System.out.println("empty");
-            fluidVolume = 0;
-        }
-
-        return state;
+        fluidVolume = WaterVolume.getWaterLevel(((WorldSliceAccessor) slice).getWorld(), x, y, z);
+        return state.isAir() && fluidVolume != -1 ? WaterVolume.getWaterState(fluidVolume).getBlockState() : state;
     }
 
     @Redirect(

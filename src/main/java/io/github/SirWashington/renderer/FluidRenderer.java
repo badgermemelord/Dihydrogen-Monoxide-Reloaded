@@ -168,7 +168,7 @@ public class FluidRenderer {
             h3 -= EPSILON;
             h4 -= EPSILON;
 
-            Vec3d velocity = fluidState.getVelocity(world, pos);
+            Vec3d velocity = new Vec3d(0.0D, 0.0D, 0.0D);
 
             Sprite sprite;
             ModelQuadFacing facing;
