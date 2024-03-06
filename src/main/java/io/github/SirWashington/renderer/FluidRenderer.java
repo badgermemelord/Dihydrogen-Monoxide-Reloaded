@@ -389,13 +389,16 @@ public class FluidRenderer {
 
     private void calculateQuadColors(ModelQuadView quad, BlockRenderView world, BlockPos pos, LightPipeline lighter, Direction dir, float brightness,
                                      ColorSampler<FluidState> colorSampler, FluidState fluidState) {
-        QuadLightData light = this.quadLightData;
+        /*QuadLightData light = this.quadLightData;
         lighter.calculate(quad, pos, light, dir, false);
 
         int[] biomeColors = this.colorBlender.getColors(world, pos, quad, colorSampler, fluidState);
 
         for (int i = 0; i < 4; i++) {
             this.quadColors[i] = ColorABGR.mul(biomeColors != null ? biomeColors[i] : 0xFFFFFFFF, light.br[i] * brightness);
+        }*/
+        for (int i = 0; i < 4; i++) {
+            this.quadColors[i] = 0xFFFFFFFF;
         }
     }
 
