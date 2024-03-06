@@ -81,6 +81,9 @@ public class FluidRenderer {
     }
 
     private boolean isFluidOccluded(BlockRenderView world, int x, int y, int z, Direction dir, Fluid fluid) {
+        return false;
+        /*
+
         BlockPos pos = this.scratchPos.set(x, y, z);
         BlockState blockState = world.getBlockState(pos);
         BlockPos adjPos = this.scratchPos.set(x + dir.getOffsetX(), y + dir.getOffsetY(), z + dir.getOffsetZ());
@@ -89,10 +92,11 @@ public class FluidRenderer {
             return world.getFluidState(adjPos).getFluid().matchesType(fluid) || blockState.isSideSolid(world,pos,dir, SideShapeType.FULL);
             // fluidlogged or next to water, occlude sides that are solid or the same liquid
         }
-        return world.getFluidState(adjPos).getFluid().matchesType(fluid);
+        return world.getFluidState(adjPos).getFluid().matchesType(fluid);*/
     }
 
     private boolean isSideExposed(BlockRenderView world, int x, int y, int z, Direction dir, float height) {
+        /*
         BlockPos pos = this.scratchPos.set(x + dir.getOffsetX(), y + dir.getOffsetY(), z + dir.getOffsetZ());
         BlockState blockState = world.getBlockState(pos);
 
@@ -110,7 +114,7 @@ public class FluidRenderer {
             VoxelShape threshold = VoxelShapes.cuboid(0.0D, 0.0D, 0.0D, 1.0D, height, 1.0D);
 
             return !VoxelShapes.isSideCovered(threshold, shape, dir);
-        }
+        }*/
 
         return true;
     }
