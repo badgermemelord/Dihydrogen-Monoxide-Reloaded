@@ -51,7 +51,7 @@ public class ChunkRenderRebuildTaskMixin {
             //System.out.println("getblockstate water not null: " + (state.isAir() ? WaterVolume.getWaterState(fluidVolume).getBlockState() : state));
             return state.isAir() ? WaterVolume.getWaterState(fluidVolume).getBlockState() : state;
         } else {
-            System.out.println("empty");
+            //System.out.println("empty");
             fluidVolume = 0;
         }
 

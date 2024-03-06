@@ -224,14 +224,14 @@ public class CachedWater {
             ).getSectionStorage(WaterSection.ID);
 
             if (water == null) {
-                System.out.println("water null");
+                //System.out.println("water null");
                 BlockState state = getBlockState(BlockPos.fromLong(pos));
                 return WaterVolume.getWaterVolumeOfState(state);
             }
 
             short volume = water.getWaterVolume(ipos);
             if (volume == Short.MIN_VALUE) {
-                System.out.println("minvalued");
+                //System.out.println("minvalued");
                 BlockState state = getBlockState(BlockPos.fromLong(pos));
                 volume = WaterVolume.getWaterVolumeOfState(state);
                 water.setWaterVolume(ipos, volume);

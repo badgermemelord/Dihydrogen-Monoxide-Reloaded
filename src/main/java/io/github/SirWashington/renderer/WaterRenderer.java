@@ -78,7 +78,7 @@ public class WaterRenderer {
         ColorSampler<FluidState> colorizer = createColorProviderAdapter(handler);
         Sprite[] sprites = handler.getFluidSprites(world, pos, fluid.getDefaultState());
         boolean rendered = false;
-        System.out.println("renderer volume: " + volume);
+        System.out.println("renderer volume: " + volume + " pos: " + pos);
         //float fluidHeight = ((float) volume) / WaterVolume.volumePerBlock;
         float fluidHeight = 1.0F;
         float h1;
