@@ -75,7 +75,7 @@ public class CachedWater {
         }
     }
     public static void setIterator(long l,  World world) {
-        //System.out.println(((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap);
+        System.out.println(((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap);
         //System.out.println(l);
         BlockPos BP;
         BP = BlockPos.fromLong(l);
@@ -303,21 +303,7 @@ public class CachedWater {
             //System.out.println("entry: " + entry.getIntValue());
             BlockPos pos = BlockPos.fromLong(entry.getLongKey());
             setWaterVolumeDirect(entry.getIntValue(), pos);
-
-            //Old update logic
-/*            Block block = getBlockState(pos).getBlock();
-            updateNeighbor(pos.west(), block, pos);
-            updateNeighbor(pos.east(), block, pos);
-            updateNeighbor(pos.down(), block, pos);
-            updateNeighbor(pos.up(), block, pos);
-            updateNeighbor(pos.north(), block, pos);
-            updateNeighbor(pos.south(), block, pos);*/
-            ChunkHandlingMethods.scheduleFluidBlock(pos.west(), serverWorld);
-            ChunkHandlingMethods.scheduleFluidBlock(pos.east(), serverWorld);
-            ChunkHandlingMethods.scheduleFluidBlock(pos.down(), serverWorld);
-            ChunkHandlingMethods.scheduleFluidBlock(pos.up(), serverWorld);
-            ChunkHandlingMethods.scheduleFluidBlock(pos.north(), serverWorld);
-            ChunkHandlingMethods.scheduleFluidBlock(pos.south(), serverWorld);
+            ChunkHandlingMethods.updateNeighbors(pos, serverWorld);
 
         }
 

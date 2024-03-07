@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -101,7 +102,7 @@ public class ChunkHandlingMethods {
             LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
             oldSet.add(blockPosAsLong);
             ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
-            registerTickTickets(blockPosAsLong, world);
+            addDefaultTickets(blockPosAsLong, world);
         }
 /*        else {
             System.out.println("tried to load new chunk");
@@ -122,14 +123,14 @@ public class ChunkHandlingMethods {
             LongSet oldSet = ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.get(chunkPosAsLong);
             oldSet.add(blockPosAsLong);
             ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, oldSet);
-            registerTickTickets(blockPosAsLong, world);
+            addDefaultTickets(blockPosAsLong, world);
         }
         else {
             System.out.println("tried to load new chunk");
             LongSet putValue = new LongOpenHashSet();
             putValue.add(blockPosAsLong);
             ((MixinInterfaces.DuckInterface)world).getWorldCache().Chunk2BlockMap.put(chunkPosAsLong, putValue);
-            registerTickTickets(blockPosAsLong, world);
+            addDefaultTickets(blockPosAsLong, world);
         }
     }
     public static void unScheduleFluidBlock(long blockPosAsLong, World world) {
@@ -186,7 +187,7 @@ public class ChunkHandlingMethods {
                         Block internalBlock = internalBS.getBlock();
                         if (internalBlock == Blocks.WATER) {
                             blockSet.add(realWorldPosLong);
-                            registerTickTicketsOnLoad(realWorldPosLong, world);
+                            addTicketsOnLoad(realWorldPosLong, world);
                             //System.out.println("wotah");
                             //System.out.println(realWorldPos);
                         }
@@ -197,15 +198,29 @@ public class ChunkHandlingMethods {
         return blockSet;
     }
 
-    public static void registerTickTickets(long fluidPos, World world) {
+    public static void addDefaultTickets(long fluidPos, World world) {
         Short defaultStartingTickets = 12;
+        System.out.println("registered default tickets");
         //if(!((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet().contains(fluidPos))
             ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, defaultStartingTickets);
     }
-    public static void registerTickTicketsOnLoad(long fluidPos, World world) {
+    public static void addTicketsOnLoad(long fluidPos, World world) {
         Short defaultStartingTickets = 1;
         //if(!((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.keySet().contains(fluidPos))
         ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, defaultStartingTickets);
+    }
+    public static void addTickets(long fluidPos, int tickets, World world) {
+        short oldtickets = ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.get(fluidPos);
+        ((MixinInterfaces.DuckInterface)world).getWorldCache().block2TicketMap.put(fluidPos, (short) (oldtickets + tickets));
+    }
+    
+    public static void updateNeighbors(BlockPos pos, ServerWorld serverWorld) {
+        System.out.println("updated neighbours for: " + pos);
+        addTickets(pos.east().asLong(), 1, serverWorld);
+        addTickets(pos.down().asLong(), 1, serverWorld);
+        addTickets(pos.up().asLong(), 1, serverWorld);
+        addTickets(pos.north().asLong(), 1, serverWorld);
+        addTickets(pos.south().asLong(), 1, serverWorld);
     }
     public static void subtractTickTicket(BlockPos blockPos, World world) {
         long fluidPos = blockPos.asLong();
@@ -233,6 +248,7 @@ public class ChunkHandlingMethods {
         }
     }
     public static short subtractFromShort(short s) {
+        System.out.println("short s: " + s);
         return (short) (s - 1);
     }
     public static void subtractTicketFromBlock(long blockPos, World world) {

@@ -1,13 +1,9 @@
 package io.github.SirWashington.mixin;
 
-import io.github.SirWashington.features.CachedWater;
 import io.github.SirWashington.features.ConfigVariables;
 import io.github.SirWashington.features.NonCachedWater;
 import io.github.SirWashington.scheduling.ChunkHandlingMethods;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,8 +26,8 @@ public abstract class BucketMixin{
         if (!world.isClient) {
             //System.out.println("BucketTool at pos: " + pos + " with volume: " + CachedWater.getWaterVolume(pos));
             returnValue = NonCachedWater.addVolume(ConfigVariables.volumePerBlock, pos, world);
-            ChunkHandlingMethods.registerTickTickets(pos.asLong(), world);
-            //ChunkHandlingMethods.scheduleFluidBlock(pos, world);
+            ChunkHandlingMethods.addDefaultTickets(pos.asLong(), world);
+            ChunkHandlingMethods.scheduleFluidBlock(pos, world);
             return returnValue;
         }
         else {
