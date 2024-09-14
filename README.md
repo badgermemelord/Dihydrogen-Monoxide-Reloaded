@@ -1,7 +1,8 @@
-# Immersive Fluids
+# Fabric Example Mod
 
-Finite water and water physics mod for Fabric 1.18.2
-A fork of CoolMineman's Dihydrogen Monoxide Reloaded
+## Setup
+
+For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
 
 ## License
 
