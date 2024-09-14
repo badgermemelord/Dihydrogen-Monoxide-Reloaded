@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.SirWashington.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "StillWaterPropertiesMixin",
+    "BucketMixin",
+    "FlowingLavaMixin",
+    "FlowingMixin",
+    "LavaFluidMixin",
+    "PaneBlockMixin",
+    "ServerWorldMixin",
+    "StainedGlassPaneBlockMixin",
+    "WaterFluidMixin",
+    "WaterLoggableMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
