@@ -99,7 +99,7 @@ public abstract class PaneBlockMixin extends HorizontalConnectingBlock {
     }
 
     @Override
-    public boolean isTranslucent(BlockState state, BlockView world, BlockPos pos) {
+    public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
         return state.get(WATER_LEVEL) == 0;
     }
 }

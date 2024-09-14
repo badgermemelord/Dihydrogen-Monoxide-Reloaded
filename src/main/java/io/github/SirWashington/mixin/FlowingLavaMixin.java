@@ -9,6 +9,7 @@ import net.minecraft.fluid.LavaFluid;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,18 +35,18 @@ public class FlowingLavaMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "tryFlow", cancellable = true)
-    private void tryFlow(WorldAccess world, BlockPos fluidPos, FluidState state, CallbackInfo lbruh) {
+    private void tryFlow(World world, BlockPos fluidPos, FluidState state, CallbackInfo ci) {
         if ((state.getFluid() instanceof LavaFluid.Flowing) || (state.getFluid() instanceof LavaFluid.Still)) {
             FlowLava.flowlava(world, fluidPos, state);
-            lbruh.cancel();
+            ci.cancel();
         }
     }
 
     @Inject(at = @At("HEAD"), method = "getUpdatedState", cancellable = true)
-    private void getUpdatedState(WorldView world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> lbruh) {
+    private void getUpdatedState(World world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> cir) {
         FluidState fluidstate = state.getFluidState();
         if (fluidstate.getFluid() instanceof LavaFluid.Flowing) {
-            lbruh.setReturnValue(Fluids.FLOWING_LAVA.getFlowing(state.getFluidState().getLevel(), false));
+            cir.setReturnValue(Fluids.FLOWING_LAVA.getFlowing(state.getFluidState().getLevel(), false));
         }
     }
 }

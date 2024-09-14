@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.crash.CrashCallable;
@@ -13,7 +14,7 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 
@@ -302,9 +303,9 @@ public class CachedWater {
                 CrashReportSection crashReportSection = crashReport.addElement("Block being updated");
                 crashReportSection.add("Source block type", (CrashCallable<String>)(() -> {
                     try {
-                        return String.format("ID #%s (%s // %s)", Registry.BLOCK.getId(sourceBlock), sourceBlock.getTranslationKey(), sourceBlock.getClass().getCanonicalName());
+                        return String.format("ID #%s (%s // %s)", Registries.BLOCK.getId(sourceBlock), sourceBlock.getTranslationKey(), sourceBlock.getClass().getCanonicalName());
                     } catch (Throwable var2x) {
-                        return "ID #" + Registry.BLOCK.getId(sourceBlock);
+                        return "ID #" + Registries.BLOCK.getId(sourceBlock);
                     }
                 }));
                 CrashReportSection.addBlockInfo(crashReportSection, world, pos, neighborState);
@@ -334,7 +335,7 @@ public class CachedWater {
             var state = entry.getValue();
             var pos = entry.getKey();
 
-            world.createAndScheduleFluidTick(pos, state.getFluidState().getFluid(), state.getFluidState().getFluid().getTickRate(world));
+            world.scheduleFluidTick(pos, state.getFluidState().getFluid(), state.getFluidState().getFluid().getTickRate(world));
         }
 
         sections.forEach((sectionPos, section) -> section.unlock());

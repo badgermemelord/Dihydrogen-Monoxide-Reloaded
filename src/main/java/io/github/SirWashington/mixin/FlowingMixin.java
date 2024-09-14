@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,18 +37,18 @@ public class FlowingMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "tryFlow", cancellable = true)
-    private void tryFlow(WorldAccess world, BlockPos fluidPos, FluidState state, CallbackInfo bruh) {
+    private void tryFlow(World world, BlockPos fluidPos, FluidState state, CallbackInfo ci) {
         if (isWater(state.getFluid())) {
             FlowWater.flowWater(world, fluidPos, state);
-            bruh.cancel();
+            ci.cancel();
         }
     }
 
     @Inject(at = @At("HEAD"), method = "getUpdatedState", cancellable = true)
-    private void getUpdatedState(WorldView world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> bruh) {
+    private void getUpdatedState(World world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> cir) {
         FluidState fluidstate = state.getFluidState();
         if (isWater(fluidstate.getFluid())) {
-            bruh.setReturnValue(Fluids.FLOWING_WATER.getFlowing(state.getFluidState().getLevel(), false));
+            cir.setReturnValue(Fluids.FLOWING_WATER.getFlowing(state.getFluidState().getLevel(), false));
         }
     }
 

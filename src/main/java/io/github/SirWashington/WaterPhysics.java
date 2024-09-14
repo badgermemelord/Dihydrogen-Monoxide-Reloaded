@@ -8,6 +8,8 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.text.Text;
 
+import java.util.function.Supplier;
+
 public class WaterPhysics implements ModInitializer {
 
     public static final IntProperty WATER_LEVEL = IntProperty.of("water_level", 0, 8);
@@ -28,7 +30,7 @@ public class WaterPhysics implements ModInitializer {
                             .executes(context -> {
                                 try {
                                     int result = NonCachedWater.getLevel(BlockPosArgumentType.getBlockPos(context, "pos"), context.getSource().getWorld());
-                                    context.getSource().sendFeedback(Text.of("Water level at " + BlockPosArgumentType.getBlockPos(context, "pos") + " is " + result), false);
+                                    context.getSource().sendFeedback((Supplier<Text>) Text.of("Water level at " + BlockPosArgumentType.getBlockPos(context, "pos") + " is " + result), false);
                                     return result;
                                 } catch (Exception e) {
                                     context.getSource().sendError(Text.of("AA Something went wrong"));
@@ -37,6 +39,5 @@ public class WaterPhysics implements ModInitializer {
                                 }
                             })));
         });
-        PerfTests.init();
     }
 }
