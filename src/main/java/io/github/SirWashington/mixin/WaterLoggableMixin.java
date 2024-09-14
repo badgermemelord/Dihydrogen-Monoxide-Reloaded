@@ -2,6 +2,7 @@ package io.github.SirWashington.mixin;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Waterloggable;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
@@ -20,7 +21,7 @@ import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
 public interface WaterLoggableMixin {
 
     @Inject(at = @At("HEAD"), method = "canFillWithFluid", cancellable = true)
-    default void canFill(BlockView world, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
+    default void canFill(PlayerEntity player, BlockView world, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
         if (state.contains(WATER_LEVEL)) {
             cir.setReturnValue(state.get(WATER_LEVEL) < 8);
         }
@@ -38,7 +39,7 @@ public interface WaterLoggableMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "tryDrainFluid", cancellable = true)
-    default void tryDrain(WorldAccess world, BlockPos pos, BlockState state, CallbackInfoReturnable<ItemStack> cir) {
+    default void tryDrain(PlayerEntity player, WorldAccess world, BlockPos pos, BlockState state, CallbackInfoReturnable<ItemStack> cir) {
         if (state.contains(WATER_LEVEL)) {
             cir.setReturnValue(ItemStack.EMPTY);
             if (state.get(WATER_LEVEL) == 8) {

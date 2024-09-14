@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "immersivefluids",
-  "version": "0.1.0a",
+  "version": "0.1.2.1",
 
   "name": "Immersive Fluids",
   "description": "Physics based behaviour for your minecraft fluids.",
@@ -32,7 +32,7 @@
   "depends": {
     "fabricloader": ">=0.13.3",
     "fabric": "*",
-    "minecraft": "1.20.1"
+    "minecraft": "1.20.4"
   },
   "suggests": {
     "lithium": "*"
