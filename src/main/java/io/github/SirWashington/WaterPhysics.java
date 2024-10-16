@@ -1,6 +1,7 @@
 package io.github.SirWashington;
 
 import io.github.SirWashington.features.NonCachedWater;
+import io.github.SirWashington.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.command.argument.BlockPosArgumentType;
@@ -10,6 +11,7 @@ import net.minecraft.text.Text;
 
 public class WaterPhysics implements ModInitializer {
 
+    public static final String MODID = "immersivefluids";
     public static final IntProperty WATER_LEVEL = IntProperty.of("water_level", 0, 8);
 
 
@@ -19,8 +21,9 @@ public class WaterPhysics implements ModInitializer {
         // This code runs as soon as Minecraft is in a mod-load-ready state.
         // However, some things (like resources) may still be uninitialized.
         // Proceed with mild caution.
+        ModItems.RegisterModItems();
 
-        System.out.println("Dihydrogen Monoxide Reloaded has loaded!");
+        System.out.println("Immersive Fluids has loaded!");
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(CommandManager.literal("waterlevel")
@@ -37,6 +40,8 @@ public class WaterPhysics implements ModInitializer {
                                 }
                             })));
         });
-        PerfTests.init();
+        //PerfTestsOld.init();
     }
+
+
 }

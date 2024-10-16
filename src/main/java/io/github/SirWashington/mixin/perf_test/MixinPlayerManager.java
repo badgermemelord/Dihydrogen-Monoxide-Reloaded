@@ -1,6 +1,6 @@
 package io.github.SirWashington.mixin.perf_test;
 
-import io.github.SirWashington.PerfTests;
+//import io.github.SirWashington.PerfTestsOld;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -17,7 +17,7 @@ public class MixinPlayerManager {
         method = "onPlayerConnect"
     )
     private void afterPlayerConnect(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
-        PerfTests.onPlayerConnect(connection, player);
+        //PerfTestsOld.onPlayerConnect(connection, player);
     }
 
 }

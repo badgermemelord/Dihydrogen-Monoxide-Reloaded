@@ -1,0 +1,20 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "minecraft:item/bucket"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "bucketlevel": 0.1
+      },
+      "model": "washwater:item/partial_water_bucket"
+    },
+    {
+      "predicate": {
+        "bucketlevel": 1.0
+      },
+      "model": "minecraft:item/water_bucket"
+    }
+  ]
+}

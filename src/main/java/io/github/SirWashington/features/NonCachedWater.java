@@ -19,6 +19,18 @@ public class NonCachedWater {
         }
     }
 
+    public static boolean setLevel(int level, BlockPos pos, World world) {
+        setup(world);
+        try {
+            CachedWater.setWaterLevel(level, pos);
+            return true;
+        } catch (IllegalStateException e) {
+            return false;
+        } finally {
+            unSetup();
+        }
+    }
+
     public static int getLevel(BlockPos pos, World world) {
         setup(world);
         try {

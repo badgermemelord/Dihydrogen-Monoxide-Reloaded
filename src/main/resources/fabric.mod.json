@@ -23,6 +23,9 @@
   "entrypoints": {
     "main": [
       "io.github.SirWashington.WaterPhysics"
+    ],
+    "client": [
+      "io.github.SirWashington.WaterPhysicsClient"
     ]
   },
   "mixins": [
