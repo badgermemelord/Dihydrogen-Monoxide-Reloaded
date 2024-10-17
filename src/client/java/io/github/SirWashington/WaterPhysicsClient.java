@@ -10,7 +10,6 @@ public class WaterPhysicsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         registerItemProperties();
-        printma();
     }
 
     public static void registerItemProperties() {
@@ -19,10 +18,4 @@ public class WaterPhysicsClient implements ClientModInitializer {
             return itemStack.getOrCreateTag().getInt("washwater:bucketFillLevel") / 8f;
         });
     }
-
-    public static void printma () {
-        System.out.println("Efefesnufehbfrbui");
-    }
-
-
 }

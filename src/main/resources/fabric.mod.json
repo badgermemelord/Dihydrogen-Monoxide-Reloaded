@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "immersivefluids",
-  "version": "0.1.0a",
+  "version": "0.1.2.2",
 
   "name": "Immersive Fluids",
   "description": "Physics based behaviour for your minecraft fluids.",

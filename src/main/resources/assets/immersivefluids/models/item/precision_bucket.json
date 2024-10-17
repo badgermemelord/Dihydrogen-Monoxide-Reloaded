@@ -8,7 +8,7 @@
       "predicate": {
         "bucketlevel": 0.1
       },
-      "model": "washwater:item/partial_water_bucket"
+      "model": "immersivefluids:item/partial_water_bucket"
     },
     {
       "predicate": {
