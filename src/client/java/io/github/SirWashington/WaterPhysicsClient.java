@@ -19,10 +19,10 @@ public class WaterPhysicsClient implements ClientModInitializer {
 
     public static void registerItemProperties() {
         // For versions before 1.21, replace 'Identifier.ofVanilla' with 'new Identifier'.
-/*        ModelPredicateProviderRegistry.register(PRECISION_BUCKET, new Identifier("bucketlevel"), (itemStack, clientWorld, livingEntity, seed) -> {
+        ModelPredicateProviderRegistry.register(PRECISION_BUCKET, new Identifier("bucketlevel"), (itemStack, clientWorld, livingEntity, seed) -> {
             return itemStack.getOrCreateNbt().getInt("washwater:bucketFillLevel")/8f;
 
-        });*/
+        });
     }
 
     public static void printma() {
