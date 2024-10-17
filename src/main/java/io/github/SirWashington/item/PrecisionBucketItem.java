@@ -48,7 +48,7 @@ public class PrecisionBucketItem extends Item {
     public void appendHoverText(ItemStack itemStack, @Nullable Level level, List<Component> list, TooltipFlag tooltipFlag) {
         if (itemStack.hasTag()) {
             int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillLevel");
-            String toolTipText = "Bucket contains: " + bucketFillLevel + "l " + "of fluid";
+            String toolTipText = "Bucket contains: " + bucketFillLevel + "levels " + "of fluid";
             list.add(new TextComponent(toolTipText));
         }
     }

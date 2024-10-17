@@ -9,6 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -18,7 +20,7 @@ public class BucketMechanics {
 
     public static boolean precisionBucketPlace(Level level, BlockPos pos, ItemStack itemStack, Player player) {
 
-        int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillWorld");
+        int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillLevel");
         int newBucketFillLevel = 0;
 
         if (bucketFillLevel > 0 && !level.isClientSide) {
@@ -28,13 +30,13 @@ public class BucketMechanics {
             BlockPos blockPos2 = blockPos.relative(direction);
             NonCachedWater.addWater(bucketFillLevel, blockPos2, level);
             CompoundTag tag = new CompoundTag();
-            tag.putInt("washwater:bucketFillWorld", newBucketFillLevel);
+            tag.putInt("washwater:bucketFillLevel", newBucketFillLevel);
             itemStack.setTag(tag);
         }
         return true;
     }
-    public static boolean precisionBucketPickup(Level level, BlockPos pos, ItemStack itemStack, Player player) {
-        int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillWorld");
+/*    public static boolean precisionBucketPickup(Level level, BlockPos pos, ItemStack itemStack, Player player) {
+        int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillLevel");
         int bucketRemainingSpace = 8 - bucketFillLevel;
         if (!level.isClientSide) {
             BlockHitResult blockHitResult = getPlayerEntityPOVHitResult(level, player, ClipContext.Fluid.NONE);
@@ -52,8 +54,41 @@ public class BucketMechanics {
                 newBucketFillLevel = bucketFillLevel + oldVolume;
             }
             NonCachedWater.setLevel(newVolume, blockPos2, level);
+
             CompoundTag tag = new CompoundTag();
-            tag.putInt("washwater:bucketFillWorld", newBucketFillLevel);
+            tag.putInt("washwater:bucketFillLevel", newBucketFillLevel);
+            itemStack.setTag(tag);
+        }
+        return true;
+    }*/
+
+    public static boolean precisionBucketPickup(Level level, BlockPos pos, ItemStack itemStack, Player player) {
+        int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillLevel");
+        int bucketRemainingSpace = 8 - bucketFillLevel;
+        if (!level.isClientSide) {
+            BlockHitResult blockHitResult = getPlayerEntityPOVHitResult(level, player, ClipContext.Fluid.NONE);
+            BlockPos blockPos = blockHitResult.getBlockPos();
+            Direction direction = blockHitResult.getDirection();
+            BlockPos blockPos2 = blockPos.relative(direction);
+            int oldVolume = NonCachedWater.getLevel(blockPos2, level);
+            int newVolume = 0;
+            int newBucketFillLevel;
+            if (oldVolume > bucketRemainingSpace) {
+                newVolume = oldVolume - bucketRemainingSpace;
+                newBucketFillLevel = 8;
+            }
+            else {
+                newBucketFillLevel = bucketFillLevel + oldVolume;
+            }
+            if (newVolume > 0) {
+                level.setBlock(blockPos2, Fluids.WATER.getFlowing(newVolume, false).createLegacyBlock(), 11);
+            }
+            else {
+                level.setBlock(blockPos2, Blocks.AIR.defaultBlockState(), 11);
+            }
+
+            CompoundTag tag = new CompoundTag();
+            tag.putInt("washwater:bucketFillLevel", newBucketFillLevel);
             itemStack.setTag(tag);
         }
         return true;
