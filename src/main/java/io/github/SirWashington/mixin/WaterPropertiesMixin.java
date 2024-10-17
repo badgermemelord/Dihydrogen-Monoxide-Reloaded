@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WaterFluid.Flowing.class)
 public abstract class WaterPropertiesMixin {
-    @Inject(at = @At("HEAD"), method = "appendProperties", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "createFluidStateDefinition", cancellable = true)
     protected void appendProperties(StateDefinition.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {
         builder.add(WaterFluidProperties.ISFINITE);
     }

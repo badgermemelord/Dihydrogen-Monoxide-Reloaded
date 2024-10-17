@@ -33,7 +33,8 @@ public abstract class PaneBlockMixin extends CrossCollisionBlock {
     @Redirect(
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;with(Lnet/minecraft/state/property/Property;Ljava/lang/Comparable;)Ljava/lang/Object;"
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;setValue(Lnet/minecraft/world/level/block/state/properties/Property;Ljava/lang/Comparable;)Ljava/lang/Object;"
+                    //target = "Lnet/minecraft/block/BlockState;with(Lnet/minecraft/state/property/Property;Ljava/lang/Comparable;)Ljava/lang/Object;"
             ),
             method = "<init>"
     )
@@ -64,7 +65,7 @@ public abstract class PaneBlockMixin extends CrossCollisionBlock {
     @Overwrite
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         if (direction.getAxis().isHorizontal()) {
-            return state.setValue(PROPERTY_BY_DIRECTION.get(direction), this.connectsTo(neighborState, neighborState.isFaceSturdy(world, neighborPos, direction.getOpposite())));
+            return state.setValue(PROPERTY_BY_DIRECTION.get(direction), this.attachsTo(neighborState, neighborState.isFaceSturdy(world, neighborPos, direction.getOpposite())));
         }
         return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
     }
@@ -86,11 +87,11 @@ public abstract class PaneBlockMixin extends CrossCollisionBlock {
         BlockState blockState2 = blockView.getBlockState(blockPos3);
         BlockState blockState3 = blockView.getBlockState(blockPos4);
         BlockState blockState4 = blockView.getBlockState(blockPos5);
-        return this.defaultBlockState().setValue(NORTH, this.connectsTo(blockState, blockState.isFaceSturdy(blockView, blockPos2, Direction.SOUTH))).setValue(SOUTH, this.connectsTo(blockState2, blockState2.isFaceSturdy(blockView, blockPos3, Direction.NORTH))).setValue(WEST, this.connectsTo(blockState3, blockState3.isFaceSturdy(blockView, blockPos4, Direction.EAST))).setValue(EAST, this.connectsTo(blockState4, blockState4.isFaceSturdy(blockView, blockPos5, Direction.WEST))).setValue(WATER_LEVEL, fluidState.getAmount());
+        return this.defaultBlockState().setValue(NORTH, this.attachsTo(blockState, blockState.isFaceSturdy(blockView, blockPos2, Direction.SOUTH))).setValue(SOUTH, this.attachsTo(blockState2, blockState2.isFaceSturdy(blockView, blockPos3, Direction.NORTH))).setValue(WEST, this.attachsTo(blockState3, blockState3.isFaceSturdy(blockView, blockPos4, Direction.EAST))).setValue(EAST, this.attachsTo(blockState4, blockState4.isFaceSturdy(blockView, blockPos5, Direction.WEST))).setValue(WATER_LEVEL, fluidState.getAmount());
     }
 
     @Shadow
-    public abstract boolean connectsTo(BlockState state, boolean sideSolidFullSquare);
+    public abstract boolean attachsTo(BlockState state, boolean sideSolidFullSquare);
 
     @Override
     public FluidState getFluidState(BlockState state) {

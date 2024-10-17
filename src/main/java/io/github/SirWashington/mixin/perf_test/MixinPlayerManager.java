@@ -13,7 +13,7 @@ public class MixinPlayerManager {
 
     @Inject(
         at = @At("TAIL"),
-        method = "onPlayerConnect"
+        method = "placeNewPlayer"
     )
     private void afterPlayerConnect(Connection connection, ServerPlayer player, CallbackInfo ci) {
         //PerfTestsOld.onPlayerConnect(connection, player);

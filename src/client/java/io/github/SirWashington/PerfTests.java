@@ -1,3 +1,4 @@
+/*
 package io.github.SirWashington;
 
 import carpet.helpers.TickSpeed;
@@ -129,3 +130,4 @@ public class PerfTests {
     }
 
 }
+*/

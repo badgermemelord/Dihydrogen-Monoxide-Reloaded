@@ -21,21 +21,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(net.minecraft.world.level.material.FlowingFluid.class)
 public class FlowingMixin {
-    @Inject(at = @At("HEAD"), method = "canFlowThrough", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "canPassThrough", cancellable = true)
     private void canFlowThrough(BlockGetter world, Fluid fluid, BlockPos pos, BlockState state, Direction face, BlockPos fromPos, BlockState fromState, FluidState fluidState, CallbackInfoReturnable<Boolean> bruh) {
         if (isWater(fluid)) {
             bruh.setReturnValue(false);
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "canFlow", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "canSpreadTo", cancellable = true)
     private void canFlow(BlockGetter world, BlockPos fluidPos, BlockState fluidBlockState, Direction flowDirection, BlockPos flowTo, BlockState flowToBlockState, FluidState fluidState, Fluid fluid, CallbackInfoReturnable<Boolean> bruh) {
         if (isWater(fluid)) {
             bruh.setReturnValue(false);
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "tryFlow", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "spread", cancellable = true)
     private void tryFlow(LevelAccessor world, BlockPos fluidPos, FluidState state, CallbackInfo bruh) {
         if (isWater(state.getType())) {
             FlowWater.flowWater(world, fluidPos, state);
@@ -43,7 +43,7 @@ public class FlowingMixin {
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "getUpdatedState", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "getNewLiquid", cancellable = true)
     private void getUpdatedState(LevelReader world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> bruh) {
         FluidState fluidstate = state.getFluidState();
         if (isWater(fluidstate.getType())) {
@@ -56,7 +56,7 @@ public class FlowingMixin {
      * @reason fck flowing animation
      */
     @Overwrite
-    public Vec3 getVelocity(BlockGetter world, BlockPos pos, FluidState state) {
+    public Vec3 getFlow(BlockGetter world, BlockPos pos, FluidState state) {
         return Vec3.ZERO;
     }
 

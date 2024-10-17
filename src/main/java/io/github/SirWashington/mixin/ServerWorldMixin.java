@@ -14,7 +14,8 @@ public class ServerWorldMixin {
 
     @Inject(at = @At(
                 value = "INVOKE",
-                target = "Lnet/minecraft/world/tick/WorldTickScheduler;tick(JILjava/util/function/BiConsumer;)V",
+                target = "Lnet/minecraft/world/ticks/LevelTicks;tick(JILjava/util/function/BiConsumer;)V",
+                //target = "Lnet/minecraft/world/tick/WorldTickScheduler;tick(JILjava/util/function/BiConsumer;)V",
                 ordinal = 1,
                 shift = At.Shift.BEFORE),
             method = "tick")
@@ -24,7 +25,8 @@ public class ServerWorldMixin {
 
     @Inject(at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/tick/WorldTickScheduler;tick(JILjava/util/function/BiConsumer;)V",
+            target = "Lnet/minecraft/world/ticks/LevelTicks;tick(JILjava/util/function/BiConsumer;)V",
+            //target = "Lnet/minecraft/world/tick/WorldTickScheduler;tick(JILjava/util/function/BiConsumer;)V",
             ordinal = 1,
             shift = At.Shift.AFTER),
             method = "tick")
