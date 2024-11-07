@@ -1,5 +1,6 @@
 package io.github.SirWashington.mixin;
 
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +22,7 @@ import net.minecraft.world.level.material.FluidState;
 public interface WaterLoggableMixin {
 
     @Inject(at = @At("HEAD"), method = "canPlaceLiquid", cancellable = true)
-    default void canFill(BlockGetter world, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
+    default void canFill(Player player, BlockGetter blockGetter, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
         if (state.hasProperty(WATER_LEVEL)) {
             cir.setReturnValue(state.getValue(WATER_LEVEL) < 8);
         }
@@ -39,7 +40,7 @@ public interface WaterLoggableMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "pickupBlock", cancellable = true)
-    default void tryDrain(LevelAccessor world, BlockPos pos, BlockState state, CallbackInfoReturnable<ItemStack> cir) {
+    default void tryDrain(Player player, LevelAccessor world, BlockPos pos, BlockState state, CallbackInfoReturnable<ItemStack> cir) {
         if (state.hasProperty(WATER_LEVEL)) {
             cir.setReturnValue(ItemStack.EMPTY);
             if (state.getValue(WATER_LEVEL) == 8) {
