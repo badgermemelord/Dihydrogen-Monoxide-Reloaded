@@ -4,6 +4,7 @@ import io.github.SirWashington.FlowWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,7 +37,7 @@ public class FlowingMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "spread", cancellable = true)
-    private void tryFlow(LevelAccessor world, BlockPos fluidPos, FluidState state, CallbackInfo bruh) {
+    private void tryFlow(Level world, BlockPos fluidPos, FluidState state, CallbackInfo bruh) {
         if (isWater(state.getType())) {
             FlowWater.flowWater(world, fluidPos, state);
             bruh.cancel();
@@ -44,7 +45,7 @@ public class FlowingMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "getNewLiquid", cancellable = true)
-    private void getUpdatedState(LevelReader world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> bruh) {
+    private void getUpdatedState(Level world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> bruh) {
         FluidState fluidstate = state.getFluidState();
         if (isWater(fluidstate.getType())) {
             bruh.setReturnValue(Fluids.FLOWING_WATER.getFlowing(state.getFluidState().getAmount(), false));

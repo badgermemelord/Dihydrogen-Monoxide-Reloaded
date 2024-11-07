@@ -4,6 +4,7 @@ import io.github.SirWashington.FlowLava;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +35,7 @@ public class FlowingLavaMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "spread", cancellable = true)
-    private void tryFlow(LevelAccessor world, BlockPos fluidPos, FluidState state, CallbackInfo lbruh) {
+    private void tryFlow(Level world, BlockPos fluidPos, FluidState state, CallbackInfo lbruh) {
         if ((state.getType() instanceof LavaFluid.Flowing) || (state.getType() instanceof LavaFluid.Source)) {
             FlowLava.flowlava(world, fluidPos, state);
             lbruh.cancel();
@@ -42,7 +43,7 @@ public class FlowingLavaMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "getNewLiquid", cancellable = true)
-    private void getUpdatedState(LevelReader world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> lbruh) {
+    private void getUpdatedState(Level world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> lbruh) {
         FluidState fluidstate = state.getFluidState();
         if (fluidstate.getType() instanceof LavaFluid.Flowing) {
             lbruh.setReturnValue(Fluids.FLOWING_LAVA.getFlowing(state.getFluidState().getAmount(), false));

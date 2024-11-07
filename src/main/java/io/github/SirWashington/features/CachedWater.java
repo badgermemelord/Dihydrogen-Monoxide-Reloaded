@@ -10,6 +10,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -299,13 +300,15 @@ public class CachedWater {
         if (!neighborState.getFluidState().isEmpty()) {
             fluidsToUpdate.put(pos, neighborState);
         } else {
-            // Vanilla behaviour
+            //TODO try to reimplement this later on
+/*            // Vanilla behaviour
             try {
                 neighborState.neighborChanged(world, pos, sourceBlock, neighborPos, false);
             } catch (Throwable var8) {
                 CrashReport crashReport = CrashReport.forThrowable(var8, "Exception while updating neighbours");
                 CrashReportCategory crashReportSection = crashReport.addCategory("Block being updated");
                 crashReportSection.setDetail("Source block type", (CrashReportDetail<String>)(() -> {
+                    Registries.BLOCK.
                     try {
                         return String.format("ID #%s (%s // %s)", Registry.BLOCK.getKey(sourceBlock), sourceBlock.getDescriptionId(), sourceBlock.getClass().getCanonicalName());
                     } catch (Throwable var2x) {
@@ -314,7 +317,7 @@ public class CachedWater {
                 }));
                 CrashReportCategory.populateBlockDetails(crashReportSection, world, pos, neighborState);
                 throw new ReportedException(crashReport);
-            }
+            }*/
         }
     }
 

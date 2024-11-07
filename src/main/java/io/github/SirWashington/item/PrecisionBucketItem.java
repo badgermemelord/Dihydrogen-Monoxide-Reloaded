@@ -6,7 +6,6 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -49,7 +48,7 @@ public class PrecisionBucketItem extends Item {
         if (itemStack.hasTag()) {
             int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillLevel");
             String toolTipText = "Bucket contains: " + bucketFillLevel + "levels " + "of fluid";
-            list.add(new TextComponent(toolTipText));
+            list.add(Component.literal(toolTipText));
         }
     }
 
