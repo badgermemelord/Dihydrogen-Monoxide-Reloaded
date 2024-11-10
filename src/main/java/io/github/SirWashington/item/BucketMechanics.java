@@ -1,5 +1,6 @@
 package io.github.SirWashington.item;
 
+import io.github.SirWashington.component.ModDataComponentTypes;
 import io.github.SirWashington.features.NonCachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +21,8 @@ public class BucketMechanics {
 
     public static boolean precisionBucketPlace(Level level, BlockPos pos, ItemStack itemStack, Player player) {
 
-        int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillLevel");
+
+        int bucketFillLevel = itemStack.get(ModDataComponentTypes.BUCKET_FILL_LEVEL);
         int newBucketFillLevel = 0;
 
         if (bucketFillLevel > 0 && !level.isClientSide) {
@@ -29,9 +31,7 @@ public class BucketMechanics {
             Direction direction = blockHitResult.getDirection();
             BlockPos blockPos2 = blockPos.relative(direction);
             NonCachedWater.addWater(bucketFillLevel, blockPos2, level);
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("washwater:bucketFillLevel", newBucketFillLevel);
-            itemStack.setTag(tag);
+            itemStack.set(ModDataComponentTypes.BUCKET_FILL_LEVEL, newBucketFillLevel);
         }
         return true;
     }
@@ -63,7 +63,7 @@ public class BucketMechanics {
     }*/
 
     public static boolean precisionBucketPickup(Level level, BlockPos pos, ItemStack itemStack, Player player) {
-        int bucketFillLevel = itemStack.getTag().getInt("washwater:bucketFillLevel");
+        int bucketFillLevel = itemStack.get(ModDataComponentTypes.BUCKET_FILL_LEVEL);
         int bucketRemainingSpace = 8 - bucketFillLevel;
         if (!level.isClientSide) {
             BlockHitResult blockHitResult = getPlayerEntityPOVHitResult(level, player, ClipContext.Fluid.NONE);
@@ -87,9 +87,7 @@ public class BucketMechanics {
                 level.setBlock(blockPos2, Blocks.AIR.defaultBlockState(), 11);
             }
 
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("washwater:bucketFillLevel", newBucketFillLevel);
-            itemStack.setTag(tag);
+            itemStack.set(ModDataComponentTypes.BUCKET_FILL_LEVEL, newBucketFillLevel);
         }
         return true;
     }
