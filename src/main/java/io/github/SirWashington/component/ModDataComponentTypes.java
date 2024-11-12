@@ -1,5 +1,6 @@
 package io.github.SirWashington.component;
 
+import com.mojang.serialization.Codec;
 import io.github.SirWashington.WaterPhysics;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
@@ -11,7 +12,7 @@ import java.util.function.UnaryOperator;
 
 public class ModDataComponentTypes {
 
-    public static final DataComponentType<Integer> BUCKET_FILL_LEVEL = register("bucket_fill_level", integerBuilder -> integerBuilder);
+    public static final DataComponentType<Integer> BUCKET_FILL_LEVEL = register("bucket_fill_level", builder -> builder.persistent(Codec.INT));
 
 
     private static <T>DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {

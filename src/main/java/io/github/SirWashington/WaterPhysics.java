@@ -1,5 +1,6 @@
 package io.github.SirWashington;
 
+import io.github.SirWashington.component.ModDataComponentTypes;
 import io.github.SirWashington.features.NonCachedWater;
 import io.github.SirWashington.item.ModItems;
 import net.fabricmc.api.ModInitializer;
@@ -24,6 +25,7 @@ public class WaterPhysics implements ModInitializer {
         // However, some things (like resources) may still be uninitialized.
         // Proceed with mild caution.
         ModItems.RegisterModItems();
+        ModDataComponentTypes.registerDataComponentTypes();
 
         System.out.println("Immersive Fluids has loaded!");
 

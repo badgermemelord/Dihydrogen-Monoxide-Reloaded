@@ -13,7 +13,7 @@ import net.minecraft.world.item.Item;
 
 public class ModItems {
 
-    public static final Item PRECISION_BUCKET = registerItem("precision_bucket", new PrecisionBucketItem(new Item.Properties()));
+    public static final Item PRECISION_BUCKET = registerItem("precision_bucket", new PrecisionBucketItem(new Item.Properties().stacksTo(1)));
 
     private static void addItemsToCreativeModeTab(FabricItemGroupEntries entries) {
         entries.prepend(PRECISION_BUCKET);

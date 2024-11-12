@@ -1,6 +1,7 @@
 package io.github.SirWashington.item;
 
 import io.github.SirWashington.component.ModDataComponentTypes;
+import io.github.SirWashington.nbtUtil.DataComponentUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -28,9 +29,8 @@ public class PrecisionBucketItem extends Item {
         ItemStack itemStack = useOnContext.getItemInHand();
         BlockPos targetPos = useOnContext.getClickedPos();
 
-        if (!itemStack.has(ModDataComponentTypes.BUCKET_FILL_LEVEL)) {
-            itemStack.set(ModDataComponentTypes.BUCKET_FILL_LEVEL, 0);
-        }
+        DataComponentUtils.getOrCreateComponent(ModDataComponentTypes.BUCKET_FILL_LEVEL, itemStack);
+
         if (player != null) {
             if (!player.isCrouching()) {
                 BucketMechanics.precisionBucketPlace(level, targetPos, itemStack, player);
@@ -45,7 +45,7 @@ public class PrecisionBucketItem extends Item {
     @Override
     public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
         if (false) {
-            int bucketFillLevel = itemStack.get(ModDataComponentTypes.BUCKET_FILL_LEVEL);
+            int bucketFillLevel = DataComponentUtils.getOrCreateComponent(ModDataComponentTypes.BUCKET_FILL_LEVEL, itemStack);
             String toolTipText = "Bucket contains: " + bucketFillLevel + "levels " + "of fluid";
             list.add(Component.literal(toolTipText));
         }
@@ -67,12 +67,9 @@ public class PrecisionBucketItem extends Item {
 
     @Override
     public int getBarWidth(ItemStack itemStack) {
-        if (itemStack.has(ModDataComponentTypes.BUCKET_FILL_LEVEL)) {
-            int fillLevel = itemStack.get(ModDataComponentTypes.BUCKET_FILL_LEVEL);
-            int maxFillLevel = 8;
-            float fraction = (float) fillLevel / (float) maxFillLevel;
-            return (int) (13f * fraction);
-        }
-        else return 0;
+        int fillLevel = DataComponentUtils.getOrCreateComponent(ModDataComponentTypes.BUCKET_FILL_LEVEL, itemStack);
+        int maxFillLevel = 8;
+        float fraction = (float) fillLevel / (float) maxFillLevel;
+        return (int) (13f * fraction);
     }
 }

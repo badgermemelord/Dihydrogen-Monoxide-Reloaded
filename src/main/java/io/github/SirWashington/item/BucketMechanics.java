@@ -2,6 +2,7 @@ package io.github.SirWashington.item;
 
 import io.github.SirWashington.component.ModDataComponentTypes;
 import io.github.SirWashington.features.NonCachedWater;
+import io.github.SirWashington.nbtUtil.DataComponentUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -22,7 +23,7 @@ public class BucketMechanics {
     public static boolean precisionBucketPlace(Level level, BlockPos pos, ItemStack itemStack, Player player) {
 
 
-        int bucketFillLevel = itemStack.get(ModDataComponentTypes.BUCKET_FILL_LEVEL);
+        int bucketFillLevel = DataComponentUtils.getOrCreateComponent(ModDataComponentTypes.BUCKET_FILL_LEVEL, itemStack);
         int newBucketFillLevel = 0;
 
         if (bucketFillLevel > 0 && !level.isClientSide) {
@@ -63,7 +64,7 @@ public class BucketMechanics {
     }*/
 
     public static boolean precisionBucketPickup(Level level, BlockPos pos, ItemStack itemStack, Player player) {
-        int bucketFillLevel = itemStack.get(ModDataComponentTypes.BUCKET_FILL_LEVEL);
+        int bucketFillLevel = DataComponentUtils.getOrCreateComponent(ModDataComponentTypes.BUCKET_FILL_LEVEL, itemStack);
         int bucketRemainingSpace = 8 - bucketFillLevel;
         if (!level.isClientSide) {
             BlockHitResult blockHitResult = getPlayerEntityPOVHitResult(level, player, ClipContext.Fluid.NONE);
