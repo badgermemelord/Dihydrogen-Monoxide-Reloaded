@@ -1,14 +1,15 @@
 package io.github.SirWashington.mixin;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.StainedGlassPaneBlock;
-import net.minecraft.state.property.Property;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static io.github.SirWashington.WaterPhysics.WATER_LEVEL;
-import static net.minecraft.state.property.Properties.WATERLOGGED;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
+
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 @Mixin(StainedGlassPaneBlock.class)
 public class StainedGlassPaneBlockMixin {
@@ -16,7 +17,8 @@ public class StainedGlassPaneBlockMixin {
     @Redirect(
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;with(Lnet/minecraft/state/property/Property;Ljava/lang/Comparable;)Ljava/lang/Object;"
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;setValue(Lnet/minecraft/world/level/block/state/properties/Property;Ljava/lang/Comparable;)Ljava/lang/Object;"
+                    //target = "Lnet/minecraft/block/BlockState;with(Lnet/minecraft/state/property/Property;Ljava/lang/Comparable;)Ljava/lang/Object;"
             ),
             method = "<init>"
     )
@@ -26,7 +28,7 @@ public class StainedGlassPaneBlockMixin {
             comparable = 0;
         }
 
-        return instance.with(property, comparable);
+        return instance.setValue(property, comparable);
     }
 
 }

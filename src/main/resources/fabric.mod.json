@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "immersivefluids",
-  "version": "0.1.2.1",
+  "version": "0.1.2.3",
 
   "name": "Immersive Fluids",
   "description": "Physics based behaviour for your minecraft fluids.",
@@ -23,6 +23,9 @@
   "entrypoints": {
     "main": [
       "io.github.SirWashington.WaterPhysics"
+    ],
+    "client": [
+      "io.github.SirWashington.WaterPhysicsClient"
     ]
   },
   "mixins": [
@@ -30,9 +33,10 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.13.3",
+    "fabricloader": ">=0.14.9",
     "fabric": "*",
-    "minecraft": "1.21"
+    "minecraft": "1.21",
+    "fabric-api": "*"
   },
   "suggests": {
     "lithium": "*"
