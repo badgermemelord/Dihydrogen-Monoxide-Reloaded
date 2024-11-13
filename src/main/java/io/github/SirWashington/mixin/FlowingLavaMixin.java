@@ -1,52 +1,52 @@
 package io.github.SirWashington.mixin;
 
 import io.github.SirWashington.FlowLava;
-import net.minecraft.block.BlockState;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.LavaFluid;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.LavaFluid;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(net.minecraft.fluid.FlowableFluid.class)
+@Mixin(net.minecraft.world.level.material.FlowingFluid.class)
 public class FlowingLavaMixin {
-    @Inject(at = @At("HEAD"), method = "canFlowThrough", cancellable = true)
-    private void canFlowThrough(BlockView world, Fluid fluid, BlockPos pos, BlockState state, Direction face, BlockPos fromPos, BlockState fromState, FluidState fluidState, CallbackInfoReturnable<Boolean> lbruh) {
+    @Inject(at = @At("HEAD"), method = "canPassThrough", cancellable = true)
+    private void canFlowThrough(BlockGetter world, Fluid fluid, BlockPos pos, BlockState state, Direction face, BlockPos fromPos, BlockState fromState, FluidState fluidState, CallbackInfoReturnable<Boolean> lbruh) {
         if (fluid instanceof LavaFluid) {
             lbruh.setReturnValue(false);
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "canFlow", cancellable = true)
-    private void canFlow(BlockView world, BlockPos fluidPos, BlockState fluidBlockState, Direction flowDirection, BlockPos flowTo, BlockState flowToBlockState, FluidState fluidState, Fluid fluid, CallbackInfoReturnable<Boolean> lbruh) {
+    @Inject(at = @At("HEAD"), method = "canSpreadTo", cancellable = true)
+    private void canFlow(BlockGetter world, BlockPos fluidPos, BlockState fluidBlockState, Direction flowDirection, BlockPos flowTo, BlockState flowToBlockState, FluidState fluidState, Fluid fluid, CallbackInfoReturnable<Boolean> lbruh) {
         if (fluid instanceof LavaFluid) {
             lbruh.setReturnValue(false);
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "tryFlow", cancellable = true)
-    private void tryFlow(World world, BlockPos fluidPos, FluidState state, CallbackInfo ci) {
-        if ((state.getFluid() instanceof LavaFluid.Flowing) || (state.getFluid() instanceof LavaFluid.Still)) {
+    @Inject(at = @At("HEAD"), method = "spread", cancellable = true)
+    private void tryFlow(Level world, BlockPos fluidPos, FluidState state, CallbackInfo lbruh) {
+        if ((state.getType() instanceof LavaFluid.Flowing) || (state.getType() instanceof LavaFluid.Source)) {
             FlowLava.flowlava(world, fluidPos, state);
-            ci.cancel();
+            lbruh.cancel();
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "getUpdatedState", cancellable = true)
-    private void getUpdatedState(World world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> cir) {
+    @Inject(at = @At("HEAD"), method = "getNewLiquid", cancellable = true)
+    private void getUpdatedState(Level world, BlockPos pos, BlockState state, CallbackInfoReturnable<FluidState> lbruh) {
         FluidState fluidstate = state.getFluidState();
-        if (fluidstate.getFluid() instanceof LavaFluid.Flowing) {
-            cir.setReturnValue(Fluids.FLOWING_LAVA.getFlowing(state.getFluidState().getLevel(), false));
+        if (fluidstate.getType() instanceof LavaFluid.Flowing) {
+            lbruh.setReturnValue(Fluids.FLOWING_LAVA.getFlowing(state.getFluidState().getAmount(), false));
         }
     }
 }

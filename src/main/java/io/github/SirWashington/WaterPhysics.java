@@ -1,18 +1,21 @@
 package io.github.SirWashington;
 
+import io.github.SirWashington.component.ModDataComponentTypes;
 import io.github.SirWashington.features.NonCachedWater;
+import io.github.SirWashington.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.minecraft.command.argument.BlockPosArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.text.Text;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 import java.util.function.Supplier;
 
 public class WaterPhysics implements ModInitializer {
 
-    public static final IntProperty WATER_LEVEL = IntProperty.of("water_level", 0, 8);
+    public static final String MODID = "immersivefluids";
+    public static final IntegerProperty WATER_LEVEL = IntegerProperty.create("water_level", 0, 8);
 
 
     @Override
@@ -21,23 +24,28 @@ public class WaterPhysics implements ModInitializer {
         // This code runs as soon as Minecraft is in a mod-load-ready state.
         // However, some things (like resources) may still be uninitialized.
         // Proceed with mild caution.
+        ModItems.RegisterModItems();
+        ModDataComponentTypes.registerDataComponentTypes();
 
-        System.out.println("Dihydrogen Monoxide Reloaded has loaded!");
+        System.out.println("Immersive Fluids has loaded!");
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            dispatcher.register(CommandManager.literal("waterlevel")
-                    .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
+            dispatcher.register(Commands.literal("waterlevel")
+                    .then(Commands.argument("pos", BlockPosArgument.blockPos())
                             .executes(context -> {
                                 try {
-                                    int result = NonCachedWater.getLevel(BlockPosArgumentType.getBlockPos(context, "pos"), context.getSource().getWorld());
-                                    context.getSource().sendFeedback((Supplier<Text>) Text.of("Water level at " + BlockPosArgumentType.getBlockPos(context, "pos") + " is " + result), false);
+                                    int result = NonCachedWater.getLevel(BlockPosArgument.getSpawnablePos(context, "pos"), context.getSource().getLevel());
+                                    context.getSource().sendSuccess((Supplier<Component>) Component.nullToEmpty("Water level at " + BlockPosArgument.getSpawnablePos(context, "pos") + " is " + result), false);
                                     return result;
                                 } catch (Exception e) {
-                                    context.getSource().sendError(Text.of("AA Something went wrong"));
+                                    context.getSource().sendFailure(Component.nullToEmpty("AA Something went wrong"));
                                     e.printStackTrace();
                                     return -9999;
                                 }
                             })));
         });
+        //PerfTestsOld.init();
     }
+
+
 }
