@@ -62,7 +62,7 @@ public class PrecisionBucketItem extends Item {
 
     @Override
     public int getBarColor(ItemStack itemStack) {
-        return Mth.color(56, 141, 252);
+        return Mth.color(0.22f, 0.55f, 0.99f);
     }
 
     @Override

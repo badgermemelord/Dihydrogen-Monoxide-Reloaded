@@ -1,16 +1,9 @@
 package io.github.SirWashington.features;
 
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
-import it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.CrashReportDetail;
-import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -39,8 +32,11 @@ public class CachedWater {
     public static Level world;
 
     public static int a = 0;
-    public static int countMa() {
+    public static void addToCount() {
         a += 1;
+    }
+
+    public static int getCount() {
         return a;
     }
 
@@ -344,6 +340,8 @@ public class CachedWater {
 
             world.scheduleTick(pos, state.getFluidState().getType(), state.getFluidState().getType().getTickDelay(world));
         }
+
+        addToCount();
 
         sections.forEach((sectionPos, section) -> section.release());
 

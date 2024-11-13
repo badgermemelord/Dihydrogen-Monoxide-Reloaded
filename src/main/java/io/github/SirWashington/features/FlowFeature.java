@@ -1,8 +1,5 @@
 package io.github.SirWashington.features;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
@@ -15,8 +12,10 @@ public class FlowFeature {
 
         // What is this arraylist?
 
+        int a = 0;
         for (Direction dir : Direction.Plane.HORIZONTAL) {
-            blocks[CachedWater.countMa()%4] = (center.relative(dir));
+            blocks[(CachedWater.getCount() + a) % 4] = (center.relative(dir));
+            a++;
         }
 
         int[] waterLevels = new int[4];
