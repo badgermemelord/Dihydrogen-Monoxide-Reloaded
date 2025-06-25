@@ -32,25 +32,31 @@ public class FlowWater {
         } else {
             FlowWater.world = (ServerLevel) world;
             CachedWater.setup(FlowWater.world, fluidPos);
-            BlockState current = CachedWater.getBlockState(fluidPos);
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
 
-            //System.out.println(current.get(ISINFINITE));
-            if (CachedWater.isInfinite(fluidPos)) {
+            if ((CachedWater.getBlockState(fluidPos.below()).canBeReplaced(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
+                CachedWater.setWaterLevel(0, fluidPos);
+                CachedWater.addWater(centerLevel, fluidPos.below());
+            } else {
+                equalizeWater(fluidPos, centerLevel, world);
+            }
+
+            //Infinite Water supported code:
+/*            if (CachedWater.isInfinite(fluidPos)) {
                 infiniteWaterFlow(world, fluidPos, state);
                 //System.out.println("a");
             }
             else {
-                if(CachedWater.isInfinite(fluidPos.below())) {
+*//*                if(CachedWater.isInfinite(fluidPos.below())) {
                     CachedWater.setWaterLevel(0, fluidPos);
-                }
+                }*//*
                 if ((CachedWater.getBlockState(fluidPos.below()).canBeReplaced(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
                     CachedWater.setWaterLevel(0, fluidPos);
                     CachedWater.addWater(centerLevel, fluidPos.below());
                 } else {
                     equalizeWater(fluidPos, centerLevel, world);
                 }
-            }
+            }*/
 
 
 
