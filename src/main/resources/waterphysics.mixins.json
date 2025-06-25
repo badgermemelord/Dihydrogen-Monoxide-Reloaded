@@ -14,7 +14,8 @@
     "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
     "WaterLoggableMixin",
-    "perf_test.MixinPlayerManager"
+    "perf_test.MixinPlayerManager",
+    "MixinPistonBaseBlock"
   ],
   "injectors": {
     "defaultRequire": 1
