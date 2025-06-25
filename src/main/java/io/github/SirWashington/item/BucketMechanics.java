@@ -71,7 +71,7 @@ public class BucketMechanics {
             BlockPos blockPos = blockHitResult.getBlockPos();
             Direction direction = blockHitResult.getDirection();
             BlockPos blockPos2 = blockPos.relative(direction);
-            int oldVolume = NonCachedWater.getLevel(blockPos2, level);
+            int oldVolume = NonCachedWater.getWaterLevel(blockPos2, level);
             int newVolume = 0;
             int newBucketFillLevel;
             if (oldVolume > bucketRemainingSpace) {
