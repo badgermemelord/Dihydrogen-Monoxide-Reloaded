@@ -7,6 +7,7 @@ import io.github.SirWashington.features.PuddleFeature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -33,6 +34,10 @@ public class FlowWater {
             FlowWater.world = (ServerLevel) world;
             CachedWater.setup(FlowWater.world, fluidPos);
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
+
+            if ((CachedWater.getBlockState(fluidPos.below()).is(Blocks.LAVA))) {
+                world.setBlock(fluidPos.below(), Blocks.OBSIDIAN.defaultBlockState(), 11, 11);
+            }
 
             if ((CachedWater.getBlockState(fluidPos.below()).canBeReplaced(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
                 CachedWater.setWaterLevel(0, fluidPos);
