@@ -13,7 +13,8 @@
     "ServerWorldMixin",
     "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
-    "WaterLoggableMixin"
+    "WaterLoggableMixin",
+    "MixinPistonBaseBlock"
   ],
   "injectors": {
     "defaultRequire": 1
