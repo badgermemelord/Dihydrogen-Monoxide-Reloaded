@@ -32,7 +32,7 @@ public class WaterPhysics implements ModInitializer {
                     .then(Commands.argument("pos", BlockPosArgument.blockPos())
                             .executes(context -> {
                                 try {
-                                    int result = NonCachedWater.getLevel(BlockPosArgument.getSpawnablePos(context, "pos"), context.getSource().getLevel());
+                                    int result = NonCachedWater.getWaterLevel(BlockPosArgument.getSpawnablePos(context, "pos"), context.getSource().getLevel());
                                     context.getSource().sendSuccess((Supplier<Component>) Component.nullToEmpty("Water level at " + BlockPosArgument.getSpawnablePos(context, "pos") + " is " + result), false);
                                     return result;
                                 } catch (Exception e) {
