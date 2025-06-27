@@ -9,6 +9,8 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
+import java.util.function.Supplier;
+
 public class WaterPhysics implements ModInitializer {
 
     public static final String MODID = "immersivefluids";
@@ -31,7 +33,7 @@ public class WaterPhysics implements ModInitializer {
                             .executes(context -> {
                                 try {
                                     int result = NonCachedWater.getWaterLevel(BlockPosArgument.getSpawnablePos(context, "pos"), context.getSource().getLevel());
-                                    context.getSource().sendSuccess(Component.nullToEmpty("Water level at " + BlockPosArgument.getSpawnablePos(context, "pos") + " is " + result), false);
+                                    context.getSource().sendSuccess((Supplier<Component>) Component.nullToEmpty("Water level at " + BlockPosArgument.getSpawnablePos(context, "pos") + " is " + result), false);
                                     return result;
                                 } catch (Exception e) {
                                     context.getSource().sendFailure(Component.nullToEmpty("AA Something went wrong"));
