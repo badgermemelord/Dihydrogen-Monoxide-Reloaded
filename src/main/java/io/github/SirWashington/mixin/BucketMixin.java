@@ -2,12 +2,17 @@ package io.github.SirWashington.mixin;
 
 import io.github.SirWashington.features.NonCachedWater;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(net.minecraft.world.item.BucketItem.class)
 public abstract class BucketMixin{
@@ -36,5 +41,13 @@ public abstract class BucketMixin{
         }
     }
 
-
+    @Inject(
+            at = @At("HEAD"), method = "emptyContents", cancellable = true)
+    private void checkIfCanPlace(Player player, Level level, BlockPos blockPos, BlockHitResult bhr, CallbackInfoReturnable<Boolean> cir) {
+        BlockState blockState = level.getBlockState(blockPos);
+        Block block = blockState.getBlock();
+        if (!blockState.isAir() && block != Blocks.WATER) {
+            cir.setReturnValue(false);
+        }
+    }
 }

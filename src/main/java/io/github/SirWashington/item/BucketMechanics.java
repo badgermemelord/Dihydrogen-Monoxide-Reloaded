@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -28,10 +29,13 @@ public class BucketMechanics {
             BlockPos blockPos = blockHitResult.getBlockPos();
             Direction direction = blockHitResult.getDirection();
             BlockPos blockPos2 = blockPos.relative(direction);
-            NonCachedWater.addWater(bucketFillLevel, blockPos2, level);
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("washwater:bucketFillLevel", newBucketFillLevel);
-            itemStack.setTag(tag);
+            BlockState state = level.getBlockState(blockPos2);
+            if (state.isAir() || state.getBlock() == Blocks.WATER) {
+                NonCachedWater.addWater(bucketFillLevel, blockPos2, level);
+                CompoundTag tag = new CompoundTag();
+                tag.putInt("washwater:bucketFillLevel", newBucketFillLevel);
+                itemStack.setTag(tag);
+            }
         }
         return true;
     }
