@@ -3,6 +3,7 @@ package io.github.SirWashington.mixin;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -32,8 +33,8 @@ public class FlowingWaterloggedMixin {
     }*/
 
     /**
-     * @author Dn
-     * @reason Mald
+     * @author SirWashington
+     * @reason idk
      */
     @Overwrite
     private void tickFluid(BlockPos pos, Fluid fluid) {
@@ -42,14 +43,14 @@ public class FlowingWaterloggedMixin {
         FluidState fluidState = Level.class.cast(this).getFluidState(pos);
         boolean isWaterLoggable = blockState.getBlock() instanceof SimpleWaterloggedBlock;
 
-        if (fluidState.is(fluid)) {
+/*        if (fluidState.is(fluid)) {
             fluidState.tick(Level.class.cast(this), pos);
             System.out.println("deez");
-        }
-        if (isWaterLoggable && blockState.getValue(BlockStateProperties.WATERLOGGED)) {
+        }*/
+/*        if (isWaterLoggable && blockState.getValue(BlockStateProperties.WATERLOGGED)) {
             fluidState.tick(Level.class.cast(this), pos);
             System.out.println("deez2");
-        }
+        }*/
 
 
 /*        if (fluidState.isOf(fluid) || blockState.get(Properties.WATERLOGGED)) {

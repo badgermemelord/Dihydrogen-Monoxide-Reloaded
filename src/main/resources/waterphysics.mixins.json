@@ -9,9 +9,7 @@
     "FlowingLavaMixin",
     "FlowingMixin",
     "LavaFluidMixin",
-    "PaneBlockMixin",
     "ServerWorldMixin",
-    "StainedGlassPaneBlockMixin",
     "WaterFluidMixin",
     "WaterLoggableMixin",
     "MixinPistonBaseBlock"
