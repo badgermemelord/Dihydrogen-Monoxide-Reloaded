@@ -18,6 +18,8 @@ import net.minecraft.world.level.Level;
 
 public class PrecisionBucketItem extends Item {
 
+    
+
     public PrecisionBucketItem(Item.Properties properties) {
         super(properties);
     }

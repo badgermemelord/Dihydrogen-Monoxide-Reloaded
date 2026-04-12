@@ -6,9 +6,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -41,13 +47,21 @@ public abstract class BucketMixin{
         }
     }
 
+    @Shadow
+    private Fluid content;
+
     @Inject(
             at = @At("HEAD"), method = "emptyContents", cancellable = true)
     private void checkIfCanPlace(Player player, Level level, BlockPos blockPos, BlockHitResult bhr, CallbackInfoReturnable<Boolean> cir) {
         BlockState blockState = level.getBlockState(blockPos);
         Block block = blockState.getBlock();
-        if (!blockState.isAir() && block != Blocks.WATER) {
-            cir.setReturnValue(false);
+        if (block instanceof LiquidBlockContainer) {
+            if (blockState.getValue(BlockStateProperties.WATERLOGGED)) {
+                cir.setReturnValue(false);
+                return;
+            }
+            level.setBlock(blockPos, blockState.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+            cir.setReturnValue(true);
         }
     }
 }

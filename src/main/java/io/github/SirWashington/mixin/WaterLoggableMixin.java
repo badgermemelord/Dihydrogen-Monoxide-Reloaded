@@ -20,7 +20,7 @@ import net.minecraft.world.level.material.FluidState;
 @Mixin(SimpleWaterloggedBlock.class)
 public interface WaterLoggableMixin {
 
-    @Inject(at = @At("HEAD"), method = "canPlaceLiquid", cancellable = true)
+/*    @Inject(at = @At("HEAD"), method = "canPlaceLiquid", cancellable = true)
     default void canFill(BlockGetter world, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
         if (state.hasProperty(WATER_LEVEL)) {
             cir.setReturnValue(state.getValue(WATER_LEVEL) < 8);
@@ -47,7 +47,7 @@ public interface WaterLoggableMixin {
                 cir.setReturnValue(new ItemStack(Items.WATER_BUCKET));
             }
         }
-    }
+    }*/
 
 
 }
