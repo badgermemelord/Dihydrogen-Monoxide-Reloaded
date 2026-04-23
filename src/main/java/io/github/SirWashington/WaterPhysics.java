@@ -27,7 +27,7 @@ public class WaterPhysics implements ModInitializer {
 
         System.out.println("Immersive Fluids has loaded!");
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+/*        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(Commands.literal("waterlevel")
                     .then(Commands.argument("pos", BlockPosArgument.blockPos())
                             .executes(context -> {
@@ -41,7 +41,7 @@ public class WaterPhysics implements ModInitializer {
                                     return -9999;
                                 }
                             })));
-        });
+        });*/
         //PerfTestsOld.init();
     }
 
